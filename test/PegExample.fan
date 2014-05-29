@@ -1,16 +1,21 @@
 
-class PegExample : Grammer {
+class PegExample : Test, Grammer {
 	
-	Void main() {
+	Void testBasics() {
 		part	:= oneOrMore(inRange('0'..'9'))
-		int		:= part
-		real	:= sequence([part, str("."), part])
-		number	:= firstOf([real, int])
+		int		:= part 								{ it.name = "int" }
+		real	:= sequence([part, str("."), part])		{ it.name = "real" }
+		number	:= firstOf([real, int])					{ it.name = "number" }
 		wspace	:= zeroOrMore(str(" "))
-		numbers	:= oneOrMore(sequence([number, wspace]))
 
-		match := Parser(numbers, "75 33.23 11".in).parse
-		
-		Env.cur.err.printLine(match)
+		match	:= sequence([number, wspace])			{ it.name = "match" }
+		numbers	:= oneOrMore(sequence([number, wspace])){ it.name = "numbers" }
+
+		parser := Parser(numbers, "75 33.23 11".in)
+//		parser := Parser(match, "75 33.23 11".in)
+
+		Env.cur.err.printLine(parser.parse)
+		Env.cur.err.printLine(parser.parse)
+		Env.cur.err.printLine(parser.parse)
 	}
 }

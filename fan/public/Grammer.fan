@@ -35,27 +35,27 @@ mixin Grammer {
 	}
 	
 	Rule zeroOrMore(Rule rule) {
-		RuleTodo()
+		AtLeastRule(0, rule)
 	}
 	
 	Rule oneOrMore(Rule rule) {
-		RuleTodo()
+		AtLeastRule(1, rule)
 	}
 	
-	Rule atLeast(Rule rule, Int times) {
-		RuleTodo()
+	Rule atLeast(Int times, Rule rule) {
+		AtLeastRule(times, rule)
 	}
-	
-	Rule nTimes(Rule rule, Range times) {
+
+	Rule nTimes(Range times, Rule rule) {
 		RuleTodo()
 	}
 
 	Rule sequence(Rule[] rules) {
-		RuleTodo()
+		SequenceRule(rules)
 	}
 	
 	Rule firstOf(Rule[] rules) {
-		RuleTodo()
+		FirstOfRule(rules)
 	}
 	
 	Rule testIf(Rule[] rules) {
