@@ -10,14 +10,11 @@ class Parser {
 	}
 	
 	Match? parse() {
-		if (rootRule.matches(pegBuf))
-			return rootRule.pass(pegBuf)
-		rootRule.fail(pegBuf)
-		return null
+		rootRule.match(pegBuf)
 	}
 
 	Void parseAll(Bool closeStream := true) {
-		
+		// TODO
 	}
 	
 }
