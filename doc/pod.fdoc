@@ -2,6 +2,10 @@ Overview [#overview]
 ********************
 For when Regular Expressions just aren't enough!
 
+Spec `http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf`
+Mouse `http://www.romanredz.se/papers/CSP2009.Mouse.pdf`
+Parboiled `https://github.com/sirthias/parboiled/wiki`
+
 
 
 Install [#Install]

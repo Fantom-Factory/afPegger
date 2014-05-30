@@ -17,9 +17,10 @@ class Match {
 		this._matches	= matches
 	}
 	
-	Match[] matches() {
+	Str:Match matches() {
 		// flatten also removes any empty lists - cool!
-		_matches?.map { (it.ruleName != null) ? it : it.matches }?.flatten ?: Match#.emptyList
+		matches := _matches?.map { (it.ruleName != null) ? it : it.matches.vals }?.flatten ?: Match#.emptyList
+		return Str:Match[:] { ordered = true }.addList(matches) |m->Str| { m.ruleName }
 	}
 
 	Str matched() {
@@ -29,5 +30,6 @@ class Match {
 	@NoDoc
 	override Str toStr() {
 		"${ruleName}:${matched}"
+//		"${ruleName}:${matched} ${matches} ::: ${_matched} ${_matches}"
 	}
 }

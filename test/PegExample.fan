@@ -2,7 +2,7 @@
 class PegExample : Test, Rules {
 	
 	Void testBasics() {
-		part	:= oneOrMore(inRange('0'..'9'))
+		part	:= oneOrMore(anyInRange('0'..'9'))
 		int		:= part 								{ it.name = "int" }
 		real	:= sequence([part, str("."), part])		{ it.name = "real" }
 		number	:= firstOf([real, int])					{ it.name = "number" }
