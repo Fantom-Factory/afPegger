@@ -1,40 +1,43 @@
 
-internal class PegBuf {
+internal class PegCtx {
 	private InStream 	in
-	private StrBuf		strBuf
-	private Int			pos
+	private StrBuf		strBuf	:= StrBuf(1024)
+	private Int			pos		:= 0
+	private Bool		eos
+	
+	internal Str[]		fails	:= Str[,]
 	
 	new make(InStream in) {
 		this.in 	= in
-		this.strBuf	= StrBuf()
-		this.pos	= 0
 	}
 	
-//	Bool hasMore() {
-//		(strBuf.size - pos > 0) || in.peekChar != null
-//	}
-	
-	Str? read(Int n, |Str peek->Bool| c) {
+	Str? read(Rule rule, Int n, |Str peek->Bool| c) {
+		oPos := pos
 		peek := readChars(n)
 		if (peek == null)
 			return null
 
 		if (!c(peek)) {
+			if (!eos)
+				fails.add("${rule} did not match ${peek}")
 			peek = null
-			unread(n)
+			pos = oPos
 		}
 		return peek
 	}
 
-	Int? readChar(|Int peek->Bool| c) {
+	Int? readChar(Rule rule, |Int peek->Bool| c) {
+		oPos := pos
 		peek := readChars(1)
 		if (peek == null)
 			return null
 
 		char := (Int?) peek.chars.first
 		if (!c(char)) {
+			if (!eos)
+				fails.add("${rule} did not match ${peek}")
 			char = null
-			unread(1)
+			pos = oPos
 		}
 		return char
 	}
@@ -45,6 +48,14 @@ internal class PegBuf {
 			throw Err("WTF!? Peg has a pos of ${pos}!!!")
 	}
 
+	Void fail(Rule rule, Int chars := 20) {
+		if (eos) return
+		oPos := pos
+		peek := readChars(chars)
+		fails.add("${rule} did not match ${peek}...")		
+		pos = oPos
+	}
+	
 	internal Void close() {
 		in.close
 	}
@@ -53,8 +64,12 @@ internal class PegBuf {
 		noOfCharsLeftInBuf	:= strBuf.size - pos 
 		noToReadFromIn		:= n - noOfCharsLeftInBuf 
 		while (noToReadFromIn > 0) {
-			if (in.peekChar == null)
+			if (in.peekChar == null) {
+				if (!eos)
+					fails.add("EOS - End Of Stream")
+				eos = true
 				return null
+			}
 			strBuf.addChar(in.readChar)
 			noToReadFromIn--
 		}

@@ -1,131 +1,213 @@
 
 // ---- Terminal / String Character Rules ---------------------------------------------------------
 
+internal class CharRule : Rule {
+	private  |Int->Bool|	func
+	private  Str?			matched
+	private  Str			str
+	
+	new make(Str str, |Int peek->Bool| func) {
+		this.str  = str
+		this.func = func
+	}
+
+	override internal Match? match(PegCtx ctx) {
+		matched := ctx.readChar(this, func)
+		return matched == null ? null : Match(name, matched.toChar)
+	}
+	
+	override internal Void fail(PegCtx ctx) {
+		ctx.unread(1)
+	}
+	
+	override Str desc() {
+		str
+	}
+	
+	override This dup() { 
+		CharRule(str, func) { it.name = this.name; it.action = this.action }
+	} 
+}
+
 internal class StrRule : Rule {
-	override Str? 	name
-	private Str		str
-	private Str?	matched
+	private Str			str
+	private Str?		matched
 	
 	new make(Str str) {
 		this.str = str
 	}
 	
-	override internal Match? match(PegBuf buf) {
-		matched := buf.read(str.size) |peek->Bool| { peek == str }
+	override internal Match? match(PegCtx ctx) {
+		matched := ctx.read(this, str.size) |peek->Bool| { peek == str }
 		return matched == null ? null : Match(name, matched)
 	}
 	
-	override internal Void fail(PegBuf buf) {
-		buf.unread(str.size)
+	override internal Void fail(PegCtx ctx) {
+		ctx.unread(str.size)
 	}
-}
+	
+	override Str desc() {
+		"\"${str}\""
+	}
 
-internal class InRangeRule : Rule {
-	override Str?	name
-	private Range	charRange
-	private Int?	matched
-	
-	new make(Range charRange) {
-		this.charRange = charRange
-	}
-	
-	override internal Match? match(PegBuf buf) {
-		matched := buf.readChar() |peek->Bool| { charRange.contains(peek) }
-		return matched == null ? null : Match(name, matched.toChar)
-	}
-	
-	override internal Void fail(PegBuf buf) {
-		buf.unread(1)
-	}
+	override This dup() { 
+		StrRule(str) { it.name = this.name; it.action = this.action }
+	} 
 }
 
 
 
 // ---- Rule Rules --------------------------------------------------------------------------------
 
-internal class AtLeastRule : Rule {
-	override Str?	name
-	private Int		times
-	private Rule	rule
-	private Int		timesMatched
+internal class RepetitionRule : Rule {
+	private Int?		min
+	private Int?		max
+	private Rule		rule
+	private Rule[]?		rules
+	private Match[]?	matches
 	
-	new make(Int times, Rule rule) {
-		this.times	= times
+	new make(Int? min, Int? max, Rule rule) {
+		this.min	= min
+		this.max	= max
 		this.rule	= rule
 	}
 	
-	override internal Match? match(PegBuf buf) {
-		matches := Match[,]
+	override internal Match? match(PegCtx ctx) {
+		rules   = Rule[,]
+		matches = Match[,]
 		matched := true
 		while (matched) {
-			match := rule.match(buf)
-			if (match != null)
+			r := rule.dup
+			match := r.match(ctx)
+			if (match != null) {
 				matches.add(match)
+				rules.add(r)
+			}
 			matched = (match != null)
 		}
 		
-		timesMatched = matches.size
-		if (matches.size >= times) {
+		minOkay := (min == null) || (matches.size >= min)
+		maxOkay := (max == null) || (matches.size <= max)
+		if (minOkay && maxOkay) {
 			return Match(name, matches)
 		} else {
-			fail(buf)
+			fail(ctx)
+			ctx.fail(this)
 			return null
 		}
 	}
 	
-	override internal Void fail(PegBuf buf) {
-		timesMatched.times { rule.fail(buf) }
+	override internal Void fail(PegCtx ctx) {
+		rules.each { it.fail(ctx) }
 	}
+	
+	override internal Void pass(Match match) {
+		matches.each |m, i| { rules[i].pass(m) }
+		action?.call(match)
+	}
+
+	override Str desc() {
+		if (min == 0 && max == 1)
+			return "${rule}?"
+		if (min == 0 && max == null)
+			return "${rule}*"
+		if (min == 1 && max == null)
+			return "${rule}+"
+		min := min ?: Str.defVal
+		max := max ?: Str.defVal
+		return "${rule}{${min},${max}}"
+	}
+
+	override This dup() { 
+		RepetitionRule(min, max, rule.dup) { it.name = this.name; it.action = this.action }
+	} 
 }
 
 internal class SequenceRule : Rule {
-	override Str?	name
-	private Rule[]	rules
+	private Rule[]		rules
+	private Match[]?	matches
 	
 	new make(Rule[] rules) {
 		this.rules	= rules
 	}
-	
-	override internal Match? match(PegBuf buf) {
-		matches := Match[,]
+
+	override internal Match? match(PegCtx ctx) {
+		failureCap := ctx.fails.size
+
+		matches = Match[,]
 		matched := rules.all |rule->Bool| {
-			match := rule.match(buf)
+			match := rule.match(ctx)
 			if (match != null)
 				matches.add(match)
 			return (match != null)
 		}
 
-		if (matched) 
+		if (matched) {
+			ctx.fails.size = failureCap
 			return Match(name, matches)
+		}
 
-		rules[0..<matches.size].each { it.fail(buf) }
+		rules[0..<matches.size].each { it.fail(ctx) }
+		ctx.fail(this)
 		return null
 	}
 	
-	override internal Void fail(PegBuf buf) {
-		rules.each { it.fail(buf) }
+	override internal Void fail(PegCtx ctx) {
+		rules.each { it.fail(ctx) }
 	}
+
+	override internal Void pass(Match match) {
+		matches.each |m, i| { rules[i].pass(m) }
+		action?.call(match)
+	}
+
+	override Str desc() {
+		"(" + rules.join(" ") + ")"
+	}
+
+	override This dup() { 
+		SequenceRule(rules.map { it.dup }) { it.name = this.name; it.action = this.action }
+	} 
 }
 
 internal class FirstOfRule : Rule {
-	override Str?	name
 	private Rule[]	rules
 	private Rule?	matched
+	private Match?	matcha
 	
 	new make(Rule[] rules) {
 		this.rules	= rules
 	}
 	
-	override internal Match? match(PegBuf buf) {
-		match := null
+	override internal Match? match(PegCtx ctx) {
+		failureCap := ctx.fails.size
+
+		matcha = null
 		matched = rules.find |rule->Bool| {
-			match = rule.match(buf)
-			return (match != null)
+			matcha = rule.match(ctx)
+			return (matcha != null)
 		}
-		return match
+
+		if (matcha != null)
+			ctx.fails.size = failureCap			
+
+		return matcha
 	}
 	
-	override internal Void fail(PegBuf buf) {
-		matched.fail(buf)
+	override internal Void fail(PegCtx ctx) {
+		matched?.fail(ctx)
 	}
+
+	override internal Void pass(Match match) {
+		matched.pass(matcha)
+		action?.call(match)
+	}
+
+	override Str desc() {
+		"(" + rules.join(" / ") + ")"
+	}
+	
+	override This dup() { 
+		FirstOfRule(rules.map { it.dup }) { it.name = this.name; it.action = this.action }
+	} 
 }

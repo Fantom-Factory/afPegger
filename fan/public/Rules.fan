@@ -6,20 +6,37 @@ mixin Rules {
 		StrRule(string)
 	}
 	
-	static Rule anyChar() {
-		RuleTodo()
+	static Rule any() {
+		CharRule("'.'") |Int peek->Bool| { true }
 	}
 
 	static Rule anyOf(Int[] chars) {
-		RuleTodo()
+		CharRule("[${Str.fromChars(chars)}]") |Int peek->Bool| { chars.contains(peek) }
 	}
 	
-	static Rule noneOf(Int[] chars) {
-		RuleTodo()
+	static Rule notAnyOf(Int[] chars) {
+		CharRule("![${Str.fromChars(chars)}]") |Int peek->Bool| { !chars.contains(peek) }
 	}
 
-	static Rule inRange(Range charRange) {
-		InRangeRule(charRange)
+	static Rule anyInRange(Range charRange) {
+		CharRule("[${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { charRange.contains(peek) }
+	}
+	
+	static Rule anyAlpha() {
+		CharRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
+	}
+
+	static Rule anyAlphaNum() {
+		CharRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
+	}
+
+	static Rule anyNum() {
+		CharRule("[0-9]") |Int peek->Bool| { peek.isDigit }
+	}
+	
+	** whitespace: space \t \n \r \f
+	static Rule anySpace() {
+		CharRule("[ ]") |Int peek->Bool| { peek.isSpace }
 	}
 	
 //	static Rule glob(Str regex) {
@@ -31,23 +48,27 @@ mixin Rules {
 //	}
 
 	static Rule optional(Rule rule) {
-		RuleTodo()
+		RepetitionRule(0, 1, rule)
 	}
 	
 	static Rule zeroOrMore(Rule rule) {
-		AtLeastRule(0, rule)
+		RepetitionRule(0, null, rule)
 	}
 	
 	static Rule oneOrMore(Rule rule) {
-		AtLeastRule(1, rule)
+		RepetitionRule(1, null, rule)
 	}
 	
-	static Rule atLeast(Int times, Rule rule) {
-		AtLeastRule(times, rule)
+	static Rule atLeast(Int n, Rule rule) {
+		RepetitionRule(n, null, rule)
+	}
+
+	static Rule atMost(Int n, Rule rule) {
+		RepetitionRule(null, n, rule)
 	}
 
 	static Rule nTimes(Range times, Rule rule) {
-		RuleTodo()
+		RepetitionRule(times.min, times.max, rule)
 	}
 
 	static Rule sequence(Rule[] rules) {

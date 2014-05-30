@@ -1,27 +1,36 @@
 
-mixin Rule {
-	abstract Str? name
+abstract class Rule {
+	Str? 		name
+	|Match|?	action
 
-	internal abstract Match? match(PegBuf buf)
+	internal abstract Match? match(PegCtx ctx)
 
-	internal virtual  Void pass(PegBuf buf) { }
+	internal virtual  Void pass(Match match) { 
+		action?.call(match)
+	}
 	
-	internal abstract Void fail(PegBuf buf)
+	internal abstract Void fail(PegCtx ctx)
+
+	internal abstract This dup()
+
+	abstract Str desc()
 	
 	override Str toStr() {
-		name ?: typeof.qname
+		((name == null) ? Str.defVal : "${name} <- ") + desc
 	}
 	
 }
 
 @Deprecated
 class RuleTodo : Rule {
-	override Str? name
 	
-	override internal Match? match(PegBuf buf) {
+	override internal Match? match(PegCtx ctx) {
 		null
 	}
 	
-	override internal Void fail(PegBuf buf) { }
+	override internal Void fail(PegCtx ctx) { }
 	
+	override Str desc() {"-!TODO!-"} 
+
+	override This dup() { this } 
 }
