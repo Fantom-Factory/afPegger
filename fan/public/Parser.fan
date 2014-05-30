@@ -1,6 +1,5 @@
 
 class Parser {
-	
 	private Rule 	rootRule
 	private PegBuf	pegBuf
 	
@@ -13,8 +12,9 @@ class Parser {
 		rootRule.match(pegBuf)
 	}
 
-	Void parseAll(Bool closeStream := true) {
-		// TODO
+	Match[] parseAll(Bool closeStream := true) {
+		try return AtLeastRule(0, rootRule).match(pegBuf).matches 
+		finally if (closeStream) pegBuf.close
 	}
 	
 }

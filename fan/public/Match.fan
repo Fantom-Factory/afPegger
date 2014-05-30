@@ -1,25 +1,33 @@
 
 class Match {
 	
+	** The name of the rule that created this 'Match'.
 	Str? ruleName
 	
-	private Str? 		matched
-	private Match[]?	matches
+	private Str? 		_matched
+	private Match[]?	_matches
 	
-	new makeFromMatched(Str? ruleName, Str matched) {
+	internal new makeFromMatched(Str? ruleName, Str matched) {
 		this.ruleName	= ruleName
-		this.matched	= matched
+		this._matched	= matched
 	}
 
-	new makeFromMatches(Str? ruleName, Match[] matches) {
+	internal new makeFromMatches(Str? ruleName, Match[] matches) {
 		this.ruleName	= ruleName
-		this.matches	= matches
+		this._matches	= matches
 	}
 	
+	Match[] matches() {
+		// flatten also removes any empty lists - cool!
+		_matches?.map { (it.ruleName != null) ? it : it.matches }?.flatten ?: Match#.emptyList
+	}
+
+	Str matched() {
+		(_matched ?: Str.defVal) + (_matches?.join(Str.defVal) { it.matched } ?: Str.defVal)
+	}
+	
+	@NoDoc
 	override Str toStr() {
-		str := (ruleName == null) ? Str.defVal : ruleName + ":"
-		str += (matched  == null) ? Str.defVal : matched
-		str += (matches  == null) ? Str.defVal : matches.toStr
-		return str
+		"${ruleName}:${matched}"
 	}
 }

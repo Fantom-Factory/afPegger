@@ -45,6 +45,10 @@ internal class PegBuf {
 			throw Err("WTF!? Peg has a pos of ${pos}!!!")
 	}
 
+	internal Void close() {
+		in.close
+	}
+	
 	private Str? readChars(Int n) {
 		noOfCharsLeftInBuf	:= strBuf.size - pos 
 		noToReadFromIn		:= n - noOfCharsLeftInBuf 
