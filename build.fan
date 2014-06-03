@@ -4,7 +4,7 @@ class Build : BuildPod {
 
 	new make() {
 		podName = "afPegger"
-		summary = "For when Regular Expressions just aren't enough!"
+		summary = "(Internal) For when Regular Expressions just aren't enough!"
 		version = Version("0.0.1")
 
 		meta = [
