@@ -6,6 +6,8 @@ class Parser {
 	new make(Rule rootRule, InStream in) {
 		this.rootRule 	= rootRule
 		this.pegCtx		= PegCtx(in)
+		
+		// FIXME: walk roots to check for dups
 	}
 	
 	Match? parse() {

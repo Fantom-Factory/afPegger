@@ -5,13 +5,15 @@ abstract class Rule {
 
 	internal abstract Match? match(PegCtx ctx)
 
+	// TODO: reanme to walk
 	internal virtual  Void pass(Match match) { 
 		action?.call(match)
 	}
 	
+	// TODO: reanme to rollback
 	internal abstract Void fail(PegCtx ctx)
 
-	internal abstract This dup()
+	abstract This dup()
 
 	abstract Str desc()
 	
