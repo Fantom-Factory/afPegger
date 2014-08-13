@@ -6,37 +6,42 @@ mixin Rules {
 		StrRule(string)
 	}
 	
-	static Rule any() {
+	static Rule anyChar() {
 		CharRule("'.'") |Int peek->Bool| { true }
 	}
 
-	static Rule anyOf(Int[] chars) {
+	static Rule anyCharOf(Int[] chars) {
 		CharRule("[${Str.fromChars(chars)}]") |Int peek->Bool| { chars.contains(peek) }
 	}
 	
-	static Rule notAnyOf(Int[] chars) {
+	static Rule anyCharNotOf(Int[] chars) {
 		CharRule("![${Str.fromChars(chars)}]") |Int peek->Bool| { !chars.contains(peek) }
 	}
 
-	static Rule anyInRange(Range charRange) {
+	static Rule anyCharInRange(Range charRange) {
 		CharRule("[${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { charRange.contains(peek) }
 	}
 	
-	static Rule anyAlpha() {
+	static Rule anyAlphaChar() {
 		CharRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
 	}
 
-	static Rule anyAlphaNum() {
+	static Rule anyAlphaNumChar() {
 		CharRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
 	}
 
-	static Rule anyNum() {
+	static Rule anyNumChar() {
 		CharRule("[0-9]") |Int peek->Bool| { peek.isDigit }
 	}
 	
 	** whitespace: space \t \n \r \f
-	static Rule anySpace() {
+	static Rule anySpaceChar() {
 		CharRule("[ ]") |Int peek->Bool| { peek.isSpace }
+	}
+
+	** whitespace: space \t \n \r \f
+	static Rule anyNonSpaceChar() {
+		CharRule("![ ]") |Int peek->Bool| { !peek.isSpace }
 	}
 	
 //	static Rule glob(Str regex) {
@@ -95,4 +100,7 @@ mixin Rules {
 		RuleTodo()
 	}
 	
+	static Rule todo() {
+		RuleTodo()
+	}
 }
