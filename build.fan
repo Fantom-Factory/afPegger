@@ -13,8 +13,15 @@ class Build : BuildPod {
 			"repo.private"	: "true"
 		]
 
-		depends = ["sys 1.0"]
-		srcDirs = [`test/`, `fan/`, `fan/public/`, `fan/internal/`]
+		depends = [
+			"sys 1.0",
+
+			// ---- Test ------------------------
+			"xml 1.0",
+			"concurrent 1.0"
+		]
+	
+		srcDirs = [`test/`, `test/html2xml/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/html2xml/`]
 		resDirs = [,]
 
 		docApi = true
