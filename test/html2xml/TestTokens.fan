@@ -18,12 +18,57 @@ class TestTokens : Test {
 	}
 
 	Void testValidSimpleTag() {
-		doc := parser.parseDocument("<html>")
-		verifyEq(doc.root.name, "html")
-		verifyEq(doc.root.attrs.size, 0)
-		verifyEq(doc.root.children.size, 0)
+		elem := parser.parseDocument("<html></html>").root
+		verifyEq(elem.name, "html")
+		verifyEq(elem.attrs.size, 0)
+		verifyEq(elem.children.size, 0)
+
+		elem = parser.parseDocument("<html  ></html>").root
+		verifyEq(elem.name, "html")
+		verifyEq(elem.attrs.size, 0)
+		verifyEq(elem.children.size, 0)
+
+		elem = parser.parseDocument("<html/>").root
+		verifyEq(elem.name, "html")
+		verifyEq(elem.attrs.size, 0)
+		verifyEq(elem.children.size, 0)
+
+		elem = parser.parseDocument("<html  />").root
+		verifyEq(elem.name, "html")
+		verifyEq(elem.attrs.size, 0)
+		verifyEq(elem.children.size, 0)
+	}
+	
+	Void testValidNestedTag() {
+		elem := parser.parseDocument("<html><head></head></html>").root
+		verifyElemEq(elem, "<html><head/></html>")
+		
+		elem = parser.parseDocument("<html><head  ></head></html>").root
+		verifyElemEq(elem, "<html><head/></html>")
+		
+		elem = parser.parseDocument("<html><head/></html>").root
+		verifyElemEq(elem, "<html><head/></html>")
+		
+		elem = parser.parseDocument("<html><head  /></html>").root
+		verifyElemEq(elem, "<html><head/></html>")
 	}
 
+	Void testValidSiblingTags() {
+		elem := parser.parseDocument("<html><head/><body/></html>").root
+		verifyElemEq(elem, "<html><head/><body/></html>")
+		
+		elem = parser.parseDocument("<html><head><title/></head></html>").root
+		verifyElemEq(elem, "<html><head><title/></head></html>")
+		
+		elem = parser.parseDocument("<html><head/><body><div/></body></html>").root
+		verifyElemEq(elem, "<html><head/><body><div/></body></html>")
+	}
+
+	Void verifyElemEq(XElem elem, Str xml) {
+		act := elem.writeToStr.replace("\n", "")
+		exp := XParser(xml.in).parseDoc.root.writeToStr.replace("\n", "")
+		verifyEq(act, exp)
+	}
 	
 	Void verifyErrMsg(Type errType, Str errMsg, |Test| c) {
 		try {
