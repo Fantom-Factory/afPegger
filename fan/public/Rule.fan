@@ -19,6 +19,9 @@ abstract class Rule {
 		((name == null) ? Str.defVal : "${name} <- ") + desc
 	}
 	
+	Void addAction(|Match| action) {
+		this.action = action
+	}
 }
 
 @Deprecated
