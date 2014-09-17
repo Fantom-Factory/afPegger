@@ -5,13 +5,11 @@ abstract class Rule {
 
 	internal abstract Match? match(PegCtx ctx)
 
-	// TODO: reanme to walk
-	internal virtual  Void pass(Match match) { 
+	internal virtual  Void walk(Match match) { 
 		action?.call(match)
 	}
 	
-	// TODO: reanme to rollback
-	internal abstract Void fail(PegCtx ctx)
+	internal abstract Void rollback(PegCtx ctx)
 
 	abstract This dup()
 
@@ -30,7 +28,7 @@ class RuleTodo : Rule {
 		null
 	}
 	
-	override internal Void fail(PegCtx ctx) { }
+	override internal Void rollback(PegCtx ctx) { }
 	
 	override Str desc() {"-!TODO!-"} 
 

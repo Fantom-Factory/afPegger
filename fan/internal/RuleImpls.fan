@@ -16,7 +16,7 @@ internal class CharRule : Rule {
 		return matched == null ? null : Match(name, matched.toChar)
 	}
 	
-	override internal Void fail(PegCtx ctx) {
+	override internal Void rollback(PegCtx ctx) {
 		ctx.unread(1)
 	}
 	
@@ -42,7 +42,7 @@ internal class StrRule : Rule {
 		return matched == null ? null : Match(name, matched)
 	}
 	
-	override internal Void fail(PegCtx ctx) {
+	override internal Void rollback(PegCtx ctx) {
 		ctx.unread(str.size)
 	}
 	
@@ -91,18 +91,18 @@ internal class RepetitionRule : Rule {
 		if (minOkay && maxOkay) {
 			return Match(name, matches)
 		} else {
-			fail(ctx)
+			rollback(ctx)
 			ctx.fail(this)
 			return null
 		}
 	}
 	
-	override internal Void fail(PegCtx ctx) {
-		rules.each { it.fail(ctx) }
+	override internal Void rollback(PegCtx ctx) {
+		rules.each { it.rollback(ctx) }
 	}
 	
-	override internal Void pass(Match match) {
-		matches.each |m, i| { rules[i].pass(m) }
+	override internal Void walk(Match match) {
+		matches.each |m, i| { rules[i].walk(m) }
 		action?.call(match)
 	}
 
@@ -147,17 +147,17 @@ internal class SequenceRule : Rule {
 			return Match(name, matches)
 		}
 
-		rules[0..<matches.size].each { it.fail(ctx) }
+		rules[0..<matches.size].each { it.rollback(ctx) }
 		ctx.fail(this)
 		return null
 	}
 	
-	override internal Void fail(PegCtx ctx) {
-		rules.each { it.fail(ctx) }
+	override internal Void rollback(PegCtx ctx) {
+		rules.each { it.rollback(ctx) }
 	}
 
-	override internal Void pass(Match match) {
-		matches.each |m, i| { rules[i].pass(m) }
+	override internal Void walk(Match match) {
+		matches.each |m, i| { rules[i].walk(m) }
 		action?.call(match)
 	}
 
@@ -194,12 +194,12 @@ internal class FirstOfRule : Rule {
 		return matcha
 	}
 	
-	override internal Void fail(PegCtx ctx) {
-		matched?.fail(ctx)
+	override internal Void rollback(PegCtx ctx) {
+		matched?.rollback(ctx)
 	}
 
-	override internal Void pass(Match match) {
-		matched.pass(matcha)
+	override internal Void walk(Match match) {
+		matched.walk(matcha)
 		action?.call(match)
 	}
 

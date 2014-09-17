@@ -13,7 +13,7 @@ class Parser {
 	Match? parse() {
 		match := rootRule.match(pegCtx)
 		if (match != null)
-			rootRule.pass(match)
+			rootRule.walk(match)
 		return match
 	}
 
