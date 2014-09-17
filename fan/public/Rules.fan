@@ -84,6 +84,10 @@ mixin Rules {
 		FirstOfRule(rules)
 	}
 	
+	static Rule proxy(Rule rules) {
+		FirstOfRule(rules)
+	}
+	
 	static Rule onlyIf(Rule[] rules) {
 		RuleTodo()
 	}
