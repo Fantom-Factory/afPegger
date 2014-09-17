@@ -1,12 +1,11 @@
 
-class Match {
+class Result {
 	
-	** The name of the rule that created this 'Match'.
+	** The name of the rule that created this 'Result'.
 	Str? ruleName
 	
 	private Str? 		_matched
-	private Match[]?	_matches
-
+	private Result[]?	_results
 	private |->|?		_rollbackFunc
 	private |->|?		_successFunc
 	
@@ -35,4 +34,5 @@ class Match {
 		"${ruleName}:${matched}"
 //		"${ruleName}:${matched} ${matches} ::: ${_matched} ${_matches}"
 	}
+	
 }

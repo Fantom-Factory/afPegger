@@ -3,8 +3,8 @@ internal class RepetitionRule : Rule {
 	private Int?		min
 	private Int?		max
 	private Rule		rule
-	private Rule[]?		rules
-	private Match[]?	matches
+//	private Rule[]?		rules
+//	private Match[]?	matches
 	
 	new make(Int? min, Int? max, Rule rule) {
 		this.min	= min
@@ -58,7 +58,7 @@ internal class RepetitionRule : Rule {
 		return "${rule}{${min},${max}}"
 	}
 
-	override This dup() { 
+	override Rule dup() { 
 		RepetitionRule(min, max, rule.dup) { it.name = this.name; it.action = this.action }
 	} 
 }

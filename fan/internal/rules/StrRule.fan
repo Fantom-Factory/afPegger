@@ -1,7 +1,6 @@
 
 internal class StrRule : Rule {
 	private Str			str
-	private Str?		matched
 	
 	new make(Str str) {
 		this.str = str
@@ -17,10 +16,10 @@ internal class StrRule : Rule {
 	}
 	
 	override Str desc() {
-		"\"${str}\""
+		str.toCode
 	}
 
-	override This dup() { 
+	override Rule dup() { 
 		StrRule(str) { it.name = this.name; it.action = this.action }
 	} 
 }

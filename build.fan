@@ -21,7 +21,7 @@ class Build : BuildPod {
 			"concurrent 1.0"
 		]
 	
-		srcDirs = [`test/`, `test/html2xml/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/html2xml/`]
+		srcDirs = [`test/`, `test/html2xml/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/internal/rules/`, `fan/html2xml/`]
 		resDirs = [,]
 
 		docApi = true

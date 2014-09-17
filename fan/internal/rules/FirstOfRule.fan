@@ -1,8 +1,6 @@
 
 internal class FirstOfRule : Rule {
 	private Rule[]	rules
-	private Rule?	matched
-	private Match?	matcha
 	
 	new make(Rule[] rules) {
 		this.rules	= rules
@@ -11,8 +9,9 @@ internal class FirstOfRule : Rule {
 	override internal Match? match(PegCtx ctx) {
 		failureCap := ctx.fails.size
 
-		matcha = null
-		matched = rules.find |rule->Bool| {
+		// FIXME eachwhile
+		matcha  := null
+		matched := rules.find |rule->Bool| {
 			matcha = rule.match(ctx)
 			return (matcha != null)
 		}
@@ -20,15 +19,19 @@ internal class FirstOfRule : Rule {
 		if (matcha != null)
 			ctx.fails.size = failureCap			
 
+		ctx.stack.push(FirstOfRuleCtx { it.matched = matched; it.matcha = matcha })
+		
 		return matcha
 	}
 	
 	override internal Void rollback(PegCtx ctx) {
-		matched?.rollback(ctx)
+		mctx := (FirstOfRuleCtx) ctx.stack.pop
+		mctx.matched?.rollback(ctx)
 	}
 
-	override internal Void walk(Match match) {
-		matched.walk(matcha)
+	override internal Void walk(PegCtx ctx, Match match) {
+		mctx := (FirstOfRuleCtx) ctx.stack.pop
+		mctx.matched.walk(mctx.matcha)
 		action?.call(match)
 	}
 
@@ -36,7 +39,12 @@ internal class FirstOfRule : Rule {
 		"(" + rules.join(" / ") + ")"
 	}
 	
-	override This dup() { 
+	override Rule dup() { 
 		FirstOfRule(rules.map { it.dup }) { it.name = this.name; it.action = this.action }
-	} 
+	}
+}
+
+internal class FirstOfRuleCtx {
+	private Rule?	matched
+	private Match?	matcha
 }
