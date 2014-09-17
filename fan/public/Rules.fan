@@ -84,9 +84,9 @@ mixin Rules {
 		FirstOfRule(rules)
 	}
 	
-	static Rule proxy(|Obj?->Rule| ruleFunc) {
-		ProxyRule(ruleFunc)
-	}
+//	static Rule proxy(|Obj?->Rule| ruleFunc) {
+//		ProxyRule(ruleFunc)
+//	}
 	
 	static Rule onlyIf(Rule[] rules) {
 		RuleTodo()

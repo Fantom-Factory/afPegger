@@ -14,6 +14,8 @@ class Parser {
 		match := rootRule.match(pegCtx)
 		if (match != null)
 			rootRule.walk(match)
+		else 
+			rootRule.rollback(pegCtx)
 		return match
 	}
 

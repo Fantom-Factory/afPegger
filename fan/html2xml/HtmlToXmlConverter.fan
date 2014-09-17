@@ -34,41 +34,43 @@ internal class HtmltoXmlRules : Rules {
 		//	Any number of comments and space characters.
 		return element
 	}
-	
+	Rule? ele
 	Rule element() {
-		firstOf([voidTag, sequence([startTag, tagContent, endTag]), err])
+		ele =  firstOf([voidTag, sequence([startTag, tagContent, endTag]), err]) { it.name = "Element" }
+		return ele
 	}
 	
 	Rule voidTag() {
-		sequence([ str("<"), tagName, whitespace, str("/>") ]) { it.addAction { ctx.voidTag } }
+		sequence([ str("<"), tagName, whitespace, str("/>") ]) { it.name = "Void Tag"; it.addAction { ctx.voidTag } }
 	}
 
 	Rule startTag() {
-		sequence([ str("<"), tagName, whitespace, str(">") ]) { it.action = |Match match| { ctx.startTag } }
+		sequence([ str("<"), tagName, whitespace, str(">") ]) { it.name = "Start Tag"; it.action = |Match match| { ctx.startTag } }
 	}
 
 	Rule endTag() {
-		sequence([ str("</"), tagName, str(">") ]) { it.action = |Match match| { ctx.endTag } }
+		sequence([ str("</"), tagName, str(">") ]) { it.name = "End Tag"; it.action = |Match match| { ctx.endTag } }
 	}
 	
 	Rule tagName() {
-		sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars)) ]) { it.action = |Match match| { ctx.tagName = match.matched } }
+		sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars)) ]) { it.name="Tag Name"; it.action = |Match match| { ctx.tagName = match.matched } }
 	}
 	
 	Rule tagContent() {
-		zeroOrMore(firstOf([proxy() {element}, text]))
+//		zeroOrMore(firstOf([proxy {ele}, text])) { it.name = "Tag Content" }
+		zeroOrMore(firstOf([ele, text])) { it.name = "Tag Content" }
 	}
 	
 	Rule text() {
-		oneOrMore(anyCharNotOf(['<']))
+		zeroOrMore(anyCharNotOf(['<'])) { it.name = "Text" }
 	}
 
 	Rule whitespace() {
-		zeroOrMore(anySpaceChar)
+		zeroOrMore(anySpaceChar) { it.name = "Whitespace" }
 	}
 	
 	Rule err() {
-		anyChar() { it.action = |Match match| { throw ParseErr(match.matched) } }
+		anyChar() { it.action = |Match match| { throw ParseErr("$match $ctx.roots") } }
 	}
 	
 	ParseCtx ctx() {

@@ -1,7 +1,6 @@
 
 internal class CharRule : Rule {
 	private  |Int->Bool|	func
-	private  Str?			matched
 	private  Str			str
 	
 	new make(Str str, |Int peek->Bool| func) {
@@ -22,7 +21,7 @@ internal class CharRule : Rule {
 		str
 	}
 	
-	override This dup() { 
+	override Rule dup() { 
 		CharRule(str, func) { it.name = this.name; it.action = this.action }
 	} 
 }

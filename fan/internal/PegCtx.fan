@@ -4,8 +4,8 @@ internal class PegCtx {
 	private StrBuf		strBuf	:= StrBuf(1024)
 	private Int			pos		:= 0
 	private Bool		eos
-	
-	internal Str[]		fails	:= Str[,]
+			Obj[]		stack	:= Obj[,]
+			Str[]		fails	:= Str[,]
 	
 	new make(InStream in) {
 		this.in 	= in

@@ -5,17 +5,17 @@ class TestTokens : Test {
 	
 	HtmlToXml parser := HtmlToXml()
 	
-	Void testInvalidTag() {
-		verifyErrMsg(ParseErr#, "Invalid tag: <1") {
-			parser.parseDocument("<1h>")
-		}
-	}
-
-	Void testBogusCommentTag() {
-		verifyErrMsg(ParseErr#, "Bogus comment tag: <?") {
-			parser.parseDocument("<? wotever >")
-		}
-	}
+//	Void testInvalidTag() {
+//		verifyErrMsg(ParseErr#, "Invalid tag: <1") {
+//			parser.parseDocument("<1h>")
+//		}
+//	}
+//
+//	Void testBogusCommentTag() {
+//		verifyErrMsg(ParseErr#, "Bogus comment tag: <?") {
+//			parser.parseDocument("<? wotever >")
+//		}
+//	}
 
 	Void testValidSimpleTag() {
 		elem := parser.parseDocument("<html></html>").root
@@ -39,30 +39,30 @@ class TestTokens : Test {
 		verifyEq(elem.children.size, 0)
 	}
 	
-	Void testValidNestedTag() {
-		elem := parser.parseDocument("<html><head></head></html>").root
-		verifyElemEq(elem, "<html><head/></html>")
-		
-		elem = parser.parseDocument("<html><head  ></head></html>").root
-		verifyElemEq(elem, "<html><head/></html>")
-		
-		elem = parser.parseDocument("<html><head/></html>").root
-		verifyElemEq(elem, "<html><head/></html>")
-		
-		elem = parser.parseDocument("<html><head  /></html>").root
-		verifyElemEq(elem, "<html><head/></html>")
-	}
-
-	Void testValidSiblingTags() {
-		elem := parser.parseDocument("<html><head/><body/></html>").root
-		verifyElemEq(elem, "<html><head/><body/></html>")
-		
-		elem = parser.parseDocument("<html><head><title/></head></html>").root
-		verifyElemEq(elem, "<html><head><title/></head></html>")
-		
-		elem = parser.parseDocument("<html><head/><body><div/></body></html>").root
-		verifyElemEq(elem, "<html><head/><body><div/></body></html>")
-	}
+//	Void testValidNestedTag() {
+//		elem := parser.parseDocument("<html><head></head></html>").root
+//		verifyElemEq(elem, "<html><head/></html>")
+//		
+//		elem = parser.parseDocument("<html><head  ></head></html>").root
+//		verifyElemEq(elem, "<html><head/></html>")
+//		
+//		elem = parser.parseDocument("<html><head/></html>").root
+//		verifyElemEq(elem, "<html><head/></html>")
+//		
+//		elem = parser.parseDocument("<html><head  /></html>").root
+//		verifyElemEq(elem, "<html><head/></html>")
+//	}
+//
+//	Void testValidSiblingTags() {
+//		elem := parser.parseDocument("<html><head/><body/></html>").root
+//		verifyElemEq(elem, "<html><head/><body/></html>")
+//		
+//		elem = parser.parseDocument("<html><head><title/></head></html>").root
+//		verifyElemEq(elem, "<html><head><title/></head></html>")
+//		
+//		elem = parser.parseDocument("<html><head/><body><div/></body></html>").root
+//		verifyElemEq(elem, "<html><head/><body><div/></body></html>")
+//	}
 
 	Void verifyElemEq(XElem elem, Str xml) {
 		act := elem.writeToStr.replace("\n", "")

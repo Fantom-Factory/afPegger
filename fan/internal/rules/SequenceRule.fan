@@ -1,7 +1,7 @@
 
 internal class SequenceRule : Rule {
 	private Rule[]		rules
-	private Match[]?	matches
+//	private Match[]?	matches
 	
 	new make(Rule[] rules) {
 		this.rules	= rules
@@ -10,6 +10,11 @@ internal class SequenceRule : Rule {
 	override internal Match? match(PegCtx ctx) {
 		failureCap := ctx.fails.size
 
+		rules.each { 
+			
+		}
+		
+		
 		matches = Match[,]
 		matched := rules.all |rule->Bool| {
 			match := rule.match(ctx)
@@ -41,7 +46,7 @@ internal class SequenceRule : Rule {
 		"(" + rules.join(" ") + ")"
 	}
 
-	override This dup() { 
+	override Rule dup() { 
 		SequenceRule(rules.map { it.dup }) { it.name = this.name; it.action = this.action }
 	} 
 }
