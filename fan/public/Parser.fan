@@ -10,13 +10,11 @@ class Parser {
 		// FIXME: walk roots to check for dups
 	}
 	
-	Match? parse() {
-		match := rootRule.match(pegCtx)
-		if (match != null)
-			rootRule.walk(match)
-		else 
-			rootRule.rollback(pegCtx)
-		return match
+	Result parse() {
+		result := rootRule.walk(pegCtx)
+		if (result.passed)
+			result.success()
+		return result
 	}
 
 	Match[] parseAll(Bool closeStream := true) {

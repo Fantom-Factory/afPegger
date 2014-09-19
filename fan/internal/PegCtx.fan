@@ -11,6 +11,13 @@ internal class PegCtx {
 		this.in 	= in
 	}
 	
+	Str? matchStr(Int n, |Str peek->Bool| c) {
+		peek := readChars(n)
+		if (peek == null)
+			return null
+		return c(peek) ? peek : null
+	}	
+	
 	Str? read(Rule rule, Int n, |Str peek->Bool| c) {
 		oPos := pos
 		peek := readChars(n)
