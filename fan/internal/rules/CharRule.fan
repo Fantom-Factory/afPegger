@@ -8,20 +8,24 @@ internal class CharRule : Rule {
 		this.func = func
 	}
 
-	override internal Match? match(PegCtx ctx) {
-		matched := ctx.readChar(this, func)
-		return matched == null ? null : Match(name, matched.toChar)
+	override Result walk(PegCtx ctx) {
+		result	:= Result(name) 
+
+		matched := ctx.matchStr(1) |peek->Bool| { func(peek.chars.first) }
+
+		if (matched == null)
+			ctx.unread(1)
+
+		if (matched != null) { 
+			result.matchStr = matched
+			result.success	= |->| { action?.call(result) } 
+			result.rollback	= |->| { ctx.unread(1) }
+		}
+
+		return result
 	}
-	
-	override internal Void rollback(PegCtx ctx) {
-		ctx.unread(1)
-	}
-	
+
 	override Str desc() {
 		str
 	}
-	
-	override Rule dup() { 
-		CharRule(str, func) { it.name = this.name; it.action = this.action }
-	} 
 }

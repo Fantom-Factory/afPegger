@@ -1,18 +1,10 @@
 
 abstract class Rule {
 	Str? 		name
-	|Match|?	action
+	|Result|?	action
 
-	internal abstract Match? match(PegCtx ctx)
-
-	internal virtual  Void walk(PegCtx ctx, Match match) { 
-		action?.call(match)
-	}
+	internal abstract Result walk(PegCtx ctx)
 	
-	internal abstract Void rollback(PegCtx ctx)
-
-	abstract Rule dup()
-
 	abstract Str desc()
 	
 	override Str toStr() {
@@ -26,14 +18,10 @@ abstract class Rule {
 
 @Deprecated
 class RuleTodo : Rule {
-	
-	override internal Match? match(PegCtx ctx) {
-		null
+
+	override Result walk(PegCtx ctx) {
+		Result("TODO")
 	}
 	
-	override internal Void rollback(PegCtx ctx) { }
-	
 	override Str desc() {"-!TODO!-"} 
-
-	override Rule dup() { this } 
 }

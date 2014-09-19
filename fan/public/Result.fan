@@ -1,32 +1,30 @@
 
-class Result {
+internal class Result {
 	
 	** The name of the rule that created this 'Result'.
 	Str? ruleName
 	
-	private Str? 		_matched
-	private Result[]?	_results
-	private |->|?		_rollbackFunc
-	private |->|?		_successFunc
+	private Str? 		matchStr
+	private Result[]?	results
+	private |->|?		rollback
+	private |->|?		success
 	
-	internal new makeFromMatched(Str? ruleName, Str matched) {
-		this.ruleName	= ruleName
-		this._matched	= matched
+	new make(Str? ruleName) {
+		this.ruleName = ruleName		
 	}
 
-	internal new makeFromMatches(Str? ruleName, Match[] matches) {
-		this.ruleName	= ruleName
-		this._matches	= matches
+	Bool passed() {
+		success != null || results?.any { it.passed }
 	}
 	
-	Str:Match matches() {
-		// flatten also removes any empty lists - cool!
-		matches := _matches?.map { (it.ruleName != null) ? it : it.matches.vals }?.flatten ?: Match#.emptyList
-		return Str:Match[:] { ordered = true }.addList(matches) |m->Str| { m.ruleName }
-	}
+//	Str:Match matches() {
+//		// flatten also removes any empty lists - cool!
+//		matches := _matches?.map { (it.ruleName != null) ? it : it.matches.vals }?.flatten ?: Match#.emptyList
+//		return Str:Match[:] { ordered = true }.addList(matches) |m->Str| { m.ruleName }
+//	}
 
 	Str matched() {
-		(_matched ?: Str.defVal) + (_matches?.join(Str.defVal) { it.matched } ?: Str.defVal)
+		(matchStr ?: Str.defVal) + (results?.join(Str.defVal) { it.matched } ?: Str.defVal)
 	}
 	
 	@NoDoc

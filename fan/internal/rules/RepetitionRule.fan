@@ -12,39 +12,39 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override internal Match? match(PegCtx ctx) {
-		rules   = Rule[,]
-		matches = Match[,]
-		matched := true
-		while (matched) {
-			r := rule.dup
-			match := r.match(ctx)
-			if (match != null) {
-				matches.add(match)
-				rules.add(r)
-			}
-			matched = (match != null)
-		}
-		
-		minOkay := (min == null) || (matches.size >= min)
-		maxOkay := (max == null) || (matches.size <= max)
-		if (minOkay && maxOkay) {
-			return Match(name, matches)
-		} else {
-			rollback(ctx)
-			ctx.fail(this)
-			return null
-		}
-	}
+//	override internal Match? match(PegCtx ctx) {
+//		rules   = Rule[,]
+//		matches = Match[,]
+//		matched := true
+//		while (matched) {
+//			r := rule.dup
+//			match := r.match(ctx)
+//			if (match != null) {
+//				matches.add(match)
+//				rules.add(r)
+//			}
+//			matched = (match != null)
+//		}
+//		
+//		minOkay := (min == null) || (matches.size >= min)
+//		maxOkay := (max == null) || (matches.size <= max)
+//		if (minOkay && maxOkay) {
+//			return Match(name, matches)
+//		} else {
+//			rollback(ctx)
+//			ctx.fail(this)
+//			return null
+//		}
+//	}
 	
-	override internal Void rollback(PegCtx ctx) {
-		rules.each { it.rollback(ctx) }
-	}
-	
-	override internal Void walk(Match match) {
-		matches.each |m, i| { rules[i].walk(m) }
-		action?.call(match)
-	}
+//	override internal Void rollback(PegCtx ctx) {
+//		rules.each { it.rollback(ctx) }
+//	}
+//	
+//	override internal Void walk(Match match) {
+//		matches.each |m, i| { rules[i].walk(m) }
+//		action?.call(match)
+//	}
 
 	override Str desc() {
 		if (min == 0 && max == 1)
@@ -57,8 +57,4 @@ internal class RepetitionRule : Rule {
 		max := max ?: Str.defVal
 		return "${rule}{${min},${max}}"
 	}
-
-	override Rule dup() { 
-		RepetitionRule(min, max, rule.dup) { it.name = this.name; it.action = this.action }
-	} 
 }

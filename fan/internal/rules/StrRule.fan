@@ -1,27 +1,31 @@
 
 internal class StrRule : Rule {
-	private Str			str
+	private Str	str
 	
 	new make(Str str) {
 		this.str = str
 	}
 	
-	override internal Match? match(PegCtx ctx) {
-		matched := ctx.read(this, str.size) |peek->Bool| { peek == str }
-		return matched == null ? null : Match(name, matched)
-	}
-	
-	override internal Void rollback(PegCtx ctx) {
-		ctx.unread(str.size)
+	override Result walk(PegCtx ctx) {
+		result	:= Result(name) 
+
+		matched := ctx.matchStr(str.size) |peek->Bool| { peek == str }
+
+		if (matched == null)
+			ctx.unread(str.size)
+		
+		if (matched != null) { 
+			result.matchStr = matched
+			result.success	= |->| { action?.call(result) } 
+			result.rollback	= |->| { ctx.unread(str.size) }
+		}
+		
+		return result
 	}
 	
 	override Str desc() {
 		str.toCode
 	}
-
-	override Rule dup() { 
-		StrRule(str) { it.name = this.name; it.action = this.action }
-	} 
 }
 
 
