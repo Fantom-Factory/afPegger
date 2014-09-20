@@ -11,8 +11,9 @@ internal class StrRule : Rule {
 
 		matched := ctx.matchStr(str.size) |peek->Bool| { peek == str }
 
-		if (matched == null)
+		if (matched == null) {
 			ctx.unread(str.size)
+		}
 		
 		if (matched != null) { 
 			result.matchStr = matched

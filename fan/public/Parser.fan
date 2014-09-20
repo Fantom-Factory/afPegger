@@ -17,16 +17,16 @@ class Parser {
 		return result
 	}
 
-	Match[] parseAll(Bool closeStream := true) {
-		try {
-			matches := Match[,]
-			match := null
-			while ((match = parse) != null)
-				matches.add(match)
-			return matches
-//		return RepetitionRule(0, null, rootRule).match(pegCtx).matches 
-		} finally if (closeStream) pegCtx.close
-	}
+//	Match[] parseAll(Bool closeStream := true) {
+//		try {
+//			matches := Match[,]
+//			match := null
+//			while ((match = parse) != null)
+//				matches.add(match)
+//			return matches
+////		return RepetitionRule(0, null, rootRule).match(pegCtx).matches 
+//		} finally if (closeStream) pegCtx.close
+//	}
 	
 	Str[] failures() {
 		pegCtx.fails

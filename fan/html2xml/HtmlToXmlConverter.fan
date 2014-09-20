@@ -24,6 +24,8 @@ class HtmlToXml {
 
 internal class HtmltoXmlRules : Rules {
 	
+	NamedRules rules := NamedRules()
+
 	Rule rootRule() {
 		// TODO: 
 		//	Optionally, a single "BOM" (U+FEFF) character.
@@ -32,45 +34,28 @@ internal class HtmltoXmlRules : Rules {
 		//	Any number of comments and space characters.
 		//	The root element, in the form of an html element.
 		//	Any number of comments and space characters.
+		
+		
+		element 	:= rules["element"]		
+		voidTag		:= rules["voidTag"]
+		startTag	:= rules["startTag"]
+		endTag		:= rules["endTag"]
+		tagName		:= rules["tagName"]
+		tagContent	:= rules["tagContent"]
+		text		:= rules["text"]
+		whitespace	:= rules["whitespace"]
+
+		rules["element"]	= firstOf([voidTag, sequence([startTag, tagContent, endTag]), err])		{ it.name = "Element" 		}
+		rules["element"]	= firstOf([voidTag, sequence([startTag, endTag]), err])		{ it.name = "Element" 		}
+		rules["voidTag"]	= sequence([ str("<"), tagName, whitespace, str("/>") ])				{ it.name = "Void Tag"		; it.action = |Result result| { ctx.voidTag } }
+		rules["startTag"]	= sequence([ str("<"), tagName, whitespace, str(">") ])					{ it.name = "Start Tag"		; it.action = |Result result| { ctx.startTag } }
+		rules["endTag"]		= sequence([ str("</"), tagName, str(">") ])							{ it.name = "End Tag"		; it.action = |Result result| { ctx.endTag } }
+		rules["tagName"]	= sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]) { it.name = "Tag Name"		; it.action = |Result result| { ctx.tagName = result.matched } }
+		rules["tagContent"]	= zeroOrMore(firstOf([element, text]))									{ it.name = "Tag Content"	}
+		rules["text"]		= zeroOrMore(anyCharNotOf(['<']))										{ it.name = "Text"			}
+		rules["whitespace"]	= zeroOrMore(anySpaceChar)												{ it.name = "Whitespace"	}
+		
 		return element
-	}
-	Rule? ele
-	Rule element() {
-		ele =  firstOf([voidTag, sequence([startTag, tagContent, endTag]), err]) { it.name = "Element" }
-		return ele
-	}
-	
-	Rule voidTag() {
-		sequence([ str("<"), tagName, whitespace, str("/>") ]) { it.name = "Void Tag"; it.addAction { ctx.voidTag } }
-	}
-
-	Rule startTag() {
-		sequence([ str("<"), tagName, whitespace, str(">") ]) { it.name = "Start Tag"; it.action = |Match match| { ctx.startTag } }
-	}
-
-	Rule endTag() {
-		sequence([ str("</"), tagName, str(">") ]) { it.name = "End Tag"; it.action = |Match match| { ctx.endTag } }
-	}
-	
-	Rule tagName() {
-		sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars)) ]) { it.name="Tag Name"; it.action = |Match match| { ctx.tagName = match.matched } }
-	}
-	
-	Rule tagContent() {
-//		zeroOrMore(firstOf([proxy {ele}, text])) { it.name = "Tag Content" }
-		zeroOrMore(firstOf([ele, text])) { it.name = "Tag Content" }
-	}
-	
-	Rule text() {
-		zeroOrMore(anyCharNotOf(['<'])) { it.name = "Text" }
-	}
-
-	Rule whitespace() {
-		zeroOrMore(anySpaceChar) { it.name = "Whitespace" }
-	}
-	
-	Rule err() {
-		anyChar() { it.action = |Match match| { throw ParseErr("$match $ctx.roots") } }
 	}
 	
 	ParseCtx ctx() {

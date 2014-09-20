@@ -1,20 +1,20 @@
 
-internal class Result {
+class Result {
 	
 	** The name of the rule that created this 'Result'.
-	Str? ruleName
+	Str? 		ruleName
 	
-	private Str? 		matchStr
-	private Result[]?	results
-	private |->|?		rollback
-	private |->|?		success
+	Str? 		matchStr
+	Result[]?	results
+	|->|		rollback	:= |->| { } 
+	|->|?		success
 	
 	new make(Str? ruleName) {
 		this.ruleName = ruleName		
 	}
 
 	Bool passed() {
-		success != null || results?.any { it.passed }
+		success != null || (results?.any { it.passed } ?: false)
 	}
 	
 //	Str:Match matches() {
