@@ -83,6 +83,10 @@ mixin Rules {
 	static Rule firstOf(Rule[] rules) {
 		FirstOfRule(rules)
 	}
+
+	static Rule err() {
+		ErrRule()
+	}
 	
 //	static Rule proxy(|Obj?->Rule| ruleFunc) {
 //		ProxyRule(ruleFunc)

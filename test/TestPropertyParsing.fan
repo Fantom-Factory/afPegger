@@ -8,11 +8,10 @@ class TestPropertyParsing : Test, Rules {
 			firstOf([str("_"), anyAlphaChar]), 
 			zeroOrMore(firstOf([str("_"), anyAlphaNumChar]))
 		]) { it.name = "fieldName" }
-		basicField	:= fieldName.dup
 		indexName	:= oneOrMore(anyAlphaNumChar) { it.name = "indexName" }
-		indexField	:= sequence([fieldName.dup, str("["), indexName, str("]")])
-		beanField	:= sequence([firstOf([indexField, basicField]), optional(str("."))])
-		parser  	:= Parser(beanField, property.in)
-		matches 	:= parser.parseAll
+		indexField	:= sequence([fieldName, str("["), indexName, str("]")])
+//		beanField	:= sequence([firstOf([indexField, basicField]), optional(str("."))])
+//		parser  	:= Parser(beanField, property.in)
+//		matches 	:= parser.parseAll
 	}
 }

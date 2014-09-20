@@ -13,8 +13,9 @@ internal class CharRule : Rule {
 
 		matched := ctx.matchStr(1) |peek->Bool| { func(peek.chars.first) }
 
-		if (matched == null)
+		if (matched == null) {
 			ctx.unread(1)
+		}
 
 		if (matched != null) { 
 			result.matchStr = matched

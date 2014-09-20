@@ -7,83 +7,28 @@ internal class SequenceRule : Rule {
 	}
 	
 	override Result walk(PegCtx ctx) {
+		echo(name ?: desc)
 		result	:= Result(name)
 		
 		results := Result[,]
-		rules.all {
-			
-		}
-		
-		return result
-
-		results := [,]
-		
 		pass := rules.all |Rule rule->Bool| {
 			res := rule.walk(ctx)
 			results.add(res)
-			return res.match
+			return res.passed
 		}
-
+		
+		if (!pass) results.eachr { it.rollback() }
 		
 		if (pass) {
-			return Result(name) {
-				it.results	= results 
-				it.success	= |->| { this.action(it); results.each { it.success() } }
-				it.rollback	= |->| { results.each { it.rollback() } }
-			} 
-		} else {
-			results.each { it.rollback() }
-			return Result(name) {
-				it.results	= results 
-				it.success	= |->| { this.action(it); results.each { it.success() } }
-				it.rollback	= |->| { results.each { it.rollback() } }
-			} 
-		}
+			result.results	= results 
+			result.success	= |->| { result.results.each  { it.success()  }; this.action?.call(result) }
+			result.rollback = |->| { result.results.eachr { it.rollback() } }
+		}		
 		
-		return (result == null) 
-			? Result(name) {
-				it.results = [result] 
-				it.successFunc = |->| { this.action(it) }
-			} 
-			: Result(name, |->| { ctx.unread(1)})
+		return result
 	}
 
-//	override internal Match? match(PegCtx ctx) {
-//		failureCap := ctx.fails.size
-//
-//		rules.each { 
-//			
-//		}
-//		
-//		
-//		matches = Match[,]
-//		matched := rules.all |rule->Bool| {
-//			match := rule.match(ctx)
-//			if (match != null)
-//				matches.add(match)
-//			return (match != null)
-//		}
-//
-//		if (matched) {
-//			ctx.fails.size = failureCap
-//			return Match(name, matches)
-//		}
-//
-//		rules[0..<matches.size].each { it.rollback(ctx) }
-//		ctx.fail(this)
-//		return null
-//	}
-	
-//	override internal Void rollback(PegCtx ctx) {
-//		rules.each { it.rollback(ctx) }
-//	}
-//
-//	override internal Void walk(Match match) {
-//		matches.each |m, i| { rules[i].walk(m) }
-//		action?.call(match)
-//	}
-
 	override Str desc() {
-		"(" + rules.join(" ") + ")"
+		"(" + rules.join(" ") { it.name ?: it.desc } + ")"
 	}
 }

@@ -1,7 +1,7 @@
 
 abstract class Rule {
 	Str? 		name
-	|Result|?	action
+	internal |Result|?	action
 
 	internal abstract Result walk(PegCtx ctx)
 	
@@ -11,13 +11,13 @@ abstract class Rule {
 		((name == null) ? Str.defVal : "${name} <- ") + desc
 	}
 	
-	Void addAction(|Match| action) {
-		this.action = action
-	}
+//	Void addAction(|Match| action) {
+//		this.action = action
+//	}
 }
 
 @Deprecated
-class RuleTodo : Rule {
+internal class RuleTodo : Rule {
 
 	override Result walk(PegCtx ctx) {
 		Result("TODO")
