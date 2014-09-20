@@ -45,14 +45,13 @@ internal class HtmltoXmlRules : Rules {
 		text		:= rules["text"]
 		whitespace	:= rules["whitespace"]
 
-		rules["element"]	= firstOf([voidTag, sequence([startTag, tagContent, endTag]), err])		{ it.name = "Element" 		}
-		rules["element"]	= firstOf([voidTag, sequence([startTag, endTag]), err])		{ it.name = "Element" 		}
+		rules["element"]	= firstOf([voidTag, sequence([startTag, tagContent, endTag])])			{ it.name = "Element" 		}
 		rules["voidTag"]	= sequence([ str("<"), tagName, whitespace, str("/>") ])				{ it.name = "Void Tag"		; it.action = |Result result| { ctx.voidTag } }
 		rules["startTag"]	= sequence([ str("<"), tagName, whitespace, str(">") ])					{ it.name = "Start Tag"		; it.action = |Result result| { ctx.startTag } }
 		rules["endTag"]		= sequence([ str("</"), tagName, str(">") ])							{ it.name = "End Tag"		; it.action = |Result result| { ctx.endTag } }
 		rules["tagName"]	= sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]) { it.name = "Tag Name"		; it.action = |Result result| { ctx.tagName = result.matched } }
 		rules["tagContent"]	= zeroOrMore(firstOf([element, text]))									{ it.name = "Tag Content"	}
-		rules["text"]		= zeroOrMore(anyCharNotOf(['<']))										{ it.name = "Text"			}
+		rules["text"]		= oneOrMore(anyCharNotOf(['<']))										{ it.name = "Text"			}
 		rules["whitespace"]	= zeroOrMore(anySpaceChar)												{ it.name = "Whitespace"	}
 		
 		return element

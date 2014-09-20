@@ -19,8 +19,12 @@ internal class RepetitionRule : Rule {
 		maxLimit := false
 		while (rulePass && !maxLimit) {
 			res := rule.walk(ctx)
-			results.add(res)			
-			rulePass = res.passed
+			if (res.passed) {
+				results.add(res)
+			} else {
+				rulePass = false
+				res.rollback()
+			}
 			if (max != null && max == results.size)
 				maxLimit = true
 		}
@@ -29,6 +33,7 @@ internal class RepetitionRule : Rule {
 		maxOkay := (max == null) || (results.size <= max)
 		pass	:= minOkay && maxOkay
 		
+		// rollback the others that passed
 		if (!pass) results.eachr { it.rollback() }
 
 		if (pass) {
