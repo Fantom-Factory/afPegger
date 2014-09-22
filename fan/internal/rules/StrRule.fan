@@ -10,10 +10,10 @@ internal class StrRule : Rule {
 		this.strSize = 1
 	}
 
-	new makeFromStrFunc(Str str, Bool caseInsensitive) {
-		this.desc = str
-		this.func = |Str? peek->Bool| { caseInsensitive ? str.equalsIgnoreCase(peek) : str.equals(peek) }
-		this.strSize = str.size
+	new makeFromStrFunc(Str desc, |Str?->Bool| func) {
+		this.func = func
+		this.desc = desc
+		this.strSize = desc.size
 	}
 
 	override Result walk(PegInStream in) {
@@ -23,7 +23,7 @@ internal class StrRule : Rule {
 		matched := func(peek)
 
 		if (!matched) {
-			result.failed(name, "$desc != peek")
+			result.failed(name, "$desc != $peek")
 			in.unread(peek?.size ?: 0)
 		}
 

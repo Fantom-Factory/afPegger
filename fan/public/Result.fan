@@ -1,5 +1,6 @@
 
 class Result {
+	private Log log	:= Result#.pod.log
 	
 	** The name of the rule that created this 'Result'.
 	Str? 		ruleName
@@ -11,7 +12,7 @@ class Result {
 	LogRec[]?	logs		:= LogRec[,]
 
 	
-	new make(Str? ruleName) {
+	internal new make(Str? ruleName) {
 		this.ruleName = ruleName		
 	}
 
@@ -32,10 +33,12 @@ class Result {
 	
 	Void debug(Str msg) {
 		logs.add(LogRec(DateTime.now, LogLevel.debug, ruleName ?: Str.defVal, msg))
+		log.info(msg.toCode(null))
 	}
 
 	Void info(Str msg) {
 		logs.add(LogRec(DateTime.now, LogLevel.info, ruleName, msg))
+		log.warn(msg.toCode(null))
 	}
 
 	Str[] msgs() {
