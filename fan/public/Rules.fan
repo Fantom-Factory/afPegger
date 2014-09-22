@@ -2,7 +2,11 @@
 mixin Rules {
 	
 	static Rule str(Str string, Bool ignoreCase := true) {
-		StrRule(string, ignoreCase)
+		StrRule(string) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
+	}
+	
+	static Rule anyStrNot(Str string, Bool ignoreCase := true) {
+		StrRule(string) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
 	}
 	
 	static Rule anyChar() {
