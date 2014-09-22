@@ -38,8 +38,8 @@ internal class RepetitionRule : Rule {
 
 		if (pass) {
 			result.results	= results 
-			result.success	= |->| { result.results.each  { it.success()  }; this.action?.call(result) }
-			result.rollback = |->| { result.results.eachr { it.rollback() } }
+			result.successFunc	= |->| { result.results.each  { it.success()  }; this.action?.call(result) }
+			result.rollbackFunc = |->| { result.results.eachr { it.rollback() } }
 		}
 
 		return result

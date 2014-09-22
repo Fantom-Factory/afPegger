@@ -36,23 +36,31 @@ internal class HtmltoXmlRules : Rules {
 		//	Any number of comments and space characters.
 		
 		
-		element 	:= rules["element"]		
-		voidTag		:= rules["voidTag"]
-		startTag	:= rules["startTag"]
-		endTag		:= rules["endTag"]
-		tagName		:= rules["tagName"]
-		tagContent	:= rules["tagContent"]
-		text		:= rules["text"]
-		whitespace	:= rules["whitespace"]
+		element 		:= rules["element"]
+		voidTag			:= rules["voidTag"]
+		voidTagName		:= rules["voidTagName"]
+		selfClosingTag	:= rules["selfClosingTag"]
+		startTag		:= rules["startTag"]
+		endTag			:= rules["endTag"]
+		tagName			:= rules["tagName"]
+		tagContent		:= rules["tagContent"]
+		attributes		:= rules["attributes"]
+		text			:= rules["text"]
+		whitespace		:= rules["whitespace"]
 
-		rules["element"]	= firstOf([voidTag, sequence([startTag, tagContent, endTag])])			{ it.name = "Element" 		}
-		rules["voidTag"]	= sequence([ str("<"), tagName, whitespace, str("/>") ])				{ it.name = "Void Tag"		; it.action = |Result result| { ctx.voidTag } }
-		rules["startTag"]	= sequence([ str("<"), tagName, whitespace, str(">") ])					{ it.name = "Start Tag"		; it.action = |Result result| { ctx.startTag } }
-		rules["endTag"]		= sequence([ str("</"), tagName, str(">") ])							{ it.name = "End Tag"		; it.action = |Result result| { ctx.endTag } }
-		rules["tagName"]	= sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]) { it.name = "Tag Name"		; it.action = |Result result| { ctx.tagName = result.matched } }
-		rules["tagContent"]	= zeroOrMore(firstOf([element, text]))									{ it.name = "Tag Content"	}
-		rules["text"]		= oneOrMore(anyCharNotOf(['<']))										{ it.name = "Text"			}
-		rules["whitespace"]	= zeroOrMore(anySpaceChar)												{ it.name = "Whitespace"	}
+		rules["element"]		= firstOf([voidTag, selfClosingTag, sequence([startTag, tagContent, endTag])])		{ it.name = "Element" 			}
+
+		rules["voidTag"]		= sequence([ str("<"), voidTagName, attributes,  str(">") ])	{ it.name = "Void Tag"			; it.action = |Result result| { ctx.voidTag  } }
+		rules["selfClosingTag"]	= sequence([ str("<"), tagName,     attributes, str("/>") ])	{ it.name = "Self Closing Tag"	; it.action = |Result result| { ctx.voidTag  } }
+		rules["startTag"]		= sequence([ str("<"), tagName,     attributes, str( ">") ])	{ it.name = "Start Tag"			; it.action = |Result result| { ctx.startTag } }
+		rules["endTag"]			= sequence([ str("</"), tagName, str(">") ])										{ it.name = "End Tag"			; it.action = |Result result| { ctx.endTag } }
+		rules["tagName"]		= sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars)), whitespace])	{ it.name = "Tag Name"			; it.action = |Result result| { ctx.tagName = result.matched } }
+		rules["tagContent"]		= zeroOrMore(firstOf([element, text]))												{ it.name = "Tag Content"		}
+		
+		rules["voidTagName"]	= sequence([firstOf("area base br col embed hr img input keygen link meta param source track wbr".split.map { str(it) }), whitespace])	{ it.name = "Void Tag Name"	}
+		rules["attributes"]		= todo(true)
+		rules["text"]			= oneOrMore(anyCharNotOf(['<']))													{ it.name = "Text"				}
+		rules["whitespace"]		= zeroOrMore(anySpaceChar)															{ it.name = "Whitespace"		}
 		
 		return element
 	}
