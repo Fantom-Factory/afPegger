@@ -1,47 +1,46 @@
 
 mixin Rules {
 	
-	// TODO: ignore case
-	static Rule str(Str string) {
-		StrRule(string)
+	static Rule str(Str string, Bool ignoreCase := true) {
+		StrRule(string, ignoreCase)
 	}
 	
 	static Rule anyChar() {
-		CharRule("'.'") |Int peek->Bool| { true }
+		StrRule("'.'") |Int peek->Bool| { true }
 	}
 
 	static Rule anyCharOf(Int[] chars) {
-		CharRule("[${Str.fromChars(chars)}]") |Int peek->Bool| { chars.contains(peek) }
+		StrRule("[${Str.fromChars(chars)}]") |Int peek->Bool| { chars.contains(peek) }
 	}
 	
 	static Rule anyCharNotOf(Int[] chars) {
-		CharRule("![${Str.fromChars(chars)}]") |Int peek->Bool| { !chars.contains(peek) }
+		StrRule("![${Str.fromChars(chars)}]") |Int peek->Bool| { !chars.contains(peek) }
 	}
 
 	static Rule anyCharInRange(Range charRange) {
-		CharRule("[${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { charRange.contains(peek) }
+		StrRule("[${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { charRange.contains(peek) }
 	}
 	
 	static Rule anyAlphaChar() {
-		CharRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
+		StrRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
 	}
 
 	static Rule anyAlphaNumChar() {
-		CharRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
+		StrRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
 	}
 
 	static Rule anyNumChar() {
-		CharRule("[0-9]") |Int peek->Bool| { peek.isDigit }
+		StrRule("[0-9]") |Int peek->Bool| { peek.isDigit }
 	}
 	
 	** whitespace: space \t \n \r \f
 	static Rule anySpaceChar() {
-		CharRule("[ ]") |Int peek->Bool| { peek.isSpace }
+		StrRule("[ ]") |Int peek->Bool| { peek.isSpace }
 	}
 
 	** whitespace: space \t \n \r \f
 	static Rule anyNonSpaceChar() {
-		CharRule("![ ]") |Int peek->Bool| { !peek.isSpace }
+		StrRule("![ ]") |Int peek->Bool| { !peek.isSpace }
 	}
 	
 //	static Rule glob(Str regex) {
@@ -83,32 +82,32 @@ mixin Rules {
 	static Rule firstOf(Rule[] rules) {
 		FirstOfRule(rules)
 	}
-
-	static Rule err() {
-		ErrRule()
-	}
 	
+	static Rule todo(Bool pass := false) {
+		TodoRule(pass)
+	}
+
 //	static Rule proxy(|Obj?->Rule| ruleFunc) {
 //		ProxyRule(ruleFunc)
 //	}
 	
+	@Deprecated
 	static Rule onlyIf(Rule[] rules) {
-		RuleTodo()
+		TodoRule(false)
 	}
 	
+	@Deprecated
 	static Rule onlyIfNot(Rule[] rules) {
-		RuleTodo()
+		TodoRule(false)
 	}
 
+	@Deprecated
 	static Rule custom(|->Bool| customRule) {
-		RuleTodo()
+		TodoRule(false)
 	}
 
+	@Deprecated
 	static Rule action(|->| action) {
-		RuleTodo()
-	}
-	
-	static Rule todo() {
-		RuleTodo()
+		TodoRule(false)
 	}
 }

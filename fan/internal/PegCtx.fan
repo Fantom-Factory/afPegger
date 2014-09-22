@@ -4,7 +4,6 @@ internal class PegCtx {
 	private StrBuf		strBuf	:= StrBuf(1024)
 	private Int			pos		:= 0
 	private Bool		eos
-			Obj[]		stack	:= Obj[,]
 			Str[]		fails	:= Str[,]
 	
 	new make(InStream in) {
@@ -18,36 +17,36 @@ internal class PegCtx {
 		return c(peek) ? peek : null
 	}	
 	
-	Str? read(Rule rule, Int n, |Str peek->Bool| c) {
-		oPos := pos
-		peek := readChars(n)
-		if (peek == null)
-			return null
-
-		if (!c(peek)) {
-			if (!eos)
-				fails.add("${rule} did not match ${peek}")
-			peek = null
-			pos = oPos
-		}
-		return peek
-	}
-
-	Int? readChar(Rule rule, |Int peek->Bool| c) {
-		oPos := pos
-		peek := readChars(1)
-		if (peek == null)
-			return null
-
-		char := (Int?) peek.chars.first
-		if (!c(char)) {
-			if (!eos)
-				fails.add("${rule} did not match ${peek}")
-			char = null
-			pos = oPos
-		}
-		return char
-	}
+//	Str? read(Rule rule, Int n, |Str peek->Bool| c) {
+//		oPos := pos
+//		peek := readChars(n)
+//		if (peek == null)
+//			return null
+//
+//		if (!c(peek)) {
+//			if (!eos)
+//				fails.add("${rule} did not match ${peek}")
+//			peek = null
+//			pos = oPos
+//		}
+//		return peek
+//	}
+//
+//	Int? readChar(Rule rule, |Int peek->Bool| c) {
+//		oPos := pos
+//		peek := readChars(1)
+//		if (peek == null)
+//			return null
+//
+//		char := (Int?) peek.chars.first
+//		if (!c(char)) {
+//			if (!eos)
+//				fails.add("${rule} did not match ${peek}")
+//			char = null
+//			pos = oPos
+//		}
+//		return char
+//	}
 
 	Void unread(Int n) {
 		pos -= n
@@ -55,16 +54,17 @@ internal class PegCtx {
 			throw Err("WTF!? Peg has a pos of ${pos}!!!")
 	}
 
-	Void fail(Rule rule, Int chars := 20) {
+	Void close() {
+		in.close
+	}
+
+	@Deprecated
+	private Void fail(Rule rule, Int chars := 20) {
 		if (eos) return
 		oPos := pos
 		peek := readChars(chars)
 		fails.add("${rule} did not match ${peek}...")		
 		pos = oPos
-	}
-	
-	internal Void close() {
-		in.close
 	}
 	
 	private Str? readChars(Int n) {

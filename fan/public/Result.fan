@@ -6,15 +6,46 @@ class Result {
 	
 	Str? 		matchStr
 	Result[]?	results
-	|->|		rollback	:= |->| { } 
-	|->|?		success
+	|->|?		rollbackFunc
+	|->|?		successFunc
+	LogRec[]?	logs		:= LogRec[,]
+
 	
 	new make(Str? ruleName) {
 		this.ruleName = ruleName		
 	}
 
+	Void debug(Str msg) {
+		logs.add(LogRec(DateTime.now, LogLevel.debug, ruleName, msg))
+	}
+
+	Void info(Str msg) {
+		logs.add(LogRec(DateTime.now, LogLevel.info, ruleName, msg))
+	}
+
+	Str[] msgs() {
+		(results?.map { it.msgs } ?: [,]).addAll(logs.findAll { it.level >= LogLevel.info }.map { formatLog(it) }).flatten
+	}
+
+	Str[] allMsgs() {
+		(results?.map { it.allMsgs } ?: [,]).addAll(logs.map { formatLog(it) }).flatten
+	}
+	
 	Bool passed() {
-		success != null || (results?.any { it.passed } ?: false)
+		successFunc != null || (results?.any { it.passed } ?: false)
+	}
+	
+	Void success() {
+		if (ruleName != null)
+			info("'$ruleName' is successful!'")
+		// func should exist if we're calling success
+		successFunc.call()
+	}
+
+	Void rollback() {
+		if (ruleName != null)
+			info("'$ruleName' is rolling back...'")
+		rollbackFunc?.call()
 	}
 	
 //	Str:Match matches() {
@@ -27,10 +58,13 @@ class Result {
 		(matchStr ?: Str.defVal) + (results?.join(Str.defVal) { it.matched } ?: Str.defVal)
 	}
 	
+	private Str formatLog(LogRec log) {
+		log.msg
+	}
+	
 	@NoDoc
 	override Str toStr() {
 		"${ruleName}:${matched}"
-//		"${ruleName}:${matched} ${matches} ::: ${_matched} ${_matches}"
 	}
-	
 }
+

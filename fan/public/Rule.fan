@@ -15,13 +15,3 @@ abstract class Rule {
 //		this.action = action
 //	}
 }
-
-@Deprecated
-internal class RuleTodo : Rule {
-
-	override Result walk(PegCtx ctx) {
-		Result("TODO")
-	}
-	
-	override Str desc() {"-!TODO!-"} 
-}

@@ -4,18 +4,6 @@ using xml
 class TestTokens : Test {
 	
 	HtmlToXml parser := HtmlToXml()
-	
-//	Void testInvalidTag() {
-//		verifyErrMsg(ParseErr#, "Invalid tag: <1") {
-//			parser.parseDocument("<1h>")
-//		}
-//	}
-//
-//	Void testBogusCommentTag() {
-//		verifyErrMsg(ParseErr#, "Bogus comment tag: <?") {
-//			parser.parseDocument("<? wotever >")
-//		}
-//	}
 
 	Void testValidSimpleTag() {
 		elem := parser.parseDocument("<html></html>").root
@@ -63,6 +51,16 @@ class TestTokens : Test {
 		elem = parser.parseDocument("<html><head/><body><div/></body></html>").root
 		verifyElemEq(elem, "<html><head/><body><div/></body></html>")
 	}
+	
+	Void testVoidTags() {
+		elem := parser.parseDocument("<area>").root
+		verifyElemEq(elem, "<area>")
+		
+		elem = parser.parseDocument("<html><meta  ><img  ></html>").root
+		verifyElemEq(elem, "<html><meta/><img/></html>")
+	}
+
+
 
 	Void verifyElemEq(XElem elem, Str xml) {
 		act := elem.writeToStr.replace("\n", "")

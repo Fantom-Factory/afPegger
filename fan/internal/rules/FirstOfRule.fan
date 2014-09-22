@@ -20,8 +20,8 @@ internal class FirstOfRule : Rule {
 		
 		if (winner != null) {
 			result.results	= [res] 
-			result.success	= |->| { result.results.each { it.success()  }; this.action?.call(result) }
-			result.rollback = |->| { result.results.each { it.rollback() } }
+			result.successFunc	= |->| { result.results.each { it.success()  }; this.action?.call(result) }
+			result.rollbackFunc = |->| { result.results.each { it.rollback() } }
 		}
 
 		return result
