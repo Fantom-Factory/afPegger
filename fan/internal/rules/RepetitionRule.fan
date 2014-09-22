@@ -11,7 +11,6 @@ internal class RepetitionRule : Rule {
 	}
 	
 	override Result walk(PegCtx ctx) {
-		echo(name ?: desc)
 		result	:= Result(name)
 		
 		results := Result[,]
@@ -19,7 +18,7 @@ internal class RepetitionRule : Rule {
 		maxLimit := false
 		while (rulePass && !maxLimit) {
 			res := rule.walk(ctx)
-			if (res.passed) {
+			if (res.matched) {
 				results.add(res)
 			} else {
 				rulePass = false
@@ -34,12 +33,16 @@ internal class RepetitionRule : Rule {
 		pass	:= minOkay && maxOkay
 		
 		// rollback the others that passed
-		if (!pass) results.eachr { it.rollback() }
+		if (!pass) {
+			result.failed(name, "${results.size} != $desc")
+			results.eachr { it.rollback }
+		}
 
 		if (pass) {
+			result.passed(name, desc)
 			result.results	= results 
-			result.successFunc	= |->| { result.results.each  { it.success()  }; this.action?.call(result) }
-			result.rollbackFunc = |->| { result.results.eachr { it.rollback() } }
+			result.successFunc	= |->| { result.results.each  { it.success  }; this.action?.call(result) }
+			result.rollbackFunc = |->| { result.results.eachr { it.rollback } }
 		}
 
 		return result

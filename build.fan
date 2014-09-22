@@ -21,7 +21,7 @@ class Build : BuildPod {
 			
 			// ---- Test ------------------------
 			"xml 1.0",
-			"concurrent 1.0"
+			"concurrent 1.0"	// html2xml
 		]
 	
 		srcDirs = [`test/`, `test/html2xml/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/internal/rules/`, `fan/html2xml/`]

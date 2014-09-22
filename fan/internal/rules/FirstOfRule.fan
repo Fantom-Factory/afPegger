@@ -7,21 +7,25 @@ internal class FirstOfRule : Rule {
 	}
 	
 	override Result walk(PegCtx ctx) {
-		echo(name ?: desc)
 		result	:= Result(name) 
 
 		res 	:= (Result?) null
 		winner	:= rules.find |Rule rule->Bool| {
 			res = rule.walk(ctx)
-			if (!res.passed)
+			if (!res.matched)
 				res.rollback()
-			return res.passed
+			return res.matched
+		}
+		
+		if (winner == null) {
+			result.failed(name, desc)
 		}
 		
 		if (winner != null) {
+			result.passed(name, desc)
 			result.results	= [res] 
-			result.successFunc	= |->| { result.results.each { it.success()  }; this.action?.call(result) }
-			result.rollbackFunc = |->| { result.results.each { it.rollback() } }
+			result.successFunc	= |->| { result.results.each { it.success  }; this.action?.call(result) }
+			result.rollbackFunc = |->| { result.results.each { it.rollback } }
 		}
 
 		return result
