@@ -28,8 +28,8 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
-	override Result walk(PegCtx ctx) {
-		rule.walk(ctx)
+	override Result walk(PegInStream in) {
+		rule.walk(in)
 	}
 	
 	override Str desc() {

@@ -10,14 +10,14 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override Result walk(PegCtx ctx) {
+	override Result walk(PegInStream in) {
 		result	:= Result(name)
 		
 		results := Result[,]
 		rulePass := true
 		maxLimit := false
 		while (rulePass && !maxLimit) {
-			res := rule.walk(ctx)
+			res := rule.walk(in)
 			if (res.matched) {
 				results.add(res)
 			} else {

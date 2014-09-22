@@ -6,12 +6,12 @@ internal class FirstOfRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Result walk(PegCtx ctx) {
+	override Result walk(PegInStream in) {
 		result	:= Result(name) 
 
 		res 	:= (Result?) null
 		winner	:= rules.find |Rule rule->Bool| {
-			res = rule.walk(ctx)
+			res = rule.walk(in)
 			if (!res.matched)
 				res.rollback()
 			return res.matched
