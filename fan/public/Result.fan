@@ -15,8 +15,23 @@ class Result {
 		this.ruleName = ruleName		
 	}
 
+	Void failed(Str? name, Str desc) {
+		if (name == null)
+			debug(" - failed - $desc")
+		else
+			debug("'$name' failed - $desc")		
+	}
+
+	Void passed(Str? name, Str desc) {
+		msg := matchStr ?: desc
+		if (name == null)
+			debug(" - matched $desc")
+		else
+			info("'$name' matched $desc")
+	}
+	
 	Void debug(Str msg) {
-		logs.add(LogRec(DateTime.now, LogLevel.debug, ruleName, msg))
+		logs.add(LogRec(DateTime.now, LogLevel.debug, ruleName ?: Str.defVal, msg))
 	}
 
 	Void info(Str msg) {
@@ -31,9 +46,6 @@ class Result {
 		(results?.map { it.allMsgs } ?: [,]).addAll(logs.map { formatLog(it) }).flatten
 	}
 	
-	Bool passed() {
-		successFunc != null || (results?.any { it.passed } ?: false)
-	}
 	
 	Void success() {
 		if (ruleName != null)
@@ -54,8 +66,12 @@ class Result {
 //		return Str:Match[:] { ordered = true }.addList(matches) |m->Str| { m.ruleName }
 //	}
 
-	Str matched() {
-		(matchStr ?: Str.defVal) + (results?.join(Str.defVal) { it.matched } ?: Str.defVal)
+	Bool matched() {
+		successFunc != null || (results?.any { it.matched } ?: false)
+	}
+
+	Str matchedStr() {
+		(matchStr ?: Str.defVal) + (results?.join(Str.defVal) { it.matchedStr } ?: Str.defVal)
 	}
 	
 	private Str formatLog(LogRec log) {
@@ -64,7 +80,7 @@ class Result {
 	
 	@NoDoc
 	override Str toStr() {
-		"${ruleName}:${matched}"
+		"${ruleName}:${matchedStr}"
 	}
 }
 

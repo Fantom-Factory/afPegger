@@ -6,15 +6,18 @@ class Parser {
 	new make(Rule rootRule, InStream in) {
 		this.rootRule 	= rootRule
 		this.pegCtx		= PegCtx(in)
-		
-		// FIXME: walk roots to check for dups
 	}
 	
 	Result parse() {
-		result := rootRule.walk(pegCtx)
-		if (result.passed)
-			result.success()
-		return result
+//		try {
+			result := rootRule.walk(pegCtx)
+			if (result.matched)
+				result.success()
+			return result
+
+//		} catch (Err err) {
+//			throw PegErr()
+//		}
 	}
 
 //	Match[] parseAll(Bool closeStream := true) {
@@ -27,8 +30,5 @@ class Parser {
 ////		return RepetitionRule(0, null, rootRule).match(pegCtx).matches 
 //		} finally if (closeStream) pegCtx.close
 //	}
-	
-	Str[] failures() {
-		pegCtx.fails
-	}
+
 }

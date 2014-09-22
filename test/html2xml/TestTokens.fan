@@ -26,7 +26,7 @@ class TestTokens : Test {
 		verifyEq(elem.attrs.size, 0)
 		verifyEq(elem.children.size, 0)
 	}
-	
+
 	Void testValidNestedTag() {
 		elem := parser.parseDocument("<html><head></head></html>").root
 		verifyElemEq(elem, "<html><head/></html>")
@@ -51,10 +51,10 @@ class TestTokens : Test {
 		elem = parser.parseDocument("<html><head/><body><div/></body></html>").root
 		verifyElemEq(elem, "<html><head/><body><div/></body></html>")
 	}
-	
+
 	Void testVoidTags() {
 		elem := parser.parseDocument("<area>").root
-		verifyElemEq(elem, "<area>")
+		verifyElemEq(elem, "<area/>")
 		
 		elem = parser.parseDocument("<html><meta  ><img  ></html>").root
 		verifyElemEq(elem, "<html><meta/><img/></html>")

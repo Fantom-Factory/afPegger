@@ -7,22 +7,25 @@ internal class SequenceRule : Rule {
 	}
 	
 	override Result walk(PegCtx ctx) {
-		echo(name ?: desc)
 		result	:= Result(name)
 		
 		results := Result[,]
 		pass := rules.all |Rule rule->Bool| {
 			res := rule.walk(ctx)
 			results.add(res)
-			return res.passed
+			return res.matched
 		}
 		
-		if (!pass) results.eachr { it.rollback() }
+		if (!pass) {
+			result.failed(name, "${rules[results.size-1]} failed")
+			results.eachr { it.rollback() }
+		}
 		
 		if (pass) {
+			result.passed(name, desc)
 			result.results	= results 
-			result.successFunc	= |->| { result.results.each  { it.success()  }; this.action?.call(result) }
-			result.rollbackFunc = |->| { result.results.eachr { it.rollback() } }
+			result.successFunc	= |->| { result.results.each  { it.success  }; this.action?.call(result) }
+			result.rollbackFunc = |->| { result.results.eachr { it.rollback } }
 		}		
 		
 		return result

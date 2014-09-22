@@ -53,16 +53,21 @@ internal class HtmltoXmlRules : Rules {
 		rules["voidTag"]		= sequence([ str("<"), voidTagName, attributes,  str(">") ])	{ it.name = "Void Tag"			; it.action = |Result result| { ctx.voidTag  } }
 		rules["selfClosingTag"]	= sequence([ str("<"), tagName,     attributes, str("/>") ])	{ it.name = "Self Closing Tag"	; it.action = |Result result| { ctx.voidTag  } }
 		rules["startTag"]		= sequence([ str("<"), tagName,     attributes, str( ">") ])	{ it.name = "Start Tag"			; it.action = |Result result| { ctx.startTag } }
-		rules["endTag"]			= sequence([ str("</"), tagName, str(">") ])										{ it.name = "End Tag"			; it.action = |Result result| { ctx.endTag } }
-		rules["tagName"]		= sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars)), whitespace])	{ it.name = "Tag Name"			; it.action = |Result result| { ctx.tagName = result.matched } }
+		rules["endTag"]			= sequence([ str("</"), tagName, str(">") ])					{ it.name = "End Tag"			; it.action = |Result result| { ctx.endTag	 } }
+
+		rules["tagName"]		= tagNameRule(sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]))
 		rules["tagContent"]		= zeroOrMore(firstOf([element, text]))												{ it.name = "Tag Content"		}
 		
-		rules["voidTagName"]	= sequence([firstOf("area base br col embed hr img input keygen link meta param source track wbr".split.map { str(it) }), whitespace])	{ it.name = "Void Tag Name"	}
+		rules["voidTagName"]	= firstOf("area base br col embed hr img input keygen link meta param source track wbr".split.map { tagNameRule(str(it))  }) { it.name = "Void Tag Name"	}
 		rules["attributes"]		= todo(true)
 		rules["text"]			= oneOrMore(anyCharNotOf(['<']))													{ it.name = "Text"				}
 		rules["whitespace"]		= zeroOrMore(anySpaceChar)															{ it.name = "Whitespace"		}
 		
 		return element
+	}
+	
+	Rule tagNameRule(Rule rule) {
+		sequence([rule { it.name = "Tag Name"; it.action = |Result result| { ctx.tagName = result.matchedStr } }, zeroOrMore(anySpaceChar) { it.name = "Whitespace" }])
 	}
 	
 	ParseCtx ctx() {
