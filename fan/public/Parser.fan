@@ -10,7 +10,7 @@ class Parser {
 	
 	Result parse() {
 //		try {
-			result := rootRule.walk(pegStream)
+			result := rootRule.match(PegCtx(pegStream))
 			if (result.matched)
 				result.success()
 			return result

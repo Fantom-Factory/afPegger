@@ -1,9 +1,9 @@
 
 abstract class Rule {
 	Str? 		name
-	internal |Result|?	action
+	|Result|?	action
 
-	abstract Result walk(PegInStream in)
+	abstract Result match(PegCtx ctx)
 	
 	abstract Str desc()
 	

@@ -10,19 +10,19 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override Result walk(PegInStream in) {
+	override Result match(PegCtx ctx) {
 		result	:= Result(name)
 		
 		results := Result[,]
 		rulePass := true
 		maxLimit := false
 		while (rulePass && !maxLimit) {
-			res := rule.walk(in)
+			res := rule.match(ctx)
 			if (res.matched) {
 				results.add(res)
 			} else {
 				rulePass = false
-				res.rollback()
+				res.rollback
 			}
 			if (max != null && max == results.size)
 				maxLimit = true
@@ -34,12 +34,12 @@ internal class RepetitionRule : Rule {
 		
 		// rollback the others that passed
 		if (!pass) {
-			result.failed(name, "${results.size} != $desc")
+			result.ruleFailed("${results.size} != $desc")
 			results.eachr { it.rollback }
 		}
 
 		if (pass) {
-			result.passed(name, desc)
+			result.passed(desc)
 			result.results	= results 
 			result.successFunc	= |->| { result.results.each  { it.success  }; this.action?.call(result) }
 			result.rollbackFunc = |->| { result.results.eachr { it.rollback } }

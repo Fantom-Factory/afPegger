@@ -16,22 +16,22 @@ internal class StrRule : Rule {
 		this.strSize = desc.size
 	}
 
-	override Result walk(PegInStream in) {
+	override Result match(PegCtx ctx) {
 		result	:= Result(name) 
 
-		peek 	:= in.read(strSize)
+		peek 	:= ctx.read(strSize)
 		matched := func(peek)
 
 		if (!matched) {
-			result.failed(name, "$desc != $peek")
-			in.unread(peek?.size ?: 0)
+			result.ruleFailed("$desc != $peek")
+			ctx.unread(peek?.size ?: 0)
 		}
 
 		if (matched) {
 			result.matchStr = peek
 			result.successFunc	= |->| { action?.call(result) } 
-			result.rollbackFunc	= |->| { in.unread(peek?.size ?: 0) }
-			result.passed(name, desc)
+			result.rollbackFunc	= |->| { ctx.unread(peek?.size ?: 0) }
+			result.passed(desc)
 		}
 
 		return result

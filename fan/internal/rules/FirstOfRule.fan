@@ -6,26 +6,26 @@ internal class FirstOfRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Result walk(PegInStream in) {
+	override Result match(PegCtx ctx) {
 		result	:= Result(name) 
 
 		res 	:= (Result?) null
 		winner	:= rules.find |Rule rule->Bool| {
-			res = rule.walk(in)
+			res = rule.match(ctx)
 			if (!res.matched)
-				res.rollback()
+				res.rollback
 			return res.matched
 		}
 		
 		if (winner == null) {
-			result.failed(name, desc)
+			result.ruleFailed(desc)
 		}
 		
 		if (winner != null) {
-			result.passed(name, desc)
+			result.passed(desc)
 			result.results	= [res] 
-			result.successFunc	= |->| { result.results.each { it.success  }; this.action?.call(result) }
-			result.rollbackFunc = |->| { result.results.each { it.rollback } }
+			result.successFunc	= |->| { result.results.each  { it.success  }; this.action?.call(result) }
+			result.rollbackFunc = |->| { result.results.eachr { it.rollback } }
 		}
 
 		return result
