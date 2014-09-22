@@ -3,7 +3,7 @@ abstract class Rule {
 	Str? 		name
 	internal |Result|?	action
 
-	internal abstract Result walk(PegCtx ctx)
+	abstract Result walk(PegInStream in)
 	
 	abstract Str desc()
 	

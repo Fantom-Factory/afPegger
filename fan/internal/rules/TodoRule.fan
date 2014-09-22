@@ -6,7 +6,7 @@ internal class TodoRule : Rule {
 		this.pass = pass
 	}
 	
-	override Result walk(PegCtx ctx) {
+	override Result walk(PegInStream in) {
 		result := Result("TODO")
 		if (pass)
 			result.successFunc = |->| { }

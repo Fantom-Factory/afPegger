@@ -16,21 +16,21 @@ internal class StrRule : Rule {
 		this.strSize = str.size
 	}
 
-	override Result walk(PegCtx ctx) {
+	override Result walk(PegInStream in) {
 		result	:= Result(name) 
 
-		peek 	:= ctx.read(strSize)
+		peek 	:= in.read(strSize)
 		matched := func(peek)
 
 		if (!matched) {
 			result.failed(name, "$desc != peek")
-			ctx.unread(peek?.size ?: 0)
+			in.unread(peek?.size ?: 0)
 		}
 
 		if (matched) {
 			result.matchStr = peek
 			result.successFunc	= |->| { action?.call(result) } 
-			result.rollbackFunc	= |->| { ctx.unread(peek?.size ?: 0) }
+			result.rollbackFunc	= |->| { in.unread(peek?.size ?: 0) }
 			result.passed(name, desc)
 		}
 

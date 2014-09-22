@@ -6,12 +6,12 @@ internal class SequenceRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Result walk(PegCtx ctx) {
+	override Result walk(PegInStream in) {
 		result	:= Result(name)
 		
 		results := Result[,]
 		pass := rules.all |Rule rule->Bool| {
-			res := rule.walk(ctx)
+			res := rule.walk(in)
 			results.add(res)
 			return res.matched
 		}

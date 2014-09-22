@@ -1,5 +1,5 @@
 
-internal class PegCtx {
+class PegInStream {
 	private InStream 	in
 	private StrBuf		strBuf	:= StrBuf(1024)
 	private Int			pos		:= 0
