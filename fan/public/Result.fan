@@ -16,19 +16,19 @@ class Result {
 		this.ruleName = ruleName		
 	}
 
-	Void failed(Str? name, Str desc) {
-		if (name == null)
+	Void ruleFailed(Str desc) {
+		if (ruleName == null)
 			debug(" - failed - $desc")
 		else
-			debug("'$name' failed - $desc")		
+			debug("'$ruleName' failed - $desc")		
 	}
 
-	Void passed(Str? name, Str desc) {
+	Void passed(Str desc) {
 		msg := matchStr ?: desc
-		if (name == null)
+		if (ruleName == null)
 			debug(" - matched $desc")
 		else
-			info("'$name' matched $desc")
+			info("'$ruleName' matched $desc")
 	}
 	
 	Void debug(Str msg) {

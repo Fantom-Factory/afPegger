@@ -6,23 +6,23 @@ internal class SequenceRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Result walk(PegInStream in) {
+	override Result match(PegCtx ctx) {
 		result	:= Result(name)
 		
 		results := Result[,]
 		pass := rules.all |Rule rule->Bool| {
-			res := rule.walk(in)
+			res := rule.match(ctx)
 			results.add(res)
 			return res.matched
 		}
 		
 		if (!pass) {
-			result.failed(name, "${rules[results.size-1]} failed")
-			results.eachr { it.rollback() }
+			result.ruleFailed("${rules[results.size-1]} failed")
+			results.eachr { it.rollback }
 		}
 		
 		if (pass) {
-			result.passed(name, desc)
+			result.passed(desc)
 			result.results	= results 
 			result.successFunc	= |->| { result.results.each  { it.success  }; this.action?.call(result) }
 			result.rollbackFunc = |->| { result.results.eachr { it.rollback } }
