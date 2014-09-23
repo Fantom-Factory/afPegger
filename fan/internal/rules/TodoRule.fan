@@ -10,5 +10,5 @@ internal class TodoRule : Rule {
 		ctx.pass(pass)
 	}
 	
-	override Str desc() {"-!TODO!-"} 
+	override Str expression() {"-!TODO!-"} 
 }

@@ -28,16 +28,12 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
-//	override |Result|?	action {
-//		
-//	}
-	
 	override Void doProcess(PegCtx ctx) {
 		rule.doProcess(ctx)
 	}
 	
-	override Str desc() {
-		rule.desc
+	override Str expression() {
+		rule.expression
 	}
 	
 	override Str toStr() {

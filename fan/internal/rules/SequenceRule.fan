@@ -10,14 +10,14 @@ internal class SequenceRule : Rule {
 		passed := rules.all |Rule rule->Bool| {
 			pass := ctx.process(rule)
 			if (!pass)
-				ctx.log("Did not match ${rule.desc}")
+				ctx.log("Did not match ${rule}")
 			return pass
 		}
 		
 		ctx.pass(passed)
 	}
 
-	override Str desc() {
-		rules.join(" ") { it.name ?: it.desc }
+	override Str expression() {
+		rules.join(" ")
 	}
 }

@@ -13,7 +13,7 @@ internal class FirstOfRule : Rule {
 		ctx.pass(passed)
 	}
 
-	override Str desc() {
-		"(" + rules.join(" / ") { it.name ?: it.desc } + ")"
+	override Str expression() {
+		"(" + rules.join(" / ") + ")"
 	}
 }
