@@ -1,8 +1,8 @@
 
 internal class StrRule : Rule {
-	private		|Str->Bool|	func
-	private		Int			strSize
-	override	Str			desc
+	private		|Str?->Bool|	func
+	private		Int				strSize
+	override	Str				desc
 	
 	new makeFromCharFunc(Str desc, |Int->Bool| func) {
 		this.func = |Str? peek->Bool| { peek == null ? false : func(peek.chars.first) }
@@ -16,24 +16,15 @@ internal class StrRule : Rule {
 		this.strSize = desc.size
 	}
 
-	override Result match(PegCtx ctx) {
-		result	:= Result(name) 
-
+	override Void doProcess(PegCtx ctx) {
 		peek 	:= ctx.read(strSize)
 		matched := func(peek)
 
-		if (!matched) {
-			result.ruleFailed("$desc != $peek")
-			ctx.unread(peek?.size ?: 0)
-		}
+		ctx.rollbackFunc = |->| { ctx.unread(peek) }
 
-		if (matched) {
-			result.matchStr = peek
-			result.successFunc	= |->| { action?.call(result) } 
-			result.rollbackFunc	= |->| { ctx.unread(peek?.size ?: 0) }
-			result.passed(desc)
-		}
+		if (matched) 
+			ctx.matched = peek
 
-		return result
+		ctx.pass(matched)
 	}
 }

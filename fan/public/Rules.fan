@@ -2,15 +2,23 @@
 mixin Rules {
 	
 	static Rule str(Str string, Bool ignoreCase := true) {
-		StrRule(string) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
+		StrRule(string.toCode) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
 	}
 	
 	static Rule anyStrNot(Str string, Bool ignoreCase := true) {
-		StrRule(string) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
+		StrRule("!" + string.toCode) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
 	}
 	
+//	static Rule glob(Str regex) {
+//		RuleTodo()
+//	}
+//
+//	static Rule regex(Str regex) {
+//		RuleTodo()
+//	}
+	
 	static Rule anyChar() {
-		StrRule("'.'") |Int peek->Bool| { true }
+		StrRule(".") |Int peek->Bool| { true }
 	}
 
 	static Rule anyCharOf(Int[] chars) {
@@ -23,6 +31,10 @@ mixin Rules {
 
 	static Rule anyCharInRange(Range charRange) {
 		StrRule("[${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { charRange.contains(peek) }
+	}
+
+	static Rule anyCharNotInRange(Range charRange) {
+		StrRule("![${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { !charRange.contains(peek) }
 	}
 	
 	static Rule anyAlphaChar() {
@@ -46,14 +58,6 @@ mixin Rules {
 	static Rule anyNonSpaceChar() {
 		StrRule("![ ]") |Int peek->Bool| { !peek.isSpace }
 	}
-	
-//	static Rule glob(Str regex) {
-//		RuleTodo()
-//	}
-//
-//	static Rule regex(Str regex) {
-//		RuleTodo()
-//	}
 
 	static Rule optional(Rule rule) {
 		RepetitionRule(0, 1, rule)
@@ -91,27 +95,21 @@ mixin Rules {
 		TodoRule(pass)
 	}
 
-//	static Rule proxy(|Obj?->Rule| ruleFunc) {
-//		ProxyRule(ruleFunc)
-//	}
+	// TODO: not rule
+	@Deprecated
+	static Rule not(Rule rules) {
+		TodoRule(false)
+	}
 	
+	// TODO: onlyIf rule
 	@Deprecated
 	static Rule onlyIf(Rule[] rules) {
 		TodoRule(false)
 	}
 	
+	// TODO: onlyIfNot rule
 	@Deprecated
 	static Rule onlyIfNot(Rule[] rules) {
-		TodoRule(false)
-	}
-
-	@Deprecated
-	static Rule custom(|->Bool| customRule) {
-		TodoRule(false)
-	}
-
-	@Deprecated
-	static Rule action(|->| action) {
 		TodoRule(false)
 	}
 }

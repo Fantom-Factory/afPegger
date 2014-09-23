@@ -1,4 +1,5 @@
 
+// FIXME: kill me
 internal class PegInStream {
 	private InStream 	in
 	private StrBuf		strBuf	:= StrBuf(1024)
@@ -8,7 +9,7 @@ internal class PegInStream {
 		this.in 	= in
 	}
 	
-	Str? read(Int n) {
+	Str? readChar(Int n) {
 		noOfCharsLeftInBuf	:= strBuf.size - pos 
 		noToReadFromIn		:= n - noOfCharsLeftInBuf 
 		while (noToReadFromIn > 0) {
@@ -22,7 +23,7 @@ internal class PegInStream {
 		return str
 	}
 
-	Void unread(Int n) {
+	Void unreadChar(Int n) {
 		pos -= n
 		if (pos < 0)
 			throw Err("WTF!? Peg has a pos of ${pos}!!!")

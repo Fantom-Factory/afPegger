@@ -5,12 +5,12 @@ class HtmlToXml {
 	
 	XDoc parseDocument(Str html) {
 		
-		parser := Parser(HtmltoXmlRules().rootRule, html.in)
+		parser := Parser(HtmltoXmlRules().rootRule)
 		
 		// TODO: parse multiple root elements, combine into 1 xml doc
 		ctx := ParseCtx()
 		Actor.locals["htmlToXml.ctx"] = ctx
-		parser.parse
+		parser.parse(html.in)
 		
 		return ctx.document
 	}
@@ -94,17 +94,18 @@ internal class HtmltoXmlRules : Rules {
 		rules["characterEntity"]				= todo(false)
 		
 		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))	{ it.name = "Text"			}
-		rules["rawText"]						= oneOrMore(anyStrNot("</"))			{ it.name = "Raw Text"		}
+		rules["rawText"]						= oneOrMore(anyStrNot("</"))			{ it.name = "Raw Text"		} // FIXME
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)				{ it.name = "Whitespace"	}
 		
 		return element
 	}
 	
 	Rule tagNameRule(Rule rule, Str name) {
-		sequence([rule { it.name = name; it.action = |Result result| { ctx.tagName = result.matchedStr } }, zeroOrMore(anySpaceChar) { it.name = "Whitespace" }])
+		sequence([rule { it.name = name; it.action = |Result result| { ctx.tagName = result.matched } }, zeroOrMore(anySpaceChar) { it.name = "Whitespace" }])
 	}
 	
 	ParseCtx ctx() {
+		// TODO: get this from pegctx
 		Actor.locals["htmlToXml.ctx"]
 	}
 }

@@ -10,42 +10,24 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override Result match(PegCtx ctx) {
-		result	:= Result(name)
+	override Void doProcess(PegCtx ctx) {
 		
-		results := Result[,]
+		count := 0
 		rulePass := true
 		maxLimit := false
 		while (rulePass && !maxLimit) {
-			res := rule.match(ctx)
-			if (res.matched) {
-				results.add(res)
-			} else {
-				rulePass = false
-				res.rollback
-			}
-			if (max != null && max == results.size)
+			rulePass = ctx.process(rule)
+			if (rulePass)
+				count ++
+			if (max != null && count == max)
 				maxLimit = true
 		}
-		
-		minOkay := (min == null) || (results.size >= min)
-		maxOkay := (max == null) || (results.size <= max)
-		pass	:= minOkay && maxOkay
-		
-		// rollback the others that passed
-		if (!pass) {
-			result.ruleFailed("${results.size} != $desc")
-			results.eachr { it.rollback }
-		}
 
-		if (pass) {
-			result.passed(desc)
-			result.results	= results 
-			result.successFunc	= |->| { result.results.each  { it.success  }; this.action?.call(result) }
-			result.rollbackFunc = |->| { result.results.eachr { it.rollback } }
-		}
-
-		return result
+		minOkay := (min == null) || (count >= min)
+		maxOkay := (max == null) || (count <= max)
+		passed	:= minOkay && maxOkay
+		
+		ctx.pass(passed)
 	}
 
 	override Str desc() {
