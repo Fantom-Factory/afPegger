@@ -22,7 +22,7 @@ class NamedRules {
 internal class ProxyRule : Rule {
 	private NamedRules 	rules
 	private Rule?		ruleForReal
-	
+
 	new make(NamedRules rules, Str name) {
 		this.name		= name
 		this.rules		= rules

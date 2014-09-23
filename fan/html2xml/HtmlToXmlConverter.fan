@@ -94,7 +94,7 @@ internal class HtmltoXmlRules : Rules {
 		rules["characterEntity"]				= todo(false)
 		
 		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))	{ it.name = "Text"			}
-		rules["rawText"]						= oneOrMore(anyStrNot("</"))			{ it.name = "Raw Text"		} // FIXME
+		rules["rawText"]						= oneOrMore(strNot("</"))				{ it.name = "Raw Text"		}
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)				{ it.name = "Whitespace"	}
 		
 		return element

@@ -2,11 +2,11 @@
 mixin Rules {
 	
 	static Rule str(Str string, Bool ignoreCase := true) {
-		StrRule(string.toCode) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
+		StrRule(string.toCode, string.size) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek ?: Str.defVal) : string.equals(peek) }
 	}
 	
-	static Rule anyStrNot(Str string, Bool ignoreCase := true) {
-		StrRule("!" + string.toCode) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek) : string.equals(peek) }
+	static Rule strNot(Str string, Bool ignoreCase := true) {
+		StrNotRule(string, ignoreCase)
 	}
 	
 //	static Rule glob(Str regex) {
@@ -26,7 +26,7 @@ mixin Rules {
 	}
 	
 	static Rule anyCharNotOf(Int[] chars) {
-		StrRule("![${Str.fromChars(chars)}]") |Int peek->Bool| { !chars.contains(peek) }
+		StrRule("![${Str.fromChars(chars)}] .") |Int peek->Bool| { !chars.contains(peek) }
 	}
 
 	static Rule anyCharInRange(Range charRange) {
@@ -34,7 +34,7 @@ mixin Rules {
 	}
 
 	static Rule anyCharNotInRange(Range charRange) {
-		StrRule("![${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { !charRange.contains(peek) }
+		StrRule("![${charRange.min.toChar}-${charRange.last.toChar}] .") |Int peek->Bool| { !charRange.contains(peek) }
 	}
 	
 	static Rule anyAlphaChar() {
@@ -56,7 +56,7 @@ mixin Rules {
 
 	** whitespace: space \t \n \r \f
 	static Rule anyNonSpaceChar() {
-		StrRule("![ ]") |Int peek->Bool| { !peek.isSpace }
+		StrRule("![ ] .") |Int peek->Bool| { !peek.isSpace }
 	}
 
 	static Rule optional(Rule rule) {
