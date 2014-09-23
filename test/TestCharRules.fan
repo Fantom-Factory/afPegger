@@ -1,29 +1,29 @@
 
-class TestCharRules : Test {
+internal class TestCharRules : Test, Rules {
 	
 	Void testAnyChar() {
-		parser	:= Parser(Rules.anyChar)
+		parser	:= Parser(anyChar)
 		verify     (parser.parse("a".in).passed)
 		verify     (parser.parse(" ".in).passed)
 		verifyFalse(parser.parse( "".in).passed)
 	}
 
 	Void testAnyCharOf() {
-		parser	:= Parser(Rules.anyCharOf("ab".chars))
+		parser	:= Parser(anyCharOf("ab".chars))
 		verify     (parser.parse("a".in).passed)
 		verify     (parser.parse("b".in).passed)
 		verifyFalse(parser.parse("c".in).passed)
 	}
 
 	Void testAnyCharNotOf() {
-		parser	:= Parser(Rules.anyCharNotOf("ab".chars))
+		parser	:= Parser(anyCharNotOf("ab".chars))
 		verifyFalse(parser.parse("a".in).passed)
 		verifyFalse(parser.parse("b".in).passed)
 		verify     (parser.parse("c".in).passed)
 	}
 
 	Void testAnyCharInRange() {
-		parser	:= Parser(Rules.anyCharInRange('b'..'d'))
+		parser	:= Parser(anyCharInRange('b'..'d'))
 		verifyFalse(parser.parse("a".in).passed)
 		verify     (parser.parse("b".in).passed)
 		verify     (parser.parse("c".in).passed)
@@ -32,7 +32,7 @@ class TestCharRules : Test {
 	}
 
 	Void testAnyCharNotInRange() {
-		parser	:= Parser(Rules.anyCharNotInRange('b'..'d'))
+		parser	:= Parser(anyCharNotInRange('b'..'d'))
 		verify     (parser.parse("a".in).passed)
 		verifyFalse(parser.parse("b".in).passed)
 		verifyFalse(parser.parse("c".in).passed)
@@ -41,7 +41,7 @@ class TestCharRules : Test {
 	}
 
 	Void testAnyAlphaChar() {
-		parser	:= Parser(Rules.anyAlphaChar)
+		parser	:= Parser(anyAlphaChar)
 		verify     (parser.parse("a".in).passed)
 		verify     (parser.parse("b".in).passed)
 		verifyFalse(parser.parse("1".in).passed)
@@ -50,7 +50,7 @@ class TestCharRules : Test {
 	}
 
 	Void testAnyNumChar() {
-		parser	:= Parser(Rules.anyNumChar)
+		parser	:= Parser(anyNumChar)
 		verifyFalse(parser.parse("a".in).passed)
 		verifyFalse(parser.parse("b".in).passed)
 		verify     (parser.parse("1".in).passed)
@@ -59,7 +59,7 @@ class TestCharRules : Test {
 	}
 
 	Void testAnyAlphaNumChar() {
-		parser	:= Parser(Rules.anyAlphaNumChar)
+		parser	:= Parser(anyAlphaNumChar)
 		verify     (parser.parse("a".in).passed)
 		verify     (parser.parse("b".in).passed)
 		verify     (parser.parse("1".in).passed)
@@ -68,7 +68,7 @@ class TestCharRules : Test {
 	}
 
 	Void testAnySpaceChar() {
-		parser	:= Parser(Rules.anySpaceChar)
+		parser	:= Parser(anySpaceChar)
 		verifyFalse(parser.parse("a".in).passed)
 		verifyFalse(parser.parse("b".in).passed)
 		verifyFalse(parser.parse("1".in).passed)
@@ -77,7 +77,7 @@ class TestCharRules : Test {
 	}
 
 	Void testAnyNonSpaceChar() {
-		parser	:= Parser(Rules.anyNonSpaceChar)
+		parser	:= Parser(anyNonSpaceChar)
 		verify     (parser.parse("a".in).passed)
 		verify     (parser.parse("b".in).passed)
 		verify     (parser.parse("1".in).passed)

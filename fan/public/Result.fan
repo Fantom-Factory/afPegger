@@ -1,6 +1,6 @@
 
 class Result {
-	private Log log	:= Result#.pod.log
+//	private Log log	:= Result#.pod.log
 	
 	** The name of the rule that created this 'Result'.
 	Str? 		ruleName

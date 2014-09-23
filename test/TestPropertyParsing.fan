@@ -1,5 +1,5 @@
 
-class TestPropertyParsing : Test, Rules {
+internal class TestPropertyParsing : Test, Rules {
 	
 	Void testNuffin() {		
 		property := "obj.list[2].map[wot].meth(judge, dredd).str().prop"

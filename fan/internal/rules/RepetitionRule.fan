@@ -11,16 +11,11 @@ internal class RepetitionRule : Rule {
 	}
 	
 	override Void doProcess(PegCtx ctx) {
-		
-		count := 0
-		rulePass := true
-		maxLimit := false
-		while (rulePass && !maxLimit) {
-			rulePass = ctx.process(rule)
-			if (rulePass)
-				count ++
-			if (max != null && count == max)
-				maxLimit = true
+		count	:= 0
+		pass	:= true
+		while (pass && (max == null || count != max)) {
+			pass = ctx.process(rule)
+			if (pass) count ++
 		}
 
 		minOkay := (min == null) || (count >= min)

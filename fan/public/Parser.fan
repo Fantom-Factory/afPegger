@@ -1,13 +1,9 @@
 
 class Parser {
 	private Rule 		rootRule
-//	private PegInStream	pegStream
-//	private InStream	in
 	
 	new make(Rule rootRule) {
 		this.rootRule 	= rootRule
-//		this.pegStream	= PegInStream(in)
-//		this.in			= in
 	}
 	
 	Result parse(InStream in) {
