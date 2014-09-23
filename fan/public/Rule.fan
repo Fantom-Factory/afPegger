@@ -3,7 +3,7 @@ abstract class Rule {
 	Str? 		name
 	|Result|?	action
 
-	abstract Result match(PegCtx ctx)
+	abstract protected Void doProcess(PegCtx ctx)
 	
 	abstract Str desc()
 	

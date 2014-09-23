@@ -1,19 +1,22 @@
 
 class Parser {
 	private Rule 		rootRule
-	private PegInStream	pegStream
+//	private PegInStream	pegStream
+//	private InStream	in
 	
-	new make(Rule rootRule, InStream in) {
+	new make(Rule rootRule) {
 		this.rootRule 	= rootRule
-		this.pegStream	= PegInStream(in)
+//		this.pegStream	= PegInStream(in)
+//		this.in			= in
 	}
 	
-	Result parse() {
+	Result parse(InStream in) {
 //		try {
-			result := rootRule.match(PegCtx(pegStream))
-			if (result.matched)
-				result.success()
-			return result
+			ctx		:= PegCtx(rootRule, in)
+			result	:= ctx.process(rootRule)
+			if (result)
+				ctx.rootResult.success
+			return ctx.rootResult
 
 //		} catch (Err err) {
 //			throw PegErr()

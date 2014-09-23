@@ -6,11 +6,8 @@ internal class TodoRule : Rule {
 		this.pass = pass
 	}
 	
-	override Result match(PegCtx ctx) {
-		result := Result("TODO")
-		if (pass)
-			result.successFunc = |->| { }
-		return result
+	override Void doProcess(PegCtx ctx) {
+		ctx.pass(pass)
 	}
 	
 	override Str desc() {"-!TODO!-"} 

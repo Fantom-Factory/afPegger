@@ -12,10 +12,12 @@ class PegExample : Test, Rules {
 		numbers	:= oneOrMore(sequence([number, wspace])){ it.name = "numbers" }
 
 //		parser := Parser(numbers, "75 33.23 11".in)
-		parser := Parser(match, "75 33.23 11".in)
+		in := "75 33.23 11".in
+		parser := Parser(match)
+		parser.parse(in)
 
-		Env.cur.err.printLine(parser.parse)
-		Env.cur.err.printLine(parser.parse)
-		Env.cur.err.printLine(parser.parse)
+		Env.cur.err.printLine(parser.parse(in))
+		Env.cur.err.printLine(parser.parse(in))
+		Env.cur.err.printLine(parser.parse(in))
 	}
 }

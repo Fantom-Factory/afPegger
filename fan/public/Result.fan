@@ -4,63 +4,68 @@ class Result {
 	
 	** The name of the rule that created this 'Result'.
 	Str? 		ruleName
+	|Result|?	ruleAction
 	
 	Str? 		matchStr
-	Result[]?	results
+	Result[]	results		:= Result[,]
 	|->|?		rollbackFunc
-	|->|?		successFunc
-	LogRec[]?	logs		:= LogRec[,]
+//	LogRec[]?	logs		:= LogRec[,]
 
+	Bool?		passed
 	
-	internal new make(Str? ruleName) {
-		this.ruleName = ruleName		
+	internal new make(Str? ruleName, |Result|? ruleAction) {
+		this.ruleName	= ruleName
+		this.ruleAction	= ruleAction
 	}
 
-	Void ruleFailed(Str desc) {
-		if (ruleName == null)
-			debug(" - failed - $desc")
-		else
-			debug("'$ruleName' failed - $desc")		
-	}
-
-	Void passed(Str desc) {
-		msg := matchStr ?: desc
-		if (ruleName == null)
-			debug(" - matched $desc")
-		else
-			info("'$ruleName' matched $desc")
-	}
-	
-	Void debug(Str msg) {
-		logs.add(LogRec(DateTime.now, LogLevel.debug, ruleName ?: Str.defVal, msg))
-		log.info(msg.toCode(null))
-	}
-
-	Void info(Str msg) {
-		logs.add(LogRec(DateTime.now, LogLevel.info, ruleName, msg))
-		log.warn(msg.toCode(null))
-	}
-
-	Str[] msgs() {
-		(results?.map { it.msgs } ?: [,]).addAll(logs.findAll { it.level >= LogLevel.info }.map { formatLog(it) }).flatten
-	}
-
-	Str[] allMsgs() {
-		(results?.map { it.allMsgs } ?: [,]).addAll(logs.map { formatLog(it) }).flatten
-	}
+//	Void ruleFailed(Str desc) {
+//		bp = false
+//		if (ruleName == null)
+//			debug(" - failed - $desc")
+//		else
+//			debug("'$ruleName' failed - $desc")		
+//	}
+//
+//	Void rulePassed(Str desc) {
+//		bp = true
+//		msg := matchStr ?: desc
+//		if (ruleName == null)
+//			debug(" - matched $desc")
+//		else
+//			info("'$ruleName' matched $desc")
+//	}
+//	
+//	Void debug(Str msg) {
+//		logs.add(LogRec(DateTime.now, LogLevel.debug, ruleName ?: Str.defVal, msg))
+//		log.info(msg.toCode(null))
+//	}
+//
+//	Void info(Str msg) {
+//		logs.add(LogRec(DateTime.now, LogLevel.info, ruleName, msg))
+//		log.warn(msg.toCode(null))
+//	}
+//
+//	Str[] msgs() {
+//		(results?.map { it.msgs } ?: [,]).addAll(logs.findAll { it.level >= LogLevel.info }.map { formatLog(it) }).flatten
+//	}
+//
+//	Str[] allMsgs() {
+//		(results?.map { it.allMsgs } ?: [,]).addAll(logs.map { formatLog(it) }).flatten
+//	}
 	
 	
 	Void success() {
-		if (ruleName != null)
-			info("'$ruleName' is successful!'")
-		// func should exist if we're calling success
-		successFunc.call()
+//		if (ruleName != null)
+//			info("'$ruleName' is successful!'")
+		results.each { it.success }
+		ruleAction?.call(this)
 	}
 
-	Void rollback() {
-		if (ruleName != null)
-			info("'$ruleName' is rolling back...'")
-		rollbackFunc?.call()
+	internal Void rollback() {
+//		if (ruleName != null)
+//			info("'$ruleName' is rolling back...'")
+		rollbackFunc?.call
+		results.eachr { it.rollback }
 	}
 	
 //	Str:Match matches() {
@@ -69,12 +74,8 @@ class Result {
 //		return Str:Match[:] { ordered = true }.addList(matches) |m->Str| { m.ruleName }
 //	}
 
-	Bool matched() {
-		successFunc != null || (results?.any { it.matched } ?: false)
-	}
-
-	Str matchedStr() {
-		(matchStr ?: Str.defVal) + (results?.join(Str.defVal) { it.matchedStr } ?: Str.defVal)
+	Str matched() {
+		(matchStr ?: Str.defVal) + (results.join(Str.defVal) { it.matched } )
 	}
 	
 	private Str formatLog(LogRec log) {
@@ -83,7 +84,7 @@ class Result {
 	
 	@NoDoc
 	override Str toStr() {
-		"${ruleName}:${matchedStr}"
+		"${ruleName}:${matched}"
 	}
 }
 
