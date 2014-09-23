@@ -1,8 +1,9 @@
 
 class PegCtx {
-	private		InStream	in
-	private		Result[]	resultStack	:= Result[,]
-	internal	Result		rootResult
+	private static const Log	log	:= Result#.pod.log
+	private		InStream		in
+	private		Result[]		resultStack	:= Result[,]
+	internal	Result			rootResult
 	
 	internal new make(Rule rootRule, InStream in) {
 		this.rootResult	= Result(rootRule.name ?: "Root Rule", rootRule.action)
