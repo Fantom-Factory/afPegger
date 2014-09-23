@@ -26,14 +26,23 @@ internal class RepetitionRule : Rule {
 	}
 
 	override Str desc() {
+		// TODO: pull this out into a helper method - wrapRuleName
+		innerDesc := rule.name ?: rule.desc
+		if (Regex<|[^\[]\s+[^\]]|>.matcher(innerDesc).find) {
+			if (innerDesc.startsWith("(") && innerDesc.endsWith(")")) {
+				if (innerDesc.index("(", 1) > innerDesc.index(")", 1))
+					innerDesc = "(${innerDesc})" 			
+			} else
+				innerDesc = "(${innerDesc})" 			
+		}
 		if (min == 0 && max == 1)
-			return "${rule}?"
+			return "${innerDesc}?"
 		if (min == 0 && max == null)
-			return "${rule}*"
+			return "${innerDesc}*"
 		if (min == 1 && max == null)
-			return "${rule}+"
+			return "${innerDesc}+"
 		min := min ?: Str.defVal
 		max := max ?: Str.defVal
-		return "${rule.name ?: rule.desc}{${min},${max}}"
+		return "${innerDesc}{${min},${max}}"
 	}
 }

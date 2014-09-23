@@ -6,15 +6,17 @@ class PegCtx {
 	internal	Result			rootResult
 	
 	internal new make(Rule rootRule, InStream in) {
-		this.rootResult	= Result(rootRule.name ?: "Root Rule", rootRule.action)
+		if (rootRule.name == null)
+			rootRule.name = "Root Rule"
+		this.rootResult	= Result(rootRule)
 		this.in			= in
 		
 		logger.level = LogLevel.debug
 	}
 	
 	Bool process(Rule rule) {
-		result	:= resultStack.isEmpty ? rootResult : Result(rule.name, rule.action)		
-		log("--> ${result.ruleName} - Processing... ${rule.desc}")
+		result	:= resultStack.isEmpty ? rootResult : Result(rule)		
+		_log(result, "--> ${result.rule.name} - Processing... ${rule.desc}")
 
 		resultStack.push(result)		
 		try {
@@ -26,7 +28,7 @@ class PegCtx {
 			resultStack.peek.results.add(result)
 		
 		millis	:= (Duration.now - result.startTime).toMillis.toLocale("#,000")
-		log("<-- ${result.ruleName} - Processed. [${millis}ms]")
+		_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
 
 		return result.passed
 	}
@@ -36,6 +38,8 @@ class PegCtx {
 		resultStack.peek.passed = rulePassed
 		if (!rulePassed)
 			resultStack.peek.rollback
+		else
+			log("Matched ${matched.toCode}")
 	}
 
 	|->| rollbackFunc {
@@ -71,12 +75,16 @@ class PegCtx {
 	
 	Void log(Str msg) {
 		result := resultStack.peek ?: rootResult
-		if (logger.isDebug && result.ruleName != null) {
+		_log(result, msg)
+	}
+
+	Void _log(Result result, Str msg) {
+		if (logger.isDebug && result.rule.name != null) {
 			depth := resultStack.size
 			if (msg.startsWith("--> ") || msg.startsWith("<-- "))
 				depth++
 			else
-				msg = " -> ${result.ruleName} - ${msg}"
+				msg = "  > ${result.rule.name} - ${msg}"
 			pad	:= "".justr(depth)
 			logger.debug("[${depth.toStr.justr(3)}]${pad}${msg}")
 		}

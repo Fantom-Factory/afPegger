@@ -8,13 +8,16 @@ internal class SequenceRule : Rule {
 	
 	override Void doProcess(PegCtx ctx) {
 		passed := rules.all |Rule rule->Bool| {
-			ctx.process(rule)
+			pass := ctx.process(rule)
+			if (!pass)
+				ctx.log("Did not match ${rule.desc}")
+			return pass
 		}
 		
 		ctx.pass(passed)
 	}
 
 	override Str desc() {
-		"(" + rules.join(" ") { it.name ?: it.desc } + ")"
+		rules.join(" ") { it.name ?: it.desc }
 	}
 }

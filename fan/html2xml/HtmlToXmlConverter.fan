@@ -64,44 +64,47 @@ internal class HtmltoXmlRules : Rules {
 		rawText							:= rules["rawText"]
 		whitespace						:= rules["whitespace"]
 
-		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement]) { it.name = "Element" }
-		rules["element"]						= firstOf([voidElement, selfClosingElement, normalElement]) { it.name = "Element" }
+		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
+		rules["element"]						= firstOf([voidElement, selfClosingElement, normalElement])
 
-		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						{ it.name = "Void Element";						it.action = |Result result| { ctx.voidTag	} }
-		rules["rawTextElement"]					= sequence([rawTextElementTag, rawTextElementContent, endTag])						{ it.name = "Raw Text Element" }
-		rules["escapableRawTextElement"]		= sequence([escapableRawTextElementTag, escapableRawTextElementContent, endTag])	{ it.name = "Escapable Raw Text Element" }
-		rules["selfClosingElement"]				= sequence([str("<"), tagName, attributes, str("/>")])								{ it.name = "Self Closing Element"; 			it.action = |Result result| { ctx.voidTag	} }
-		rules["normalElement"]					= sequence([startTag, normalElementContent, endTag]) 								{ it.name = "Normal Element" }
+		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						{ it.action = |Result result| { ctx.voidTag		} }
+		rules["rawTextElement"]					= sequence([rawTextElementTag, rawTextElementContent, endTag])
+		rules["escapableRawTextElement"]		= sequence([escapableRawTextElementTag, escapableRawTextElementContent, endTag])
+		rules["selfClosingElement"]				= sequence([str("<"), tagName, attributes, str("/>")])								{ it.action = |Result result| { ctx.voidTag		} }
+		rules["normalElement"]					= sequence([startTag, normalElementContent, endTag])
 
-		rules["rawTextElementTag"]				= sequence([str("<"), rawTextElementName, attributes, str( ">")])					{ it.name = "Raw Text Element Tag"; 			it.action = |Result result| { ctx.startTag	} }
-		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str( ">")])			{ it.name = "Escapable Raw Text Element Tag";	it.action = |Result result| { ctx.startTag	} }
+		rules["rawTextElementTag"]				= sequence([str("<"), rawTextElementName, attributes, str( ">")])					{ it.action = |Result result| { ctx.startTag	} }
+		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str( ">")])			{ it.action = |Result result| { ctx.startTag	} }
 
-		rules["startTag"]						= sequence([str("<"), tagName, attributes, str( ">")])								{ it.name = "Start Tag";						it.action = |Result result| { ctx.startTag	} }
-		rules["endTag"]							= sequence([str("</"), tagName, str(">")])											{ it.name = "End Tag";							it.action = |Result result| { ctx.endTag	} }
+		rules["startTag"]						= sequence([str("<"), tagName, attributes, str( ">")])								{ it.action = |Result result| { ctx.startTag	} }
+		rules["endTag"]							= sequence([str("</"), tagName, str(">")])											{ it.action = |Result result| { ctx.endTag		} }
 
-		rules["tagName"]						= tagNameRule(sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]), "Tag Name")
+		rules["tagName"]						= tagNameRule(sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]))
 
-		rules["voidElementName"]				= firstOf("area base br col embed hr img input keygen link meta param source track wbr"	.split.map { tagNameRule(str(it), "Void Element Name") })
-		rules["rawTextElementName"]				= firstOf("script style"																.split.map { tagNameRule(str(it), "Raw Text Element Name") })
-		rules["escapableRawTextElementName"]	= firstOf("textarea title"																.split.map { tagNameRule(str(it), "Escapable Raw Text Element Name") })
+		rules["voidElementName"]				= firstOf("area base br col embed hr img input keygen link meta param source track wbr"	.split.map { tagNameRule(str(it)) })
+		rules["rawTextElementName"]				= firstOf("script style"																.split.map { tagNameRule(str(it)) })
+		rules["escapableRawTextElementName"]	= firstOf("textarea title"																.split.map { tagNameRule(str(it)) })
 
 		rules["rawTextElementContent"]			= rawText
-		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([text, characterEntity]))						{ it.name = "Escapable Raw Text Element Content" }
-		rules["normalElementContent"]			= zeroOrMore(firstOf([text, characterEntity, element]))				{ it.name = "Normal Element Content" }
+		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([text, characterEntity]))
+		rules["normalElementContent"]			= zeroOrMore(firstOf([text, characterEntity, element]))
 		
 		rules["attributes"]						= todo(true)
 		
 		rules["characterEntity"]				= todo(false)
 		
-		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))	{ it.name = "Text"			}
-		rules["rawText"]						= oneOrMore(strNot("</"))				{ it.name = "Raw Text"		}
-		rules["whitespace"]						= zeroOrMore(anySpaceChar)				{ it.name = "Whitespace"	}
+		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))
+		rules["rawText"]						= oneOrMore(strNot("</"))
+		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
 		return element
 	}
 	
-	Rule tagNameRule(Rule rule, Str name) {
-		sequence([rule { it.name = name; it.action = |Result result| { ctx.tagName = result.matched } }, zeroOrMore(anySpaceChar) { it.name = "Whitespace" }])
+	Rule tagNameRule(Rule rule) {
+		sequence([rule { it.action = |Result result| { 
+			ctx.tagName = result.matched 
+			
+		} }, zeroOrMore(anySpaceChar)])
 	}
 	
 	ParseCtx ctx() {

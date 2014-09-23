@@ -28,8 +28,12 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
+//	override |Result|?	action {
+//		
+//	}
+	
 	override Void doProcess(PegCtx ctx) {
-		ctx.process(rule)
+		rule.doProcess(ctx)
 	}
 	
 	override Str desc() {
@@ -41,8 +45,14 @@ internal class ProxyRule : Rule {
 	}
 	
 	private Rule rule() {
-		if (ruleForReal == null)
+		if (ruleForReal == null) {
 			ruleForReal = rules.getForReal(name)
+			if (ruleForReal.name == null)
+				ruleForReal.name = name
+			else
+				name = ruleForReal.name
+			action = ruleForReal.action
+		}
 		return ruleForReal
 	}
 }
