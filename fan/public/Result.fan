@@ -12,10 +12,13 @@ class Result {
 //	LogRec[]?	logs		:= LogRec[,]
 
 	Bool?		passed
+	Duration	startTime
+	
 	
 	internal new make(Str? ruleName, |Result|? ruleAction) {
 		this.ruleName	= ruleName
 		this.ruleAction	= ruleAction
+		this.startTime	= Duration.now
 	}
 
 //	Void ruleFailed(Str desc) {
