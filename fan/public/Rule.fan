@@ -1,15 +1,18 @@
 
 abstract class Rule {
-	virtual Str? 		name
-	virtual |Result|?	action
+	Str? 		name
+	|Result|?	action
 
 	abstract protected Void doProcess(PegCtx ctx)
 	
-	// TODO: introduce grammer field
-	abstract Str desc()
+	abstract Str expression()
+
+	Str definition() {
+		((name == null) ? Str.defVal : "${name} <- ") + expression		
+	}
 	
 	override Str toStr() {
-		((name == null) ? Str.defVal : "${name} <- ") + desc
+		name ?: expression
 	}
 	
 //	Void addAction(|Match| action) {

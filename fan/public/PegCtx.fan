@@ -16,7 +16,7 @@ class PegCtx {
 	
 	Bool process(Rule rule) {
 		result	:= resultStack.isEmpty ? rootResult : Result(rule)		
-		_log(result, "--> ${result.rule.name} - Processing... ${rule.desc}")
+		_log(result, "--> ${result.rule.name} - Processing... ${rule.expression}")
 
 		resultStack.push(result)		
 		try {

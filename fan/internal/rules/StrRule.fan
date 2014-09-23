@@ -2,17 +2,17 @@
 internal class StrRule : Rule {
 	private		|Str?->Bool|	func
 	private		Int				peekSize
-	override	Str				desc
+	override	Str				expression
 	
-	new makeFromCharFunc(Str desc, |Int->Bool| func) {
+	new makeFromCharFunc(Str expression, |Int->Bool| func) {
 		this.func = |Str? peek->Bool| { peek == null ? false : func(peek.chars.first) }
-		this.desc = desc
+		this.expression = expression
 		this.peekSize = 1
 	}
 
-	new makeFromStrFunc(Str desc, Int peekSize, |Str?->Bool| func) {
+	new makeFromStrFunc(Str expression, Int peekSize, |Str?->Bool| func) {
 		this.func = func
-		this.desc = desc
+		this.expression = expression
 		this.peekSize = peekSize
 	}
 
@@ -32,12 +32,12 @@ internal class StrRule : Rule {
 internal class StrNotRule : Rule {
 	private		Str		str
 	private		Bool	ignoreCase
-	override	Str		desc
+	override	Str		expression
 	
 	new makeFromStrFunc(Str str, Bool ignoreCase) {
 		this.str = str
 		this.ignoreCase = ignoreCase
-		this.desc = "(!${str.toCode} .)+"
+		this.expression = "(!${str.toCode} .)+"
 	}
 
 	override Void doProcess(PegCtx ctx) {
