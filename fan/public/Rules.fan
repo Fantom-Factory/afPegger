@@ -22,19 +22,19 @@ mixin Rules {
 	}
 
 	static Rule anyCharOf(Int[] chars) {
-		StrRule("[${Str.fromChars(chars)}]") |Int peek->Bool| { chars.contains(peek) }
+		StrRule("[${Str.fromChars(chars).toCode(null)}]") |Int peek->Bool| { chars.contains(peek) }
 	}
 	
 	static Rule anyCharNotOf(Int[] chars) {
-		StrRule("![${Str.fromChars(chars)}] .") |Int peek->Bool| { !chars.contains(peek) }
+		StrRule("![${Str.fromChars(chars).toCode(null)}] .") |Int peek->Bool| { !chars.contains(peek) }
 	}
 
 	static Rule anyCharInRange(Range charRange) {
-		StrRule("[${charRange.min.toChar}-${charRange.last.toChar}]") |Int peek->Bool| { charRange.contains(peek) }
+		StrRule("[${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}]") |Int peek->Bool| { charRange.contains(peek) }
 	}
 
 	static Rule anyCharNotInRange(Range charRange) {
-		StrRule("![${charRange.min.toChar}-${charRange.last.toChar}] .") |Int peek->Bool| { !charRange.contains(peek) }
+		StrRule("![${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}] .") |Int peek->Bool| { !charRange.contains(peek) }
 	}
 	
 	static Rule anyAlphaChar() {
