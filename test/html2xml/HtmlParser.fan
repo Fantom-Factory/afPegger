@@ -30,14 +30,6 @@ internal class HtmlRules : Rules {
 	Rule rootRule() {
 		rules := NamedRules()
 
-		// TODO: 
-		//	Optionally, a single "BOM" (U+FEFF) character.
-		//	Any number of comments and space characters.
-		//	A DOCTYPE.
-		//	Any number of comments and space characters.
-		//	The root element, in the form of an html element.
-		//	Any number of comments and space characters.
-		
 		preamble						:= rules["preamble"]
 		blurb							:= rules["blurb"]
 		bom								:= rules["bom"]
@@ -95,17 +87,17 @@ internal class HtmlRules : Rules {
 		
 		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
 
-		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						{ it.action = |Result result| { ctx.voidTag		} }
+		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						.withAction { ctx.pushVoidTag }
 		rules["rawTextElement"]					= sequence([rawTextElementTag, rawTextElementContent, endTag])
 		rules["escapableRawTextElement"]		= sequence([escapableRawTextElementTag, escapableRawTextElementContent, endTag])
-		rules["selfClosingElement"]				= sequence([str("<"), tagName, attributes, str("/>")])								{ it.action = |Result result| { ctx.voidTag		} }
+		rules["selfClosingElement"]				= sequence([str("<"), tagName, attributes, str("/>")])								.withAction { ctx.pushVoidTag }
 		rules["normalElement"]					= sequence([startTag, normalElementContent, endTag])
 
-		rules["rawTextElementTag"]				= sequence([str("<"), rawTextElementName, attributes, str(">")])					{ it.action = |Result result| { ctx.startTag	} }
-		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str(">")])			{ it.action = |Result result| { ctx.startTag	} }
+		rules["rawTextElementTag"]				= sequence([str("<"), rawTextElementName, attributes, str(">")])					.withAction { ctx.pushStartTag }
+		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str(">")])			.withAction { ctx.pushStartTag }
 
-		rules["startTag"]						= sequence([str("<"), tagName, attributes, str(">")])								{ it.action = |Result result| { ctx.startTag	} }
-		rules["endTag"]							= sequence([str("</"), EndTagRule(tagName), str(">")])								{ it.action = |Result result| { ctx.endTag		} }
+		rules["startTag"]						= sequence([str("<"), tagName, attributes, str(">")])								.withAction { ctx.pushStartTag }
+		rules["endTag"]							= sequence([str("</"), EndTagRule(tagName), str(">")])								.withAction { ctx.pushEndTag }
 
 		rules["tagName"]						= tagNameRule(sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]))
 
@@ -117,29 +109,29 @@ internal class HtmlRules : Rules {
 		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([characterReference, escapableRawText]))
 		rules["normalElementContent"]			= zeroOrMore(firstOf([characterReference, comment, cdata, normalElementText, element]))
 		
-		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
-		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
-		rules["normalElementText"]				= oneOrMore(anyCharNotOf("<&".chars))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
+		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it.matched) }
+		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it.matched) }
+		rules["normalElementText"]				= oneOrMore(anyCharNotOf("<&".chars))																	.withAction { ctx.addText(it.matched) }
 		
 		rules["attributes"]						= zeroOrMore(firstOf([anySpaceChar, doubleAttribute, singleAttribute, unquotedAttribute, emptyAttribute]))
-		rules["emptyAttribute"]					= nTimes(1, attributeName)	{ it.action = |Result result| { ctx.addAttrVal(ctx.attrName); ctx.setAttrValue	} }	// can't put the action on attributeName
-		rules["unquotedAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace,			oneOrMore(firstOf([characterReference, anyCharNotOf(" \t\n\r\f\"'=<>`".chars) { it.action = |Result result| { ctx.addAttrVal(result.matched) } }]))	{ it.action = |Result result| { ctx.setAttrValue } }  ])
-		rules["singleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("'"),	oneOrMore(firstOf([characterReference, anyCharNotOf(			   "'".chars) { it.action = |Result result| { ctx.addAttrVal(result.matched) } }]))	{ it.action = |Result result| { ctx.setAttrValue } }, str("'")])
-		rules["doubleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("\""), oneOrMore(firstOf([characterReference, anyCharNotOf(		 	  "\"".chars) { it.action = |Result result| { ctx.addAttrVal(result.matched) } }]))	{ it.action = |Result result| { ctx.setAttrValue } }, str("\"")])
-		rules["attributeName"]					= oneOrMore(anyCharNotOf(" \t\n\r\f\"'>/=".chars)) 																									  { it.action = |Result result| { ctx.setAttrName(result.matched) } }
+		rules["emptyAttribute"]					= nTimes(1, attributeName).withAction { ctx.addAttrVal(ctx.attrName); ctx.setAttrValue }	// can't put the action on attributeName
+		rules["unquotedAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace,			oneOrMore(firstOf([characterReference, anyCharNotOf(" \t\n\r\f\"'=<>`".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue } ])
+		rules["singleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("'"),	oneOrMore(firstOf([characterReference, anyCharNotOf(			   "'".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue }, str("'")])
+		rules["doubleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("\""), oneOrMore(firstOf([characterReference, anyCharNotOf(		 	  "\"".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue }, str("\"")])
+		rules["attributeName"]					= oneOrMore(anyCharNotOf(" \t\n\r\f\"'>/=".chars)) 																									 .withAction { ctx.setAttrName(it.matched) }
 		
 		
 		rules["characterReference"]				= firstOf([decNumCharRef, hexNumCharRef])		
-		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	{ it.action = |Result result| { ctx.addDecCharRef(result.matched)	} }
-		rules["hexNumCharRef"]					= sequence([str("&#x"), oneOrMore(firstOf([anyNumChar, anyCharInRange('a'..'f'), anyCharInRange('A'..'F')])), str(";")]) 	{ it.action = |Result result| { ctx.addHexCharRef(result.matched)	} }		
+		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	.withAction { ctx.addDecCharRef(it.matched) }
+		rules["hexNumCharRef"]					= sequence([str("&#x"), oneOrMore(firstOf([anyNumChar, anyCharInRange('a'..'f'), anyCharInRange('A'..'F')])), str(";")]) 	.withAction { ctx.addHexCharRef(it.matched) }		
 
-		rules["cdata"]							= sequence([str("<![CDATA["), strNot("]]>"), str("]]>")])	{ it.action = |Result result| { ctx.addCdata(result.matched)	} }
+		rules["cdata"]							= sequence([str("<![CDATA["), strNot("]]>"), str("]]>")]).withAction { ctx.addCdata(it.matched) }
 
 		rules["comment"]						= sequence([str("<!--"), strNot("--"), str("-->")])
 
-		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), oneOrMore(anyAlphaNumChar) { it.action = |Result result| { ctx.pushDoctype(result.matched) } }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
-		rules["doctypeSystemId"]				= sequence([oneOrMore(anySpaceChar), str("SYSTEM"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])) { it.action = |Result result| { ctx.pushSystemId(result.matched) } }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])) { it.action = |Result result| { ctx.pushSystemId(result.matched) } }, str("'")])])])
-		rules["doctypePublicId"]				= sequence([oneOrMore(anySpaceChar), str("PUBLIC"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])) { it.action = |Result result| { ctx.pushPublicId(result.matched) } }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])) { it.action = |Result result| { ctx.pushPublicId(result.matched) } }, str("'")])])])
+		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), oneOrMore(anyAlphaNumChar).withAction { ctx.pushDoctype(it.matched) }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
+		rules["doctypeSystemId"]				= sequence([oneOrMore(anySpaceChar), str("SYSTEM"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])).withAction { ctx.pushSystemId(it.matched) }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])).withAction { ctx.pushSystemId(it.matched) }, str("'")])])])
+		rules["doctypePublicId"]				= sequence([oneOrMore(anySpaceChar), str("PUBLIC"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])).withAction { ctx.pushPublicId(it.matched) }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])).withAction { ctx.pushPublicId(it.matched) }, str("'")])])])
 		
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
@@ -147,8 +139,12 @@ internal class HtmlRules : Rules {
 	}
 	
 	Rule tagNameRule(Rule rule) {
-		sequence([rule { it.action = |Result result| { ctx.tagName = result.matched } }, zeroOrMore(anySpaceChar)])
+		sequence([rule.withAction { ctx.tagName = it.matched }, zeroOrMore(anySpaceChar)])
 	}
+
+//	|Result|? pushVoidTag() {
+//		|Rule rule| { rule.action = |Result result| { ctx.voidTag } }
+//	}
 	
 	ParseCtx ctx() {
 		// TODO: get this from pegctx
@@ -185,13 +181,13 @@ internal class ParseCtx {
 		doc.docType.publicId = id
 	}
 	
-	Void voidTag() {
-		startTag
+	Void pushVoidTag() {
+		pushStartTag
 		&tagName = openElement.name
-		endTag
+		pushEndTag
 	}
 
-	Void startTag() {
+	Void pushStartTag() {
 		if (openElement == null) {
 			openElement = XElem(tagName)
 			roots.add(openElement)
@@ -253,7 +249,7 @@ internal class ParseCtx {
 		openElement.add(cdata)
 	}
 	
-	Void endTag() {
+	Void pushEndTag() {
 		if (tagName != openElement.name)
 			throw ParseErr("End tag </${tagName}> does not match start tag <${openElement.name}>")
 

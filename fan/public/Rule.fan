@@ -22,6 +22,18 @@ abstract class Rule {
 		((name == null) ? Str.defVal : "${name} <- ") + expression		
 	}
 	
+	** A helpful builder method for setting the action.
+	This withAction(|Result|? action) {
+		this.action = action
+		return this
+	}
+
+	** A helpful builder method for setting the name.
+	This withName(Str name) {
+		this.name = name
+		return this
+	}
+	
 	@Operator @NoDoc
 	virtual This add(Rule rule) {
 		throw Err("${typeof.qname} does not support add()")
