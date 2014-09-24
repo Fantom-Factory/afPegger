@@ -5,18 +5,27 @@ Though you are welcome to use it, you may find features are missing and the docu
 
 A valiant effort to parse HTML5 documents into XML.
 
-HtmlParser currently supports:
+'HtmlParser' currently recognises and supports:
 
+Elements:
  - Normal elements: '<div></div>'
  - Void elements: '<br>'
  - Self closing elements: '<foreignElement />'
  - Raw text elements: '<script> ... </script>'
  - Escapable raw text elements: '<textarea> ... </textarea>'
 
-comments
-attributes
-numerical character references (dec and hex)
-cdata
+Attributes:
+ - Empty attributes: '<input disabled>'
+ - Unquoted attributes: '<input type=submit>'
+ - Single quoted attributes: '<input type='submit'>'
+ - Double quoted attributes: '<input type="submit">'
+
+Other:
+ - Comments: '<!-- comment -->'
+ - CData Sections: '<![CDATA[ cdata ]]>'
+ - Numerical character references: '&#160;' and '&#xA0;'
+
+doctype
 
 Created so HTML documents created with [Slim]`pod:afSlim` may be parsed and tested by [Bounce]`pod:afBounce`.
 

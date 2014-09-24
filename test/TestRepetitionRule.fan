@@ -84,7 +84,7 @@ internal class TestRepetitionRule : Test, Rules {
 	}
 	
 	Void testNTimes() {
-		parser	:= Parser(nTimes((2..2), anyAlphaChar))
+		parser	:= Parser(nTimes(2, anyAlphaChar))
 		verifyFalse(parser.parse("X".in).passed)
 
 		verifyFalse(parser.parse("1".in).passed)
