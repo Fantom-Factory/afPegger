@@ -38,6 +38,10 @@ internal class HtmlRules : Rules {
 		//	The root element, in the form of an html element.
 		//	Any number of comments and space characters.
 		
+		preamble						:= rules["preamble"]
+		blurb							:= rules["blurb"]
+		bom								:= rules["bom"]
+
 		element 						:= rules["element"]
 
 		voidElement						:= rules["voidElement"]
@@ -79,8 +83,16 @@ internal class HtmlRules : Rules {
 		
 		comment							:= rules["comment"]
 
+		doctype							:= rules["doctype"]
+		doctypeSystemId					:= rules["doctypeSystemId"]
+		doctypePublicId					:= rules["doctypePublicId"]
+
 		whitespace						:= rules["whitespace"]
 
+		rules["preamble"]						= sequence([bom, blurb, optional(doctype), blurb, element, blurb])
+		rules["blurb"]							= zeroOrMore(firstOf([oneOrMore(anySpaceChar), comment]))
+		rules["bom"]							= optional(todo)
+		
 		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
 
 		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						{ it.action = |Result result| { ctx.voidTag		} }
@@ -124,10 +136,14 @@ internal class HtmlRules : Rules {
 		rules["cdata"]							= sequence([str("<![CDATA["), strNot("]]>"), str("]]>")])	{ it.action = |Result result| { ctx.addCdata(result.matched)	} }
 
 		rules["comment"]						= sequence([str("<!--"), strNot("--"), str("-->")])
+
+		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), str("html") { it.action = |Result result| { ctx.pushDoctype(result.matched) } }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
+		rules["doctypeSystemId"]				= sequence([oneOrMore(anySpaceChar), str("SYSTEM"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])) { it.action = |Result result| { ctx.pushSystemId(result.matched) } }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])) { it.action = |Result result| { ctx.pushSystemId(result.matched) } }, str("'")])])])
+		rules["doctypePublicId"]				= sequence([oneOrMore(anySpaceChar), str("PUBLIC"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])) { it.action = |Result result| { ctx.pushPublicId(result.matched) } }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])) { it.action = |Result result| { ctx.pushPublicId(result.matched) } }, str("'")])])])
 		
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
-		return element
+		return preamble
 	}
 	
 	Rule tagNameRule(Rule rule) {
@@ -147,9 +163,26 @@ internal class ParseCtx {
 	XElem			attrElem	:= XElem("attrs")
 	Str?			attrName
 	Str?			attrValue
+	XDoc?			doc
 	
 	Str? tagName {
 		set { &tagName = it.trim }
+	}
+	
+	// TODO: rename all methods pushXXXX()
+	
+	Void pushDoctype(Str name) {
+		doc = XDoc()
+		doc.docType = XDocType()
+		doc.docType.rootElem = name
+	}
+
+	Void pushSystemId(Str id) {
+		doc.docType.systemId = id.toUri
+	}
+	
+	Void pushPublicId(Str id) {
+		doc.docType.publicId = id
 	}
 	
 	Void voidTag() {
@@ -162,7 +195,8 @@ internal class ParseCtx {
 		if (openElement == null) {
 			openElement = XElem(tagName)
 			roots.add(openElement)
-			
+			if (doc != null)
+				doc.root = openElement
 		} else {
 			elem := XElem(tagName)
 			openElement.add(elem)
@@ -223,12 +257,13 @@ internal class ParseCtx {
 		if (tagName != openElement.name)
 			throw ParseErr("End tag </${tagName}> does not match start tag <${openElement.name}>")
 
-		openElement = openElement.parent
+		if (openElement.parent?.nodeType != XNodeType.doc)
+			openElement = openElement.parent
 	}
 	
 	XDoc document() {
 		// TODO: check size of roots
-		XDoc(roots.first)
+		doc ?: XDoc(roots.first)
 	}
 }
 
