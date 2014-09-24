@@ -40,28 +40,33 @@ internal class HtmlRules : Rules {
 		voidElement						:= rules["voidElement"]
 		voidElementName					:= rules["voidElementName"]
 
+		selfClosingElement				:= rules["selfClosingElement"]
+
 		rawTextElement					:= rules["rawTextElement"]
 		rawTextElementTag				:= rules["rawTextElementTag"]
 		rawTextElementName				:= rules["rawTextElementName"]
 		rawTextElementContent			:= rules["rawTextElementContent"]
+		rawText							:= rules["rawText"]
 
 		escapableRawTextElement			:= rules["escapableRawTextElement"]
 		escapableRawTextElementTag		:= rules["escapableRawTextElementTag"]
 		escapableRawTextElementName		:= rules["escapableRawTextElementName"]
 		escapableRawTextElementContent	:= rules["escapableRawTextElementContent"]
+		escapableRawText				:= rules["escapableRawText"]
 
-		selfClosingElement				:= rules["selfClosingElement"]
 		normalElement					:= rules["normalElement"]
+		normalElementContent			:= rules["normalElementContent"]
+		normalElementText				:= rules["normalElementText"]
 		startTag						:= rules["startTag"]
 		endTag							:= rules["endTag"]
 		tagName							:= rules["tagName"]
-		normalElementContent			:= rules["normalElementContent"]
 		
 		attributes						:= rules["attributes"]
-		characterEntity					:= rules["characterEntity"]
 		
-		text							:= rules["text"]
-		rawText							:= rules["rawText"]
+		characterReference				:= rules["characterReference"]
+		decNumCharRef					:= rules["decNumCharRef"]
+		hexNumCharRef					:= rules["hexNumCharRef"]
+		
 		whitespace						:= rules["whitespace"]
 
 		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
@@ -86,15 +91,19 @@ internal class HtmlRules : Rules {
 		rules["escapableRawTextElementName"]	= firstOf("textarea title"																.split.map { tagNameRule(str(it)) })
 
 		rules["rawTextElementContent"]			= rawText
-		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([text, characterEntity]))
-		rules["normalElementContent"]			= zeroOrMore(firstOf([text, characterEntity, element]))
+		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([characterReference, escapableRawText]))
+		rules["normalElementContent"]			= zeroOrMore(firstOf([normalElementText, characterReference, element]))
+		
+		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
+		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
+		rules["normalElementText"]				= oneOrMore(anyCharNotOf("<&".chars))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
 		
 		rules["attributes"]						= todo(true)
 		
-		rules["characterEntity"]				= todo(false)
+		rules["characterReference"]				= firstOf([decNumCharRef, hexNumCharRef])		
+		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])	{ it.action = |Result result| { ctx.addDecCharRef(result.matched)	} }
+		rules["hexNumCharRef"]					= sequence([str("&#x"), oneOrMore(firstOf([anyNumChar, anyCharInRange('a'..'f'), anyCharInRange('A'..'F')])), str(";")]) 	{ it.action = |Result result| { ctx.addHexCharRef(result.matched)	} }		
 		
-		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
-		rules["rawText"]						= oneOrMore(strNot("</"))				{ it.action = |Result result| { ctx.addText(result.matched)	} }
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
 		return element
@@ -140,7 +149,19 @@ internal class ParseCtx {
 	}
 
 	Void addText(Str text) {
-		openElement.add(XText(text))
+		if (openElement.children.last?.nodeType == XNodeType.text)
+			// for mashing lots of char ref together
+			((XText) openElement.children.last).val += text
+		else
+			openElement.add(XText(text))
+	}
+	
+	Void addDecCharRef(Str text) {
+		addText(text[2..-2].toInt(10).toChar)
+	}
+	
+	Void addHexCharRef(Str text) {
+		addText(text[3..-2].toInt(16).toChar)		
 	}
 	
 	Void endTag() {
@@ -167,10 +188,10 @@ internal class EndTagRule : Rule {
 		passed := ctx.process(rule)
 		
 		if (passed) {
-			Actor.sleep(20ms)
-			Env.cur.err.printLine("#####################")
-			Env.cur.err.printLine(ctx.matched)
-			Actor.sleep(20ms)
+//			Actor.sleep(20ms)
+//			Env.cur.err.printLine("#####################")
+//			Env.cur.err.printLine(ctx.matched)
+//			Actor.sleep(20ms)
 			//End tag </wot> does not match start tag <script>
 		}
 		

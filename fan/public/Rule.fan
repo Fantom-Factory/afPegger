@@ -5,7 +5,7 @@ abstract class Rule {
 	Str? 		name
 	
 	** The action to be performed upon successful completion of this rule.
-	|Result|?	action
+	virtual |Result|?	action
 
 	** Override to implement Rule logic.
 	abstract protected Void doProcess(PegCtx ctx)
