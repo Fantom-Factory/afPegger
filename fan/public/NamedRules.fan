@@ -28,6 +28,11 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
+	override |Result|?	action {
+		get { rule.action }
+		set { rule.action = it }
+	}
+	
 	override Void doProcess(PegCtx ctx) {
 		rule.doProcess(ctx)
 	}
