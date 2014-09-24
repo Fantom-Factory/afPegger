@@ -17,6 +17,11 @@ internal class SequenceRule : Rule {
 		ctx.pass(passed)
 	}
 
+	override This add(Rule rule) {
+		rules.add(rule)
+		return this
+	}
+
 	override Str expression() {
 		rules.join(" ")
 	}

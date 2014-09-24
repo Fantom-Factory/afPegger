@@ -9,10 +9,12 @@ mixin Rules {
 		StrNotRule(string, ignoreCase)
 	}
 	
+//	TODO: glob Rule
 //	static Rule glob(Str regex) {
 //		RuleTodo()
 //	}
 //
+//	TODO: regex Rule
 //	static Rule regex(Str regex) {
 //		RuleTodo()
 //	}
@@ -83,11 +85,11 @@ mixin Rules {
 		RepetitionRule(times.min, times.max, rule)
 	}
 
-	static Rule sequence(Rule[] rules) {
+	static Rule sequence(Rule[] rules := [,]) {
 		SequenceRule(rules)
 	}
 	
-	static Rule firstOf(Rule[] rules) {
+	static Rule firstOf(Rule[] rules := [,]) {
 		FirstOfRule(rules)
 	}
 	
@@ -95,21 +97,11 @@ mixin Rules {
 		TodoRule(pass)
 	}
 
-	// TODO: not rule
-	@Deprecated
-	static Rule not(Rule rules) {
-		TodoRule(false)
+	static Rule onlyIf(Rule rule) {
+		PredicateRule(rule, false)
 	}
 	
-	// TODO: onlyIf rule
-	@Deprecated
-	static Rule onlyIf(Rule[] rules) {
-		TodoRule(false)
-	}
-	
-	// TODO: onlyIfNot rule
-	@Deprecated
-	static Rule onlyIfNot(Rule[] rules) {
-		TodoRule(false)
+	static Rule onlyIfNot(Rule rule) {
+		PredicateRule(rule, true)
 	}
 }

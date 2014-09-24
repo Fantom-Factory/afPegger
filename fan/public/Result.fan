@@ -2,7 +2,7 @@
 class Result {
 	Rule 		rule	
 	Str? 		matchStr
-	Result[]	results		:= Result[,]
+	Result[]?	results		:= Result[,]
 	|->|?		rollbackFunc
 
 	Bool?		passed
@@ -15,17 +15,22 @@ class Result {
 	}	
 	
 	internal Void success() {
-		results.each { it.success }
+		results?.each { it.success }
 		rule.action?.call(this)
 	}
 
 	internal Void rollback() {
 		rollbackFunc?.call
-		results.eachr { it.rollback }
+		results?.eachr { it.rollback }
+		
+		// Ensure we only rollback the once
+		// Predicates rollback if successful, so they would rollback twice if their enclosing rule failed.
+		results			= null
+		rollbackFunc	= null
 	}
 
 	Str matched() {
-		(matchStr ?: Str.defVal) + (results.join(Str.defVal) { it.matched } )
+		(matchStr ?: Str.defVal) + (results?.join(Str.defVal) { it.matched } ?: Str.defVal)
 	}
 	
 	@NoDoc

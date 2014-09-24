@@ -2,6 +2,8 @@
 For 1.0.0
 =========
 
+Don't wait until the very end before we call the actions. We should always know if we're going to advance or not.
+Actually, bullshit - the first rule could always fail and rollback!
 
 
 For Future

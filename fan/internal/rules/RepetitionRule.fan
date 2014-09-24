@@ -38,17 +38,4 @@ internal class RepetitionRule : Rule {
 		max := max ?: Str.defVal
 		return "${innerDesc}{${min},${max}}"
 	}
-	
-	// TODO: pull this out into a helper method AND use it!
-	static Str wrapRuleName(Rule rule) {
-		desc := rule.name ?: rule.expression
-		if (Regex<|[^\[]\s+[^\]]|>.matcher(desc).find) {
-			if (desc.startsWith("(") && desc.endsWith(")")) {
-				if (desc.index("(", 1) > desc.index(")", 1))
-					desc = "(${desc})" 			
-			} else
-				desc = "(${desc})" 			
-		}
-		return desc
-	}
 }
