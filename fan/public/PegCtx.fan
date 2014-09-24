@@ -10,8 +10,6 @@ class PegCtx {
 			rootRule.name = "Root Rule"
 		this.rootResult	= Result(rootRule)
 		this.in			= in
-		
-		logger.level = LogLevel.debug
 	}
 	
 	Bool process(Rule rule) {
