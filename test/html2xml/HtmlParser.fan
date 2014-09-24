@@ -67,10 +67,13 @@ internal class HtmlRules : Rules {
 		decNumCharRef					:= rules["decNumCharRef"]
 		hexNumCharRef					:= rules["hexNumCharRef"]
 		
+		cdata							:= rules["cdata"]
+		
+		comment							:= rules["comment"]
+
 		whitespace						:= rules["whitespace"]
 
 		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
-//		rules["element"]						= firstOf([voidElement, selfClosingElement, normalElement])
 
 		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						{ it.action = |Result result| { ctx.voidTag		} }
 		rules["rawTextElement"]					= sequence([rawTextElementTag, rawTextElementContent, endTag])
@@ -92,7 +95,7 @@ internal class HtmlRules : Rules {
 
 		rules["rawTextElementContent"]			= rawText
 		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([characterReference, escapableRawText]))
-		rules["normalElementContent"]			= zeroOrMore(firstOf([normalElementText, characterReference, element]))
+		rules["normalElementContent"]			= zeroOrMore(firstOf([characterReference, comment, cdata, normalElementText, element]))
 		
 		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
 		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
@@ -101,8 +104,12 @@ internal class HtmlRules : Rules {
 		rules["attributes"]						= todo(true)
 		
 		rules["characterReference"]				= firstOf([decNumCharRef, hexNumCharRef])		
-		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])	{ it.action = |Result result| { ctx.addDecCharRef(result.matched)	} }
+		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	{ it.action = |Result result| { ctx.addDecCharRef(result.matched)	} }
 		rules["hexNumCharRef"]					= sequence([str("&#x"), oneOrMore(firstOf([anyNumChar, anyCharInRange('a'..'f'), anyCharInRange('A'..'F')])), str(";")]) 	{ it.action = |Result result| { ctx.addHexCharRef(result.matched)	} }		
+
+		rules["cdata"]							= sequence([str("<![CDATA["), strNot("]]>"), str("]]>")])	{ it.action = |Result result| { ctx.addCdata(result.matched)	} }
+
+		rules["comment"]						= sequence([str("<!--"), strNot("--"), str("-->")])
 		
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
@@ -150,18 +157,24 @@ internal class ParseCtx {
 
 	Void addText(Str text) {
 		if (openElement.children.last?.nodeType == XNodeType.text)
-			// for mashing lots of char ref together
+			// for mashing lots of char refs together
 			((XText) openElement.children.last).val += text
 		else
 			openElement.add(XText(text))
 	}
 	
 	Void addDecCharRef(Str text) {
-		addText(text[2..-2].toInt(10).toChar)
+		addText(text["&#".size..<-";".size].toInt(10).toChar)
 	}
 	
 	Void addHexCharRef(Str text) {
-		addText(text[3..-2].toInt(16).toChar)		
+		addText(text["&#x".size..<-";".size].toInt(16).toChar)
+	}
+
+	Void addCdata(Str text) {
+		cdata := XText(text["<![CDATA[".size..<-"]]>".size])
+		cdata.cdata = true
+		openElement.add(cdata)
 	}
 	
 	Void endTag() {
