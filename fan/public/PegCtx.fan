@@ -39,7 +39,8 @@ class PegCtx {
 		if (!rulePassed)
 			resultStack.peek.rollback
 		else
-			log("Matched ${matched.toCode}")
+			if (!matched.isEmpty)
+				log("Matched ${matched.toCode}")
 	}
 
 	|->| rollbackFunc {
@@ -55,11 +56,12 @@ class PegCtx {
 		}
 	}
 	
-	private Void rollback() {
-		log("Rolling back")
+	Void rollback(Str msg := "Rolling back") {
+		log(msg)
 		resultStack.peek.rollback
 	}
 	
+	** Reads 'n' characters from the underlying input stream.
 	Str? read(Int n) {
 		if (n == 1)
 			return in.readChar?.toChar
@@ -68,17 +70,22 @@ class PegCtx {
 		return read
 	}
 
+	** Pushes back, or un-reads, the given string onto the underlying input stream.
+	** Use when rolling back a rule.
 	Void unread(Str? str) {
-		str?.chars?.eachr { in.unreadChar(it) }
+		if (str != null && !str.isEmpty) {
+			log("${str.toCode} un-read")
+			str.chars.eachr { in.unreadChar(it) }
+		}
 	}
 	
-	
+	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
 	Void log(Str msg) {
 		result := resultStack.peek ?: rootResult
 		_log(result, msg)
 	}
 
-	Void _log(Result result, Str msg) {
+	private Void _log(Result result, Str msg) {
 		if (logger.isDebug && result.rule.name != null) {
 			depth := resultStack.size
 			if (msg.startsWith("--> ") || msg.startsWith("<-- "))

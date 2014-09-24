@@ -1,11 +1,11 @@
 using xml
 using concurrent
 
-class HtmlToXml {
+class HtmlParser {
 	
 	XDoc parseDocument(Str html) {
 		
-		parser := Parser(HtmltoXmlRules().rootRule)
+		parser := Parser(HtmlRules().rootRule)
 		
 		// TODO: parse multiple root elements, combine into 1 xml doc
 		ctx := ParseCtx()
@@ -22,11 +22,11 @@ class HtmlToXml {
 
 }
 
-internal class HtmltoXmlRules : Rules {
+internal class HtmlRules : Rules {
 	
-	NamedRules rules := NamedRules()
-
 	Rule rootRule() {
+		rules := NamedRules()
+
 		// TODO: 
 		//	Optionally, a single "BOM" (U+FEFF) character.
 		//	Any number of comments and space characters.
@@ -65,7 +65,7 @@ internal class HtmltoXmlRules : Rules {
 		whitespace						:= rules["whitespace"]
 
 		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
-		rules["element"]						= firstOf([voidElement, selfClosingElement, normalElement])
+//		rules["element"]						= firstOf([voidElement, selfClosingElement, normalElement])
 
 		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						{ it.action = |Result result| { ctx.voidTag		} }
 		rules["rawTextElement"]					= sequence([rawTextElementTag, rawTextElementContent, endTag])
@@ -73,11 +73,11 @@ internal class HtmltoXmlRules : Rules {
 		rules["selfClosingElement"]				= sequence([str("<"), tagName, attributes, str("/>")])								{ it.action = |Result result| { ctx.voidTag		} }
 		rules["normalElement"]					= sequence([startTag, normalElementContent, endTag])
 
-		rules["rawTextElementTag"]				= sequence([str("<"), rawTextElementName, attributes, str( ">")])					{ it.action = |Result result| { ctx.startTag	} }
-		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str( ">")])			{ it.action = |Result result| { ctx.startTag	} }
+		rules["rawTextElementTag"]				= sequence([str("<"), rawTextElementName, attributes, str(">")])					{ it.action = |Result result| { ctx.startTag	} }
+		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str(">")])			{ it.action = |Result result| { ctx.startTag	} }
 
-		rules["startTag"]						= sequence([str("<"), tagName, attributes, str( ">")])								{ it.action = |Result result| { ctx.startTag	} }
-		rules["endTag"]							= sequence([str("</"), tagName, str(">")])											{ it.action = |Result result| { ctx.endTag		} }
+		rules["startTag"]						= sequence([str("<"), tagName, attributes, str(">")])								{ it.action = |Result result| { ctx.startTag	} }
+		rules["endTag"]							= sequence([str("</"), EndTagRule(tagName), str(">")])								{ it.action = |Result result| { ctx.endTag		} }
 
 		rules["tagName"]						= tagNameRule(sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]))
 
@@ -93,18 +93,15 @@ internal class HtmltoXmlRules : Rules {
 		
 		rules["characterEntity"]				= todo(false)
 		
-		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))
-		rules["rawText"]						= oneOrMore(strNot("</"))
+		rules["text"]							= oneOrMore(anyCharNotOf("<&".chars))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
+		rules["rawText"]						= oneOrMore(strNot("</"))				{ it.action = |Result result| { ctx.addText(result.matched)	} }
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
 		return element
 	}
 	
 	Rule tagNameRule(Rule rule) {
-		sequence([rule { it.action = |Result result| { 
-			ctx.tagName = result.matched 
-			
-		} }, zeroOrMore(anySpaceChar)])
+		sequence([rule { it.action = |Result result| { ctx.tagName = result.matched } }, zeroOrMore(anySpaceChar)])
 	}
 	
 	ParseCtx ctx() {
@@ -115,12 +112,17 @@ internal class HtmltoXmlRules : Rules {
 
 
 internal class ParseCtx {
-
 	XElem[]			roots			:= XElem[,]	
 	XElem?			openElement
 	
 	Str? tagName {
 		set { &tagName = it.trim }
+	}
+	
+	Void voidTag() {
+		startTag
+		&tagName = openElement.name
+		endTag
 	}
 
 	Void startTag() {
@@ -136,13 +138,11 @@ internal class ParseCtx {
 		
 		&tagName = null
 	}
-	
-	Void voidTag() {
-		startTag
-		&tagName = openElement.name
-		endTag
-	}
 
+	Void addText(Str text) {
+		openElement.add(XText(text))
+	}
+	
 	Void endTag() {
 		if (tagName != openElement.name)
 			throw ParseErr("End tag </${tagName}> does not match start tag <${openElement.name}>")
@@ -155,3 +155,35 @@ internal class ParseCtx {
 		XDoc(roots.first)
 	}
 }
+
+internal class EndTagRule : Rule {
+	private Rule	rule
+	
+	new make(Rule rule) {
+		this.rule = rule
+	}
+	
+	override Void doProcess(PegCtx ctx) {
+		passed := ctx.process(rule)
+		
+		if (passed) {
+			Actor.sleep(20ms)
+			Env.cur.err.printLine("#####################")
+			Env.cur.err.printLine(ctx.matched)
+			Actor.sleep(20ms)
+			//End tag </wot> does not match start tag <script>
+		}
+		
+		ctx.pass(passed)
+	}
+
+	override Str expression() {
+		rule.expression
+	}
+	
+	ParseCtx ctx() {
+		// TODO: get this from pegctx
+		Actor.locals["htmlToXml.ctx"]
+	}
+}
+

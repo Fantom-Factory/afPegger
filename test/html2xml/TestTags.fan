@@ -1,9 +1,9 @@
 using xml
 
 ** http://www.w3.org/html/wg/drafts/html/CR/syntax.html
-class TestTokens : Test {
+internal class TestTags : HtmlParserTest {
 	
-	HtmlToXml parser := HtmlToXml()
+	HtmlParser parser := HtmlParser()
 
 	Void testValidSimpleTag() {
 		elem := parser.parseDocument("<html></html>").root
@@ -60,23 +60,16 @@ class TestTokens : Test {
 		verifyElemEq(elem, "<html><meta/><img/></html>")
 	}
 
-
-
-	Void verifyElemEq(XElem elem, Str xml) {
-		act := elem.writeToStr.replace("\n", "")
-		exp := XParser(xml.in).parseDoc.root.writeToStr.replace("\n", "")
-		verifyEq(act, exp)
+	Void testRawTextTags() {
+		elem := parser.parseDocument("<script></script>").root
+		verifyElemEq(elem, "<script/>")
+		
+		elem = parser.parseDocument("<style></style>").root
+		verifyElemEq(elem, "<style/>")
 	}
-	
-	Void verifyErrMsg(Type errType, Str errMsg, |Test| c) {
-		try {
-			c.call(this)
-		} catch (Err e) {
-			if (!e.typeof.fits(errType)) 
-				verifyEq(errType, e.typeof)
-			verifyEq(errMsg, e.msg)
-			return
-		}
-		fail("$errType not thrown")
+
+	Void testEscapableRawTextTags() {
+		elem := parser.parseDocument("<textarea></textarea>").root
+		verifyElemEq(elem, "<textarea/>")
 	}
 }
