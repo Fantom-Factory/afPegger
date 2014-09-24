@@ -91,7 +91,7 @@ internal class HtmlRules : Rules {
 
 		rules["preamble"]						= sequence([bom, blurb, optional(doctype), blurb, element, blurb])
 		rules["blurb"]							= zeroOrMore(firstOf([oneOrMore(anySpaceChar), comment]))
-		rules["bom"]							= optional(todo)
+		rules["bom"]							= optional(str("\uFEFF"))
 		
 		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
 
@@ -137,7 +137,7 @@ internal class HtmlRules : Rules {
 
 		rules["comment"]						= sequence([str("<!--"), strNot("--"), str("-->")])
 
-		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), str("html") { it.action = |Result result| { ctx.pushDoctype(result.matched) } }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
+		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), oneOrMore(anyAlphaNumChar) { it.action = |Result result| { ctx.pushDoctype(result.matched) } }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
 		rules["doctypeSystemId"]				= sequence([oneOrMore(anySpaceChar), str("SYSTEM"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])) { it.action = |Result result| { ctx.pushSystemId(result.matched) } }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])) { it.action = |Result result| { ctx.pushSystemId(result.matched) } }, str("'")])])])
 		rules["doctypePublicId"]				= sequence([oneOrMore(anySpaceChar), str("PUBLIC"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])) { it.action = |Result result| { ctx.pushPublicId(result.matched) } }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])) { it.action = |Result result| { ctx.pushPublicId(result.matched) } }, str("'")])])])
 		
