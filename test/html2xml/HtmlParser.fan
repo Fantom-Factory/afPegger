@@ -10,7 +10,10 @@ class HtmlParser {
 		// TODO: parse multiple root elements, combine into 1 xml doc
 		ctx := ParseCtx()
 		Actor.locals["htmlToXml.ctx"] = ctx
-		parser.parse(html.in)
+		res := parser.parse(html.in)
+		
+		if (!res.passed)
+			throw ParseErr("Could not parse HTML: \n${html.toCode(null)}")
 		
 		return ctx.document
 	}
@@ -62,6 +65,11 @@ internal class HtmlRules : Rules {
 		tagName							:= rules["tagName"]
 		
 		attributes						:= rules["attributes"]
+		emptyAttribute					:= rules["emptyAttribute"]
+		unquotedAttribute				:= rules["unquotedAttribute"]
+		singleAttribute					:= rules["singleAttribute"]
+		doubleAttribute					:= rules["doubleAttribute"]
+		attributeName					:= rules["attributeName"]
 		
 		characterReference				:= rules["characterReference"]
 		decNumCharRef					:= rules["decNumCharRef"]
@@ -101,7 +109,13 @@ internal class HtmlRules : Rules {
 		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
 		rules["normalElementText"]				= oneOrMore(anyCharNotOf("<&".chars))	{ it.action = |Result result| { ctx.addText(result.matched)	} }
 		
-		rules["attributes"]						= todo(true)
+		rules["attributes"]						= zeroOrMore(firstOf([anySpaceChar, doubleAttribute, singleAttribute, unquotedAttribute, emptyAttribute]))
+		rules["emptyAttribute"]					= nTimes(1, attributeName)	{ it.action = |Result result| { ctx.addAttrVal(ctx.attrName); ctx.setAttrValue	} }	// can't put the action on attributeName
+		rules["unquotedAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace,			oneOrMore(firstOf([characterReference, anyCharNotOf(" \t\n\r\f\"'=<>`".chars) { it.action = |Result result| { ctx.addAttrVal(result.matched) } }]))	{ it.action = |Result result| { ctx.setAttrValue } }  ])
+		rules["singleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("'"),	oneOrMore(firstOf([characterReference, anyCharNotOf(			   "'".chars) { it.action = |Result result| { ctx.addAttrVal(result.matched) } }]))	{ it.action = |Result result| { ctx.setAttrValue } }, str("'")])
+		rules["doubleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("\""), oneOrMore(firstOf([characterReference, anyCharNotOf(		 	  "\"".chars) { it.action = |Result result| { ctx.addAttrVal(result.matched) } }]))	{ it.action = |Result result| { ctx.setAttrValue } }, str("\"")])
+		rules["attributeName"]					= oneOrMore(anyCharNotOf(" \t\n\r\f\"'>/=".chars)) 																									  { it.action = |Result result| { ctx.setAttrName(result.matched) } }
+		
 		
 		rules["characterReference"]				= firstOf([decNumCharRef, hexNumCharRef])		
 		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	{ it.action = |Result result| { ctx.addDecCharRef(result.matched)	} }
@@ -128,8 +142,11 @@ internal class HtmlRules : Rules {
 
 
 internal class ParseCtx {
-	XElem[]			roots			:= XElem[,]	
+	XElem[]			roots		:= XElem[,]	
 	XElem?			openElement
+	XElem			attrElem	:= XElem("attrs")
+	Str?			attrName
+	Str?			attrValue
 	
 	Str? tagName {
 		set { &tagName = it.trim }
@@ -153,6 +170,9 @@ internal class ParseCtx {
 		}
 		
 		&tagName = null
+		
+		attrElem.attrs.each { openElement.add(it) }
+		attrElem = XElem("attrs")
 	}
 
 	Void addText(Str text) {
@@ -162,13 +182,35 @@ internal class ParseCtx {
 		else
 			openElement.add(XText(text))
 	}
+
+	Void setAttrName(Str name) {
+		attrName = name
+	}
+
+	Void addAttrVal(Str val) {
+		attrValue = (attrValue ?: Str.defVal) + val
+	}
 	
+	Void setAttrValue() {
+		attrElem.addAttr(attrName, attrValue)
+		attrName = null
+		attrValue = null
+	}
+
 	Void addDecCharRef(Str text) {
-		addText(text["&#".size..<-";".size].toInt(10).toChar)
+		ref := text["&#".size..<-";".size].toInt(10).toChar
+		if (attrName != null)
+			addAttrVal(ref)
+		else
+			addText(ref)
 	}
 	
 	Void addHexCharRef(Str text) {
-		addText(text["&#x".size..<-";".size].toInt(16).toChar)
+		ref := text["&#x".size..<-";".size].toInt(16).toChar
+		if (attrName != null)
+			addAttrVal(ref)
+		else
+			addText(ref)
 	}
 
 	Void addCdata(Str text) {

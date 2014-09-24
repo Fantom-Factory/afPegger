@@ -80,10 +80,4 @@ internal class TestText : HtmlParserTest {
 		elem = parser.parseDocument("<div><wot></wot></div>").root
 		verifyElemEq(elem, "<div><wot/></div>")
 	}
-	
-
-	
-	// test script & style don't parse cdata and char refs and elements
-	
-	// test textarea only parses char refs
 }

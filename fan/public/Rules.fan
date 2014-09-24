@@ -81,7 +81,11 @@ mixin Rules {
 		RepetitionRule(null, n, rule)
 	}
 
-	static Rule nTimes(Range times, Rule rule) {
+	static Rule nTimes(Int times, Rule rule) {
+		RepetitionRule(times, times, rule)
+	}
+
+	static Rule between(Range times, Rule rule) {
 		RepetitionRule(times.min, times.max, rule)
 	}
 
