@@ -45,21 +45,40 @@ internal class StrNotRule : Rule {
 	}
 
 	override Bool doProcess(PegCtx ctx) {
-		matched 	:= StrBuf(256)
-		keepGoing	:= true
+		matched	:= Str.defVal
+		
+		// if we read too much, then we'll just have to unread it all on a no-match!
+		toRead	:= str.size + 1
+		
+		keepGoing := true
 		while (keepGoing) {
-			// FIXME: optomise
-			peek 	:= ctx.read(str.size)
-			if (peek == null || peek.isEmpty || (ignoreCase ? str.equalsIgnoreCase(peek) : str.equals(peek))) {
+			peek := ctx.read(toRead)
+			
+			i := ignoreCase ? peek.indexIgnoreCase(str) : peek.index(str)
+			if (i != null) {
 				keepGoing = false
-				ctx.unread(peek)
+				if (i == 0) {
+					ctx.unread(peek)					
+				} else {
+					matched += peek[0..<i]
+					ctx.unread(peek[i..-1])
+				}
+
 			} else {
-				matched.addChar(peek[0])
-				ctx.unread(peek[1..-1])
+				if (peek.size < toRead) {
+					// oops - ran out of piggies!
+					keepGoing = false
+					matched += peek
+				} else {
+					i = toRead - str.size
+					matched += peek[0..<i]
+					ctx.unread(peek[i..-1])
+					toRead = toRead * 2
+				}
 			}
 		}
 
-		ctx.matched(matched.toStr)
+		ctx.matched(matched)
 
 		return !matched.isEmpty
 	}

@@ -3,9 +3,11 @@ using concurrent
 
 class HtmlParser {
 	
+	private Rule htmlRules := HtmlRules().rootRule
+	
 	XDoc parseDocument(Str html) {
 		
-		parser := Parser(HtmlRules().rootRule)
+		parser := Parser(htmlRules)
 		
 		// TODO: parse multiple root elements, combine into 1 xml doc
 		ctx := ParseCtx()
@@ -115,7 +117,7 @@ internal class HtmlRules : Rules {
 		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it) }
 		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it) }
 //		rules["normalElementText"]				= strNot("<")																							.withAction { ctx.addText(it) }
-		rules["normalElementText"]				= oneOrMore(anyCharNot('<'))																							.withAction { ctx.addText(it) }
+		rules["normalElementText"]				= oneOrMore(anyCharNot('<'))																			.withAction { ctx.addText(it) }
 		
 		rules["attributes"]						= zeroOrMore(firstOf([anySpaceChar, doubleAttribute, singleAttribute, unquotedAttribute, emptyAttribute]))
 		rules["emptyAttribute"]					= nTimes(1, attributeName).withAction { ctx.addAttrVal(ctx.attrName); ctx.setAttrValue }	// can't put the action on attributeName
