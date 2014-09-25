@@ -1,16 +1,13 @@
 
 internal class Result {
 	Rule 		rule	
-	Duration	startTime
-
 	Str? 		matchStr
 	Bool?		passed
 	Result[]?	resultList
 	|->|[]?		actions
 	
 	new make(Rule rule) {
-		this.rule		= rule
-		this.startTime	= Duration.now
+		this.rule = rule
 	}	
 	
 	Void addResult(Result result) {
