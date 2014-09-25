@@ -4,8 +4,6 @@ class Result {
 	Str? 		matchStr
 	Result?		result
 	Result[]?	resultList
-//	|->|?		rollbackFunc
-	Str?		rollbackFunc
 
 	Bool?		passed
 	Duration	startTime
@@ -36,21 +34,14 @@ class Result {
 	}
 
 	internal Void rollback(PegCtx ctx) {
-//		ctx.unread(matched)
-//		matchStr = null
-	
-		
-//		rollbackFunc?.call
-		ctx.unread(rollbackFunc)
+		ctx.unread(matchStr)
 		resultList?.eachr { it.rollback(ctx) }
 		result?.rollback(ctx)
-//		ctx.unread(matchStr)
 		
 		// Ensure we only rollback the once
 		// Predicates rollback if successful, so they would rollback twice if their enclosing rule failed.
 		result			= null
 		resultList		= null
-		rollbackFunc	= null
 	}
 
 	once Str matched() {

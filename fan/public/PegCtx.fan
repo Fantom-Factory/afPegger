@@ -20,7 +20,17 @@ class PegCtx {
 
 		resultStack.push(result)		
 		try {
-			rule.doProcess(this)			
+			rulePassed := rule.doProcess(this)
+		
+			log(rulePassed ? "Passed!" : "Failed. Rolling back.")
+			resultStack.peek.passed = rulePassed
+			if (!rulePassed)
+				resultStack.peek.rollback(this)
+			else
+				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
+				if (logger.isDebug && !matched.isEmpty)
+					log("Matched ${matched.toCode}")
+			
 		} finally {
 			resultStack.pop
 		}
@@ -34,32 +44,12 @@ class PegCtx {
 
 		return result.passed
 	}
-	
-	Void pass(Bool rulePassed) {
-		log(rulePassed ? "Passed!" : "Failed. Rolling back.")
-		resultStack.peek.passed = rulePassed
-		if (!rulePassed)
-			resultStack.peek.rollback(this)
-		else
-			// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
-			if (logger.isDebug && !matched.isEmpty)
-				log("Matched ${matched.toCode}")
-	}
 
-//	|->| rollbackFunc {
-//		get { resultStack.peek.rollbackFunc }
-//		set { resultStack.peek.rollbackFunc = it }
-//	}
-	Str? rollbackFunc {
-		get { resultStack.peek.rollbackFunc }
-		set { resultStack.peek.rollbackFunc = it }
-	}
-
-	Str matched {
+	Str? matched {
 		get { resultStack.peek.matched }
 		set {
 			resultStack.peek.matchStr = it 
-			log("${it.toCode} matched")
+			log("${it?.toCode} matched")
 		}
 	}
 	

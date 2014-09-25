@@ -6,11 +6,11 @@ internal class FirstOfRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		passed := rules.any |Rule rule->Bool| {
 			ctx.process(rule)
 		}		
-		ctx.pass(passed)
+		return passed
 	}
 
 	override This add(Rule rule) {

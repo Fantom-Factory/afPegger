@@ -16,17 +16,13 @@ internal class StrRule : Rule {
 		this.peekSize = peekSize
 	}
 
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		peek 	:= ctx.read(peekSize)
 		matched := func(peek)
 
-//		ctx.rollbackFunc = |->| { ctx.unread(peek) }
-		ctx.rollbackFunc = peek
+		ctx.matched = peek
 
-		if (matched) 
-			ctx.matched = peek
-
-		ctx.pass(matched)
+		return matched
 	}
 }
 
@@ -41,7 +37,7 @@ internal class StrNotRule : Rule {
 		this.expression = "(!${str.toCode} .)+"
 	}
 
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		matched 	:= StrBuf(256)
 		keepGoing	:= true
 		while (keepGoing) {
@@ -57,12 +53,8 @@ internal class StrNotRule : Rule {
 		}
 
 		matchedStr := matched.toStr
-//		ctx.rollbackFunc = |->| { ctx.unread(matchedStr) }
-		ctx.rollbackFunc = matchedStr
+		ctx.matched = matchedStr
 
-		if (!matched.isEmpty)
-			ctx.matched = matchedStr
-
-		ctx.pass(!matched.isEmpty)
+		return !matched.isEmpty
 	}
 }

@@ -6,8 +6,8 @@ internal class TodoRule : Rule {
 		this.pass = pass
 	}
 	
-	override Void doProcess(PegCtx ctx) {
-		ctx.pass(pass)
+	override Bool doProcess(PegCtx ctx) {
+		pass
 	}
 	
 	override Str expression() {"-TODO-"} 

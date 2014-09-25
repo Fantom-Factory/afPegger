@@ -8,10 +8,10 @@ internal class PredicateRule : Rule {
 		this.not	= not
 	}
 	
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		passed := not ? !ctx.process(rule) : ctx.process(rule)
 		ctx.rollback("Rolling back predicate")
-		ctx.pass(passed)
+		return passed
 	}
 
 	override Str expression() {

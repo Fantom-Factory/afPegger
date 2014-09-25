@@ -6,7 +6,7 @@ internal class SequenceRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		passed := rules.all |Rule rule->Bool| {
 			pass := ctx.process(rule)
 			if (!pass)
@@ -14,7 +14,7 @@ internal class SequenceRule : Rule {
 			return pass
 		}
 		
-		ctx.pass(passed)
+		return passed
 	}
 
 	override This add(Rule rule) {
