@@ -24,8 +24,8 @@ class PegCtx {
 
 			if (result.passed) {
 				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
-				if (logger.isDebug && !matched.isEmpty)
-					log("Matched ${matched.toCode}")
+				if (logger.isDebug && !result.matched.isEmpty)
+					log("Matched ${result.matched.toCode}")
 				result.rollup
 			} else {
 				result.rollback(this)
@@ -86,6 +86,18 @@ class PegCtx {
 			log("${str.toCode} un-read")
 			str.chars.eachr { in.unreadChar(it) }
 		}
+	}
+
+	** Reads 1 character from the underlying input stream.
+	Int? readChar() {
+		in.readChar
+	}
+
+	** Pushes back, or un-reads, the given character onto the underlying input stream.
+	** Use when rolling back a rule.
+	Void unreadChar(Int? char) {
+		if (char != null) 
+			in.unreadChar(char)
 	}
 	
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 

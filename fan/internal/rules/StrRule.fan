@@ -1,25 +1,35 @@
 
-internal class StrRule : Rule {
-	private		|Str?->Bool|	func
-	private		Int				peekSize
+internal class CharRule : Rule {
+	private		|Int?->Bool|	func
 	override	Str				expression
 	
-	new makeFromCharFunc(Str expression, |Int->Bool| func) {
-		this.func = |Str? peek->Bool| { (peek == null || peek.isEmpty) ? false : func(peek.chars.first) }
+	new make(Str expression, |Int->Bool| func) {
+		this.func = |Int? peek->Bool| { (peek == null) ? false : func(peek) }
 		this.expression = expression
-		this.peekSize = 1
-	}
-
-	new makeFromStrFunc(Str expression, Int peekSize, |Str?->Bool| func) {
-		this.func = func
-		this.expression = expression
-		this.peekSize = peekSize
 	}
 
 	override Bool doProcess(PegCtx ctx) {
-		peek := ctx.read(peekSize)
-		ctx.matched = peek
+		peek := ctx.readChar
+		ctx.matched = peek?.toChar
 		return func(peek)
+	}
+}
+
+internal class StrRule : Rule {
+	private		Str				str
+	private		Bool			ignoreCase
+	override	Str				expression
+	
+	new make(Str str, Bool ignoreCase) {
+		this.str	 	= str
+		this.ignoreCase	= ignoreCase
+		this.expression = str.toCode
+	}
+
+	override Bool doProcess(PegCtx ctx) {
+		peek := ctx.read(str.size)
+		ctx.matched = peek
+		return ignoreCase ? str.equalsIgnoreCase(peek ?: Str.defVal) : str.equals(peek)
 	}
 }
 
