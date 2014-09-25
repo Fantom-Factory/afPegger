@@ -4,11 +4,12 @@ class Build : BuildPod {
 
 	new make() {
 		podName = "afPegger"
-		summary = "(Internal) For when Regular Expressions just aren't enough!"
+		summary = "For when Regular Expressions just aren't enough!"
 		version = Version("0.0.1")
 
 		meta = [
 			"proj.name"		: "Pegger",
+			"internal"		: "true",
 			"tags"			: "system",
 			"repo.private"	: "true"
 		]
@@ -26,8 +27,5 @@ class Build : BuildPod {
 	
 		srcDirs = [`test/`, `test/htmlparser/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/internal/rules/`]
 		resDirs = [,]
-
-		docApi = true
-		docSrc = true
 	}
 }

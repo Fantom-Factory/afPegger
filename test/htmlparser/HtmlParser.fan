@@ -1,7 +1,8 @@
 using xml
 using concurrent
 
-class HtmlParser {
+// an old version of HtmlParser used for testing
+internal class HtmlParser {
 	
 	private Rule htmlRules := HtmlRules().rootRule
 	
@@ -9,7 +10,6 @@ class HtmlParser {
 		
 		parser := Parser(htmlRules)
 		
-		// TODO: parse multiple root elements, combine into 1 xml doc
 		ctx := ParseCtx()
 		Actor.locals["htmlToXml.ctx"] = ctx
 		res := parser.parse(html.in)
@@ -148,7 +148,6 @@ internal class HtmlRules : Rules {
 	}
 	
 	ParseCtx ctx() {
-		// TODO: get this from pegctx
 		Actor.locals["htmlToXml.ctx"]
 	}
 }
@@ -165,8 +164,6 @@ internal class ParseCtx {
 	Str? tagName {
 		set { &tagName = it.trim }
 	}
-	
-	// TODO: rename all methods pushXXXX()
 	
 	Void pushDoctype(Str name) {
 		doc = XDoc()
@@ -259,39 +256,7 @@ internal class ParseCtx {
 	}
 	
 	XDoc document() {
-		// TODO: check size of roots
 		doc ?: XDoc(roots.first)
-	}
-}
-
-internal class EndTagRule : Rule {
-	private Rule	rule
-	
-	new make(Rule rule) {
-		this.rule = rule
-	}
-	
-	override Bool doProcess(PegCtx ctx) {
-		passed := ctx.process(rule)
-		
-		if (passed) {
-//			Actor.sleep(20ms)
-//			Env.cur.err.printLine("#####################")
-//			Env.cur.err.printLine(ctx.matched)
-//			Actor.sleep(20ms)
-			//End tag </wot> does not match start tag <script>
-		}
-		
-		return passed
-	}
-
-	override Str expression() {
-		rule.expression
-	}
-	
-	ParseCtx ctx() {
-		// TODO: get this from pegctx
-		Actor.locals["htmlToXml.ctx"]
 	}
 }
 
