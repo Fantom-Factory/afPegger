@@ -19,5 +19,5 @@ internal class ExpRule : Rule {
 	new make(Str exp) {
 		this.expression = exp
 	}	
-	override Void doProcess(PegCtx ctx) { }
+	override Bool doProcess(PegCtx ctx) { false }
 }

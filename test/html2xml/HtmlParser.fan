@@ -268,7 +268,7 @@ internal class EndTagRule : Rule {
 		this.rule = rule
 	}
 	
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		passed := ctx.process(rule)
 		
 		if (passed) {
@@ -279,7 +279,7 @@ internal class EndTagRule : Rule {
 			//End tag </wot> does not match start tag <script>
 		}
 		
-		ctx.pass(passed)
+		return passed
 	}
 
 	override Str expression() {

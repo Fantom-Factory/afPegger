@@ -8,7 +8,7 @@ abstract class Rule {
 	virtual |Result|?	action
 
 	** Override to implement Rule logic.
-	abstract protected Void doProcess(PegCtx ctx)
+	abstract protected Bool doProcess(PegCtx ctx)
 	
 	** Returns the PEG expression for this rule. Example:
 	** 

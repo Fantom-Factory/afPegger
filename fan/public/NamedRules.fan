@@ -33,7 +33,7 @@ internal class ProxyRule : Rule {
 		set { rule.action = it }
 	}
 	
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		rule.doProcess(ctx)
 	}
 	

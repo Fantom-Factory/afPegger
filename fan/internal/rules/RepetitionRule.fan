@@ -10,7 +10,7 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override Void doProcess(PegCtx ctx) {
+	override Bool doProcess(PegCtx ctx) {
 		count	:= 0
 		pass	:= true
 		while (pass && (max == null || count != max)) {
@@ -22,7 +22,7 @@ internal class RepetitionRule : Rule {
 		maxOkay := (max == null) || (count <= max)
 		passed	:= minOkay && maxOkay
 		
-		ctx.pass(passed)
+		return passed
 	}
 
 	override Str expression() {
