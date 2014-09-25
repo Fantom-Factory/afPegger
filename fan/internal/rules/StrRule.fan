@@ -17,12 +17,9 @@ internal class StrRule : Rule {
 	}
 
 	override Bool doProcess(PegCtx ctx) {
-		peek 	:= ctx.read(peekSize)
-		matched := func(peek)
-
+		peek := ctx.read(peekSize)
 		ctx.matched = peek
-
-		return matched
+		return func(peek)
 	}
 }
 
@@ -52,8 +49,7 @@ internal class StrNotRule : Rule {
 			}
 		}
 
-		matchedStr := matched.toStr
-		ctx.matched = matchedStr
+		ctx.matched = matched.toStr
 
 		return !matched.isEmpty
 	}

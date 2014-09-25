@@ -7,10 +7,9 @@ internal class FirstOfRule : Rule {
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
-		passed := rules.any |Rule rule->Bool| {
+		rules.any |Rule rule->Bool| {
 			ctx.process(rule)
 		}		
-		return passed
 	}
 
 	override This add(Rule rule) {
