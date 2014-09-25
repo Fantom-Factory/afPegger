@@ -10,7 +10,7 @@ internal class SequenceRule : Rule {
 		rules.all |Rule rule->Bool| {
 			pass := ctx.process(rule)
 			if (!pass)
-				ctx.log("Did not match ${rule}")
+				ctx.log("Did not match ${rule}.")
 			return pass
 		}
 	}

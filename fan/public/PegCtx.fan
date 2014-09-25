@@ -5,6 +5,8 @@
 class PegCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		InStream		in
+	private		Bool			eos			:= false
+	private		Bool			logOff		:= false
 	private		Result[]		resultStack	:= Result[,]
 	internal	Result			rootResult
 	
@@ -21,30 +23,43 @@ class PegCtx {
 		parent	:= resultStack.last		
 		resultStack.push(result)
 		
-		if (logger.isDebug)
-			_log(result, "--> ${result.rule.name} - Processing... ${rule.expression}")
+		if (logger.isDebug) {
+			logOff = true
+			peek := read(22)
+			unread(peek)
+			peek += "..."
+			logOff = false
+			_log(result, "--> ${result.rule.name} - Processing: ${rule.expression} with: ${peek.toCode(null)}")
+		}
 		
 		try {
 			result.passed = rule.doProcess(this)
-			if (logger.isDebug)
-				log(result.passed ? "Passed!" : "Failed. Rolling back.")
 
 			if (result.passed) {
 				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' took some time!
-				if (logger.isDebug)
-					log("Matched ${result.matched.toCode}")
+				if (logger.isDebug) {
+					log("Passed!")
+					log("Matched: ${result.matched.toCode}")
+				}
 				result.rollup
 				
 				parent?.addResult(result)
 				
 			} else {
+				if (logger.isDebug && !eos) {
+					log("Failed. Rolling back.")
+					matched := result.matched
+					if (!matched.isEmpty)
+						log("Could not match: ${matched.toCode}")
+				}
 				result.rollback(this)
 			}
 			
-			if (logger.isDebug) { 
-				millis := (Duration.now - result.startTime).toMillis.toLocale("#,000")
-				_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
-			}
+//			// Logs look better without this...!?
+//			if (logger.isDebug) { 
+//				millis := (Duration.now - result.startTime).toMillis.toLocale("#,000")
+//				_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
+//			}
 
 		} finally {
 			resultStack.pop
@@ -77,6 +92,8 @@ class PegCtx {
 				char := in.readChar
 				if (char != null)
 					strBuf.addChar(char)
+				else
+					eos = true
 			}
 			read = strBuf.toStr
 		}
@@ -92,14 +109,19 @@ class PegCtx {
 		if (str != null && !str.isEmpty) {
 			if (logger.isDebug)
 				log("${str.toCode} un-read")
-			str.chars.eachr { in.unreadChar(it) }
+			if (str.size == 1)
+				in.unreadChar(str[0])
+			else
+				str.chars.eachr { in.unreadChar(it) }
 		}
 	}
 
 	** Reads 1 character from the underlying input stream.
 	Int? readChar() {
 		read := in.readChar
-		if (logger.isDebug && read != null)
+		if (read == null)
+			eos = true
+		else if (logger.isDebug)
 			log("${read.toCode} read")
 		return read
 	}
@@ -111,7 +133,7 @@ class PegCtx {
 	}
 
 	private Void _log(Result result, Str msg) {
-		if (logger.isDebug && result.rule.name != null) {
+		if (logger.isDebug && result.rule.name != null && !logOff) {
 			depth := resultStack.size
 			if (!msg.startsWith("--> ") && !msg.startsWith("<-- "))
 				msg = "  > ${result.rule.name} - ${msg}"
