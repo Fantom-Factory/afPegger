@@ -7,8 +7,6 @@ internal class Result {
 	Bool?		passed
 	Result[]?	resultList
 	|->|[]?		actions
-
-	
 	
 	new make(Rule rule) {
 		this.rule		= rule
@@ -16,9 +14,6 @@ internal class Result {
 	}	
 	
 	Void addResult(Result result) {
-		// don't create lists unless we have to
-		// this reduced the FantomFactory parse from 3300ms to 2800ms!
-		// that's 1/2 a sec!
 		if (resultList == null)
 			resultList = Result[,]
 		resultList.add(result)

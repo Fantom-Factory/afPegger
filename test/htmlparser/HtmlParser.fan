@@ -14,7 +14,7 @@ class HtmlParser {
 		Actor.locals["htmlToXml.ctx"] = ctx
 		res := parser.parse(html.in)
 		
-		if (!res.passed)
+		if (res == null)
 			throw ParseErr("Could not parse HTML: \n${html.toCode(null)}")
 		
 		return ctx.document
