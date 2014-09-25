@@ -19,8 +19,16 @@ mixin Rules {
 //		RuleTodo()
 //	}
 	
+	static Rule char(Int char) {
+		CharRule(char.toChar.toCode) |Int peek->Bool| { char == peek }
+	}
+
 	static Rule anyChar() {
 		CharRule(".") |Int peek->Bool| { true }
+	}
+
+	static Rule anyCharNot(Int char) {
+		CharRule("!${char.toChar.toCode}") |Int peek->Bool| { char != peek }
 	}
 
 	static Rule anyCharOf(Int[] chars) {
