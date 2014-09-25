@@ -1,13 +1,16 @@
 using afBeanUtils
 
+** A helper class that lets you reference Rules before they're defined.
 class NamedRules {
 	private Str:Rule rules := Str:Rule[:] { caseInsensitive = true } 
 	
+	** Returns a proxy to the named rule.
 	@Operator
 	Rule get(Str name) {
 		ProxyRule(this, name)
 	}
 	
+	** Sets the real implementation of the named rule.
 	@Operator
 	Rule set(Str name, Rule rule) {
 		rules[name] = rule

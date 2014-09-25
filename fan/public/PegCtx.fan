@@ -1,4 +1,7 @@
 
+** Handed to 'Rule' classes during the matching process. 
+** 
+** Only needed when you're implementing your own rules.
 class PegCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		InStream		in
@@ -12,14 +15,15 @@ class PegCtx {
 		this.in			= in
 	}
 	
+	** Call to process a sub-rule.
 	Bool process(Rule rule) {
 		result	:= resultStack.isEmpty ? rootResult : Result(rule)
+		parent	:= resultStack.last		
+		resultStack.push(result)
+		
 		if (logger.isDebug)
 			_log(result, "--> ${result.rule.name} - Processing... ${rule.expression}")
-
-		parent := resultStack.last
 		
-		resultStack.push(result)		
 		try {
 			result.passed = rule.doProcess(this)
 			if (logger.isDebug)
@@ -48,12 +52,14 @@ class PegCtx {
 		return result.passed
 	}
 
+	** Call when the Rule has matched a Str.  
 	Void matched(Str? match) {
 		resultStack.peek.matchStr = match 
 		if (logger.isDebug) 
 			log("${match?.toCode} matched")
 	}
 	
+	** Call to rollback the matching of any subrules. 
 	Void rollback(Str msg := "Rolling back") {
 		log(msg)
 		resultStack.peek.rollback(this)
@@ -107,9 +113,7 @@ class PegCtx {
 	private Void _log(Result result, Str msg) {
 		if (logger.isDebug && result.rule.name != null) {
 			depth := resultStack.size
-			if (msg.startsWith("--> ") || msg.startsWith("<-- "))
-				depth++
-			else
+			if (!msg.startsWith("--> ") && !msg.startsWith("<-- "))
 				msg = "  > ${result.rule.name} - ${msg}"
 			pad	:= "".justr(depth)
 			logger.debug("[${depth.toStr.justr(3)}]${pad}${msg}")

@@ -1,8 +1,11 @@
 
 ** A PEG Rule.
+** 
+** Use the common rules declared in `Rules` or implement to define your own.
 abstract class Rule {
-	** The name of this rule. Should be legal Fantom identifier (think variable names!).
-	Str? 		name
+	** The name of this rule. Only rules with names appear in debug output.
+	** Should be legal Fantom identifier (think variable names!).
+	Str? 		name	// TODO: validate name
 	
 	** The action to be performed upon successful completion of this rule.
 	virtual |Str|?	action
