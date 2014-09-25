@@ -112,28 +112,28 @@ internal class HtmlRules : Rules {
 		rules["escapableRawTextElementContent"]	= zeroOrMore(firstOf([characterReference, escapableRawText]))
 		rules["normalElementContent"]			= zeroOrMore(firstOf([characterReference, comment, cdata, normalElementText, element]))
 		
-		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it.matched) }
-		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it.matched) }
-		rules["normalElementText"]				= strNot("<")																							.withAction { ctx.addText(it.matched) }
+		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it) }
+		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it) }
+		rules["normalElementText"]				= strNot("<")																							.withAction { ctx.addText(it) }
 		
 		rules["attributes"]						= zeroOrMore(firstOf([anySpaceChar, doubleAttribute, singleAttribute, unquotedAttribute, emptyAttribute]))
 		rules["emptyAttribute"]					= nTimes(1, attributeName).withAction { ctx.addAttrVal(ctx.attrName); ctx.setAttrValue }	// can't put the action on attributeName
-		rules["unquotedAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace,			oneOrMore(firstOf([characterReference, anyCharNotOf(" \t\n\r\f\"'=<>`".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue } ])
-		rules["singleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("'"),	oneOrMore(firstOf([characterReference, anyCharNotOf(			   "'".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue }, str("'")])
-		rules["doubleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("\""), oneOrMore(firstOf([characterReference, anyCharNotOf(		 	  "\"".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue }, str("\"")])
-		rules["attributeName"]					= oneOrMore(anyCharNotOf(" \t\n\r\f\"'>/=".chars)) 																									 .withAction { ctx.setAttrName(it.matched) }
+		rules["unquotedAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace,			oneOrMore(firstOf([characterReference, anyCharNotOf(" \t\n\r\f\"'=<>`".chars).withAction { ctx.addAttrVal(it) }])).withAction { ctx.setAttrValue } ])
+		rules["singleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("'"),	oneOrMore(firstOf([characterReference, anyCharNotOf(			   "'".chars).withAction { ctx.addAttrVal(it) }])).withAction { ctx.setAttrValue }, str("'")])
+		rules["doubleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("\""), oneOrMore(firstOf([characterReference, anyCharNotOf(		 	  "\"".chars).withAction { ctx.addAttrVal(it) }])).withAction { ctx.setAttrValue }, str("\"")])
+		rules["attributeName"]					= oneOrMore(anyCharNotOf(" \t\n\r\f\"'>/=".chars)) 																									 .withAction { ctx.setAttrName(it) }
 		
 		rules["characterReference"]				= firstOf([decNumCharRef, hexNumCharRef])		
-		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	.withAction { ctx.addDecCharRef(it.matched) }
-		rules["hexNumCharRef"]					= sequence([str("&#x"), oneOrMore(firstOf([anyNumChar, anyCharInRange('a'..'f'), anyCharInRange('A'..'F')])), str(";")]) 	.withAction { ctx.addHexCharRef(it.matched) }		
+		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	.withAction { ctx.addDecCharRef(it) }
+		rules["hexNumCharRef"]					= sequence([str("&#x"), oneOrMore(firstOf([anyNumChar, anyCharInRange('a'..'f'), anyCharInRange('A'..'F')])), str(";")]) 	.withAction { ctx.addHexCharRef(it) }		
 
-		rules["cdata"]							= sequence([str("<![CDATA["), strNot("]]>"), str("]]>")]).withAction { ctx.addCdata(it.matched) }
+		rules["cdata"]							= sequence([str("<![CDATA["), strNot("]]>"), str("]]>")]).withAction { ctx.addCdata(it) }
 
 		rules["comment"]						= sequence([str("<!--"), strNot("--"), str("-->")])
 
-		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), oneOrMore(anyAlphaNumChar).withAction { ctx.pushDoctype(it.matched) }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
-		rules["doctypeSystemId"]				= sequence([oneOrMore(anySpaceChar), str("SYSTEM"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])).withAction { ctx.pushSystemId(it.matched) }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])).withAction { ctx.pushSystemId(it.matched) }, str("'")])])])
-		rules["doctypePublicId"]				= sequence([oneOrMore(anySpaceChar), str("PUBLIC"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])).withAction { ctx.pushPublicId(it.matched) }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])).withAction { ctx.pushPublicId(it.matched) }, str("'")])])])
+		rules["doctype"]						= sequence([str("<!DOCTYPE"), oneOrMore(anySpaceChar), oneOrMore(anyAlphaNumChar).withAction { ctx.pushDoctype(it) }, zeroOrMore(firstOf([doctypeSystemId, doctypePublicId])), whitespace, str(">")])
+		rules["doctypeSystemId"]				= sequence([oneOrMore(anySpaceChar), str("SYSTEM"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])).withAction { ctx.pushSystemId(it) }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])).withAction { ctx.pushSystemId(it) }, str("'")])])])
+		rules["doctypePublicId"]				= sequence([oneOrMore(anySpaceChar), str("PUBLIC"), oneOrMore(anySpaceChar), firstOf([sequence([str("\""), zeroOrMore(anyCharNotOf(['\"'])).withAction { ctx.pushPublicId(it) }, str("\"")]), sequence([str("'"), zeroOrMore(anyCharNotOf(['\''])).withAction { ctx.pushPublicId(it) }, str("'")])])])
 		
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
@@ -141,7 +141,7 @@ internal class HtmlRules : Rules {
 	}
 	
 	Rule tagNameRule(Rule rule) {
-		sequence([rule.withAction { ctx.tagName = it.matched }, zeroOrMore(anySpaceChar)])
+		sequence([rule.withAction { ctx.tagName = it }, zeroOrMore(anySpaceChar)])
 	}
 	
 	ParseCtx ctx() {

@@ -5,7 +5,7 @@ abstract class Rule {
 	Str? 		name
 	
 	** The action to be performed upon successful completion of this rule.
-	virtual |Result|?	action
+	virtual |Str|?	action
 
 	** Override to implement Rule logic.
 	abstract protected Bool doProcess(PegCtx ctx)
@@ -23,7 +23,7 @@ abstract class Rule {
 	}
 	
 	** A helpful builder method for setting the action.
-	This withAction(|Result|? action) {
+	This withAction(|Str|? action) {
 		this.action = action
 		return this
 	}
