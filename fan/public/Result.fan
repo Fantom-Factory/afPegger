@@ -39,26 +39,21 @@ internal class Result {
 	}
 
 	Void rollup() {
+		matched := matched
+
+		this.actions = |->|[,]
 		resultList?.each {
-			if (it.actions != null) {
-				if (this.actions == null)
-					this.actions = |->|[,]
+			if (it.actions != null)
 				this.actions.addAll(it.actions)
-			}
 		}
-		if (rule.action != null) {
-			if (this.actions == null)
-				this.actions = |->|[,]
+		if (rule.action != null)
 			actions.add(rule.action.bind([matched]))
-		}
 		matchStr = matched
 		resultList = null
 	}
 	
 	Str matched() {
-		// this 'once' (after the logger.isDebug in PegCtx) saves us some 150ms on a FantomFactory parse
-		// perhaps we should manually lock it after pass() or fail has been called? 
-		(matchStr ?: Str.defVal) + (resultList?.join(Str.defVal) { it.matchStr } ?: Str.defVal)
+		return (matchStr ?: Str.defVal) + (resultList?.join(Str.defVal) { it.matchStr } ?: Str.defVal)
 	}
 	
 	@NoDoc

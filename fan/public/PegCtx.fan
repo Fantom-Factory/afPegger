@@ -13,9 +13,12 @@ class PegCtx {
 	}
 	
 	Bool process(Rule rule) {
-		result	:= resultStack.isEmpty ? rootResult : Result(rule)		
-		_log(result, "--> ${result.rule.name} - Processing... ${rule.expression}")
+		result	:= resultStack.isEmpty ? rootResult : Result(rule)
+		if (logger.isDebug)
+			_log(result, "--> ${result.rule.name} - Processing... ${rule.expression}")
 
+		parent := resultStack.last
+		
 		resultStack.push(result)		
 		try {
 			result.passed = rule.doProcess(this)
@@ -23,34 +26,32 @@ class PegCtx {
 				log(result.passed ? "Passed!" : "Failed. Rolling back.")
 
 			if (result.passed) {
-				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
-				if (logger.isDebug && !result.matched.isEmpty)
+				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' took some time!
+				if (logger.isDebug)
 					log("Matched ${result.matched.toCode}")
 				result.rollup
+				
+				parent?.addResult(result)
+				
 			} else {
 				result.rollback(this)
 			}
 			
+			if (logger.isDebug) { 
+				millis := (Duration.now - result.startTime).toMillis.toLocale("#,000")
+				_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
+			}
+
 		} finally {
 			resultStack.pop
 		}
-		if (result.passed && !resultStack.isEmpty)
-			resultStack.peek.addResult(result)
-		
-		if (logger.isDebug && result.rule.name != null) { 
-			millis	:= (Duration.now - result.startTime).toMillis.toLocale("#,000")
-			_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
-		}
-
 		return result.passed
 	}
 
-	Str? matched {
-		get { resultStack.peek.matched }
-		set {
-			resultStack.peek.matchStr = it 
-			log("${it?.toCode} matched")
-		}
+	Void matched(Str? match) {
+		resultStack.peek.matchStr = match 
+		if (logger.isDebug) 
+			log("${match?.toCode} matched")
 	}
 	
 	Void rollback(Str msg := "Rolling back") {
@@ -83,21 +84,18 @@ class PegCtx {
 	** Use when rolling back a rule.
 	Void unread(Str? str) {
 		if (str != null && !str.isEmpty) {
-			log("${str.toCode} un-read")
+			if (logger.isDebug)
+				log("${str.toCode} un-read")
 			str.chars.eachr { in.unreadChar(it) }
 		}
 	}
 
 	** Reads 1 character from the underlying input stream.
 	Int? readChar() {
-		in.readChar
-	}
-
-	** Pushes back, or un-reads, the given character onto the underlying input stream.
-	** Use when rolling back a rule.
-	Void unreadChar(Int? char) {
-		if (char != null) 
-			in.unreadChar(char)
+		read := in.readChar
+		if (logger.isDebug && read != null)
+			log("${read.toCode} read")
+		return read
 	}
 	
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
