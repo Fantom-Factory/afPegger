@@ -7,14 +7,12 @@ internal class SequenceRule : Rule {
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
-		passed := rules.all |Rule rule->Bool| {
+		rules.all |Rule rule->Bool| {
 			pass := ctx.process(rule)
 			if (!pass)
 				ctx.log("Did not match ${rule}")
 			return pass
 		}
-		
-		return passed
 	}
 
 	override This add(Rule rule) {

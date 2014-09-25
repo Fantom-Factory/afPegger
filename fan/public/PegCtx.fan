@@ -2,7 +2,6 @@
 class PegCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		InStream		in
-	private		PegInStream		pegin
 	private		Result[]		resultStack	:= Result[,]
 	internal	Result			rootResult
 	
@@ -11,7 +10,6 @@ class PegCtx {
 			rootRule.name = "Root Rule"
 		this.rootResult	= Result(rootRule)
 		this.in			= in
-		this.pegin		= PegInStream(in)
 	}
 	
 	Bool process(Rule rule) {
@@ -20,16 +18,18 @@ class PegCtx {
 
 		resultStack.push(result)		
 		try {
-			rulePassed := rule.doProcess(this)
-		
-			log(rulePassed ? "Passed!" : "Failed. Rolling back.")
-			resultStack.peek.passed = rulePassed
-			if (!rulePassed)
-				resultStack.peek.rollback(this)
-			else
+			result.passed = rule.doProcess(this)
+			if (logger.isDebug)
+				log(result.passed ? "Passed!" : "Failed. Rolling back.")
+
+			if (result.passed) {
 				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
 				if (logger.isDebug && !matched.isEmpty)
 					log("Matched ${matched.toCode}")
+//				result.rollup
+			} else {
+				result.rollback(this)
+			}
 			
 		} finally {
 			resultStack.pop
@@ -74,7 +74,7 @@ class PegCtx {
 			read = strBuf.toStr
 		}
 		
-		if (logger.isDebug)
+		if (logger.isDebug && read != null)
 			log("${read.toCode} read")
 		return read
 	}
