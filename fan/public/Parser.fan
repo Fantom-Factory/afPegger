@@ -6,7 +6,7 @@ class Parser {
 		this.rootRule 	= rootRule
 	}
 	
-	Result parse(InStream in) {
+	internal Result parse(InStream in) {
 //		try {
 			ctx		:= PegCtx(rootRule, in)
 			result	:= ctx.process(rootRule)

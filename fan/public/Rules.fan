@@ -2,7 +2,7 @@
 mixin Rules {
 	
 	static Rule str(Str string, Bool ignoreCase := true) {
-		StrRule(string.toCode, string.size) |Str? peek->Bool| { ignoreCase ? string.equalsIgnoreCase(peek ?: Str.defVal) : string.equals(peek) }
+		StrRule(string, ignoreCase)
 	}
 	
 	static Rule strNot(Str string, Bool ignoreCase := true) {
@@ -20,45 +20,45 @@ mixin Rules {
 //	}
 	
 	static Rule anyChar() {
-		StrRule(".") |Int peek->Bool| { true }
+		CharRule(".") |Int peek->Bool| { true }
 	}
 
 	static Rule anyCharOf(Int[] chars) {
-		StrRule("[${Str.fromChars(chars).toCode(null)}]") |Int peek->Bool| { chars.contains(peek) }
+		CharRule("[${Str.fromChars(chars).toCode(null)}]") |Int peek->Bool| { chars.contains(peek) }
 	}
 	
 	static Rule anyCharNotOf(Int[] chars) {
-		StrRule("![${Str.fromChars(chars).toCode(null)}] .") |Int peek->Bool| { !chars.contains(peek) }
+		CharRule("![${Str.fromChars(chars).toCode(null)}] .") |Int peek->Bool| { !chars.contains(peek) }
 	}
 
 	static Rule anyCharInRange(Range charRange) {
-		StrRule("[${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}]") |Int peek->Bool| { charRange.contains(peek) }
+		CharRule("[${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}]") |Int peek->Bool| { charRange.contains(peek) }
 	}
 
 	static Rule anyCharNotInRange(Range charRange) {
-		StrRule("![${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}] .") |Int peek->Bool| { !charRange.contains(peek) }
+		CharRule("![${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}] .") |Int peek->Bool| { !charRange.contains(peek) }
 	}
 	
 	static Rule anyAlphaChar() {
-		StrRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
+		CharRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
 	}
 
 	static Rule anyAlphaNumChar() {
-		StrRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
+		CharRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
 	}
 
 	static Rule anyNumChar() {
-		StrRule("[0-9]") |Int peek->Bool| { peek.isDigit }
+		CharRule("[0-9]") |Int peek->Bool| { peek.isDigit }
 	}
 	
 	** whitespace: space \t \n \r \f
 	static Rule anySpaceChar() {
-		StrRule("[ ]") |Int peek->Bool| { peek.isSpace }
+		CharRule("[ ]") |Int peek->Bool| { peek.isSpace }
 	}
 
 	** whitespace: space \t \n \r \f
 	static Rule anyNonSpaceChar() {
-		StrRule("![ ] .") |Int peek->Bool| { !peek.isSpace }
+		CharRule("![ ] .") |Int peek->Bool| { !peek.isSpace }
 	}
 
 	static Rule optional(Rule rule) {
