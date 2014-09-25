@@ -2,6 +2,7 @@
 class PegCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		InStream		in
+	private		PegInStream		pegin
 	private		Result[]		resultStack	:= Result[,]
 	internal	Result			rootResult
 	
@@ -10,6 +11,7 @@ class PegCtx {
 			rootRule.name = "Root Rule"
 		this.rootResult	= Result(rootRule)
 		this.in			= in
+		this.pegin		= PegInStream(in)
 	}
 	
 	Bool process(Rule rule) {
@@ -23,10 +25,12 @@ class PegCtx {
 			resultStack.pop
 		}
 		if (result.passed && !resultStack.isEmpty)
-			resultStack.peek.results.add(result)
+			resultStack.peek.addResult(result)
 		
-		millis	:= (Duration.now - result.startTime).toMillis.toLocale("#,000")
-		_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
+		if (logger.isDebug && result.rule.name != null) { 
+			millis	:= (Duration.now - result.startTime).toMillis.toLocale("#,000")
+			_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
+		}
 
 		return result.passed
 	}
@@ -35,13 +39,18 @@ class PegCtx {
 		log(rulePassed ? "Passed!" : "Failed. Rolling back.")
 		resultStack.peek.passed = rulePassed
 		if (!rulePassed)
-			resultStack.peek.rollback
+			resultStack.peek.rollback(this)
 		else
-			if (!matched.isEmpty)
+			// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
+			if (logger.isDebug && !matched.isEmpty)
 				log("Matched ${matched.toCode}")
 	}
 
-	|->| rollbackFunc {
+//	|->| rollbackFunc {
+//		get { resultStack.peek.rollbackFunc }
+//		set { resultStack.peek.rollbackFunc = it }
+//	}
+	Str? rollbackFunc {
 		get { resultStack.peek.rollbackFunc }
 		set { resultStack.peek.rollbackFunc = it }
 	}
@@ -56,15 +65,27 @@ class PegCtx {
 	
 	Void rollback(Str msg := "Rolling back") {
 		log(msg)
-		resultStack.peek.rollback
+		resultStack.peek.rollback(this)
 	}
 	
 	** Reads 'n' characters from the underlying input stream.
 	Str? read(Int n) {
-		if (n == 1)
-			return in.readChar?.toChar
-		read := Str.fromChars((0..<n).toList.map { in.readChar }.exclude { it == null })
-		log("${read.toCode} read")
+		read := (Str?) null
+		
+		if (n == 1) {
+			read = in.readChar?.toChar
+		} else {
+			strBuf := StrBuf(n)
+			for (; n > 0; n--) {
+				char := in.readChar
+				if (char != null)
+					strBuf.addChar(char)
+			}
+			read = strBuf.toStr
+		}
+		
+		if (logger.isDebug)
+			log("${read.toCode} read")
 		return read
 	}
 
