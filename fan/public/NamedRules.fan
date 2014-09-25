@@ -28,7 +28,7 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
-	override |Result|?	action {
+	override |Str|?	action {
 		get { rule.action }
 		set { rule.action = it }
 	}

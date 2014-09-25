@@ -26,7 +26,7 @@ class PegCtx {
 				// this isDebug saves 500ms on a FantomFactory parse! That 'matched()' takes some time!
 				if (logger.isDebug && !matched.isEmpty)
 					log("Matched ${matched.toCode}")
-//				result.rollup
+				result.rollup
 			} else {
 				result.rollback(this)
 			}

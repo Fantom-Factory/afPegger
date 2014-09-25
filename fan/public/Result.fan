@@ -6,8 +6,8 @@ class Result {
 	
 	Str? 		matchStr
 	Bool?		passed
-	|Result|[]?	actions
-	Result[]?	resultList
+	|Result|[]?	actions		:= [,]
+	Result[]?	resultList	:= [,]
 
 	
 	
@@ -26,8 +26,10 @@ class Result {
 	}
 	
 	internal Void success() {
+//		actions?.each { it.call(this) }
+		
 		resultList?.each { it.success }
-		rule.action?.call(this)
+		rule.action?.call(matched)
 	}
 
 	internal Void rollback(PegCtx ctx) {
@@ -37,12 +39,28 @@ class Result {
 		// Predicates rollback if successful, so they would rollback twice if their enclosing rule failed.
 		resultList		= null
 		matchStr		= null
+		actions			= [,]
 	}
 
 	internal Void rollup() {
-		matchStr = matched
-		actions = resultList?.map { it.rule.action }?.exclude { it == null }
-		resultList = null
+//		matchStr = matched
+//		
+//		resultList?.each { 
+//			this.actions.addAll(it.actions)
+//		}
+//		if (rule.action != null) {
+//			actions.add(rule.action)
+//		}
+//		resultList = null
+
+//		actions = resultList?.map { it.actions }?.exclude { it == null }?. flatten
+//		if (rule.action != null) {
+//			if (actions == null)
+//				actions = [rule.action]
+//			else
+//				actions.add(rule.action)
+//		}
+//		resultList = null
 	}
 	
 	Str matched() {
