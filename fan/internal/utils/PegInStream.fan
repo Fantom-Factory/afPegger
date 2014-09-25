@@ -1,5 +1,5 @@
 
-// FIXME: kill me
+** This class saves us some 200ms on a FantomFactory parse
 internal class PegInStream {
 	private InStream 	in
 	private StrBuf		strBuf	:= StrBuf(1024)
@@ -10,12 +10,18 @@ internal class PegInStream {
 	}
 	
 	Str? readChar(Int n) {
-		noOfCharsLeftInBuf	:= strBuf.size - pos 
-		noToReadFromIn		:= n - noOfCharsLeftInBuf 
+		noOfCharsLeftInBuf	:= strBuf.size - pos
+
+		if (n == 1 && noOfCharsLeftInBuf >= 1)
+			return strBuf[pos++].toChar
+
+		noToReadFromIn		:= n - noOfCharsLeftInBuf
 		while (noToReadFromIn > 0) {
-			if (in.peekChar == null)
-				return null
-			strBuf.addChar(in.readChar)
+			char := in.readChar
+			if (char != null)
+				strBuf.addChar(char)
+			else
+				n--
 			noToReadFromIn--
 		}
 		str := strBuf[pos..<pos+n]

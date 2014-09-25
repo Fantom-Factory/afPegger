@@ -33,6 +33,7 @@ internal class HtmlRules : Rules {
 		preamble						:= rules["preamble"]
 		blurb							:= rules["blurb"]
 		bom								:= rules["bom"]
+		xml								:= rules["xml"]
 
 		element 						:= rules["element"]
 
@@ -81,11 +82,12 @@ internal class HtmlRules : Rules {
 
 		whitespace						:= rules["whitespace"]
 
-		rules["preamble"]						= sequence([bom, blurb, optional(doctype), blurb, element, blurb])
+		rules["preamble"]						= sequence([bom, blurb, optional(doctype), xml, blurb, element, blurb])
 		rules["blurb"]							= zeroOrMore(firstOf([oneOrMore(anySpaceChar), comment]))
 		rules["bom"]							= optional(str("\uFEFF"))
+		rules["xml"]							= optional(sequence([str("<?xml"), strNot("?>") ,str("?>")]))
 		
-		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, selfClosingElement, normalElement])
+		rules["element"]						= firstOf([voidElement, rawTextElement, escapableRawTextElement, normalElement, selfClosingElement])
 
 		rules["voidElement"]					= sequence([str("<"), voidElementName, attributes,  str(">")])						.withAction { ctx.pushVoidTag }
 		rules["rawTextElement"]					= sequence([rawTextElementTag, rawTextElementContent, endTag])
@@ -97,7 +99,8 @@ internal class HtmlRules : Rules {
 		rules["escapableRawTextElementTag"]		= sequence([str("<"), escapableRawTextElementName, attributes, str(">")])			.withAction { ctx.pushStartTag }
 
 		rules["startTag"]						= sequence([str("<"), tagName, attributes, str(">")])								.withAction { ctx.pushStartTag }
-		rules["endTag"]							= sequence([str("</"), EndTagRule(tagName), str(">")])								.withAction { ctx.pushEndTag }
+//		rules["endTag"]							= sequence([str("</"), EndTagRule(tagName), str(">")])								.withAction { ctx.pushEndTag }
+		rules["endTag"]							= sequence([str("</"), tagName, str(">")])											.withAction { ctx.pushEndTag }
 
 		rules["tagName"]						= tagNameRule(sequence([anyAlphaChar, zeroOrMore(anyCharNotOf("\t\n\f />".chars))]))
 
@@ -111,7 +114,7 @@ internal class HtmlRules : Rules {
 		
 		rules["rawText"]						= oneOrMore(sequence([onlyIfNot(firstOf("script style"  .split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it.matched) }
 		rules["escapableRawText"]				= oneOrMore(sequence([onlyIfNot(firstOf("textarea title".split.map { str("</${it}>") })), anyChar]))	.withAction { ctx.addText(it.matched) }
-		rules["normalElementText"]				= oneOrMore(anyCharNotOf("<&".chars))																	.withAction { ctx.addText(it.matched) }
+		rules["normalElementText"]				= strNot("<")																							.withAction { ctx.addText(it.matched) }
 		
 		rules["attributes"]						= zeroOrMore(firstOf([anySpaceChar, doubleAttribute, singleAttribute, unquotedAttribute, emptyAttribute]))
 		rules["emptyAttribute"]					= nTimes(1, attributeName).withAction { ctx.addAttrVal(ctx.attrName); ctx.setAttrValue }	// can't put the action on attributeName
@@ -119,7 +122,6 @@ internal class HtmlRules : Rules {
 		rules["singleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("'"),	oneOrMore(firstOf([characterReference, anyCharNotOf(			   "'".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue }, str("'")])
 		rules["doubleAttribute"]				= sequence([attributeName, whitespace, str("="), whitespace, str("\""), oneOrMore(firstOf([characterReference, anyCharNotOf(		 	  "\"".chars).withAction { ctx.addAttrVal(it.matched) }])).withAction { ctx.setAttrValue }, str("\"")])
 		rules["attributeName"]					= oneOrMore(anyCharNotOf(" \t\n\r\f\"'>/=".chars)) 																									 .withAction { ctx.setAttrName(it.matched) }
-		
 		
 		rules["characterReference"]				= firstOf([decNumCharRef, hexNumCharRef])		
 		rules["decNumCharRef"]					= sequence([str("&#"), oneOrMore(anyNumChar), str(";")])																	.withAction { ctx.addDecCharRef(it.matched) }
@@ -141,10 +143,6 @@ internal class HtmlRules : Rules {
 	Rule tagNameRule(Rule rule) {
 		sequence([rule.withAction { ctx.tagName = it.matched }, zeroOrMore(anySpaceChar)])
 	}
-
-//	|Result|? pushVoidTag() {
-//		|Rule rule| { rule.action = |Result result| { ctx.voidTag } }
-//	}
 	
 	ParseCtx ctx() {
 		// TODO: get this from pegctx

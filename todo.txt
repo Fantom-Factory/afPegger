@@ -8,6 +8,9 @@ Actually, bullshit - the first rule could always fail and rollback!
 spit out a peg tree
 
 peg parser!
+add more symbols :
+http://nimrod-lang.org/pegs.html
+add notion of {capturing} for replace...?
 
 Pegex -> matches, matched, find, replace, etc
 
