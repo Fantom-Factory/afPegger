@@ -10,7 +10,7 @@ internal class CharRule : Rule {
 
 	override Bool doProcess(PegCtx ctx) {
 		peek := ctx.readChar
-		ctx.matched(peek?.toChar)
+		ctx.matched = peek?.toChar
 		return func(peek)
 	}
 }
@@ -28,7 +28,7 @@ internal class StrRule : Rule {
 
 	override Bool doProcess(PegCtx ctx) {
 		peek := ctx.read(str.size)
-		ctx.matched(peek)
+		ctx.matched = peek
 		return ignoreCase ? str.equalsIgnoreCase(peek ?: Str.defVal) : str.equals(peek)
 	}
 }
@@ -78,7 +78,7 @@ internal class StrNotRule : Rule {
 			}
 		}
 
-		ctx.matched(matched)
+		ctx.matched = matched
 
 		return !matched.isEmpty
 	}

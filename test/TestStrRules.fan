@@ -27,14 +27,14 @@ internal class TestStrRules : Test, Rules {
 
 	Void testStrNot() {
 		parser	:= Parser(strNot("ever"))
-//		verifyFalse(parser.parse("ever".in) != null)
-//
-//		verifyFalse(parser.parse("".in) != null)
-//
-//		verify     (parser.parse("wot".in) != null)
-//		verifyEq   (parser.parse("wot".in).matched, "wot")
-//
-//		verify     (parser.parse("wotever".in) != null)
+		verifyFalse(parser.parse("ever".in) != null)
+
+		verifyFalse(parser.parse("".in) != null)
+
+		verify     (parser.parse("wot".in) != null)
+		verifyEq   (parser.parse("wot".in), "wot")
+
+		verify     (parser.parse("wotever".in) != null)
 		verifyEq   (parser.parse("wotever".in), "wot")
 
 		// test rollbacks
