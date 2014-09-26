@@ -67,11 +67,17 @@ class PegCtx {
 		return result.passed
 	}
 
-	** Call when the Rule has matched a Str.  
-	Void matched(Str? match) {
-		resultStack.peek.matchStr = match 
-		if (logger.isDebug) 
-			log("${match?.toCode} matched")
+	** A rule should 'set' this when it has matched some input. 
+	** It should *not* re-set what has been matched in inner rules, only what it, itself, has matched.
+	** 
+	** 'Getting' also returns the concatenation of what any inner rules have matched.  
+	Str? matched {
+		get { resultStack.peek.matched }
+		set {
+			resultStack.peek.matchStr = it 
+			if (logger.isDebug) 
+				log("${it?.toCode} matched")
+		}
 	}
 	
 	** Call to rollback the matching of any subrules. 

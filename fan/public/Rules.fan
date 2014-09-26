@@ -119,6 +119,15 @@ mixin Rules {
 	static Rule anyNumChar() {
 		CharRule("[0-9]") |Int peek->Bool| { peek.isDigit }
 	}
+
+	** Matches any hexadecimal character. 
+	** 
+	** PEG notation:
+	** 
+	**   [a-fA-F0-9]
+	static Rule anyHexChar() {
+		CharRule("[a-fA-F0-9]") |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
+	}
 	
 	** Matches any whitespace character. 
 	** 
