@@ -136,7 +136,7 @@ Should you require more dynamic behaviour from the rules, you can always impleme
 Debug [#debug]
 ==============
 By enabling debug logging, 'Pegger' will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!)
-But note it will only emit debug information for named rules.
+But note it will only emit debug information for rules with names.
 
 Enable debug logging with the line:
 

@@ -119,35 +119,33 @@ Should you require more dynamic behaviour from the rules, you can always impleme
 
 ### Debug 
 
-By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for named rules.
+By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for rules with names.
 
 Enable debug logging with the line:
 
-    Parser#.pod.log.level = LogLevel.debug
+    afPegger::Parser#.pod.log.level = LogLevel.debug
 
 Which, for the above tag parsing example, will log content like:
 
 ```
-[afPegger] [  1] --> element - Processing... startTag (element / text)* endTag
-[afPegger] [  2]  --> startTag - Processing... "<" [a-zA-Z]+ ">"
+[afPegger] [  1] --> element - Processing: startTag (element / text)* endTag with: <html><title>Pegger Ex...
+[afPegger] [  2]  --> startTag - Processing: "<" [a-zA-Z]+ ">" with: <html><title>Pegger Ex...
 [afPegger] [  2]    > startTag - Passed!
-[afPegger] [  2]    > startTag - Matched "<html>"
-[afPegger] [  2]  <-- startTag - Processed. [004ms]
-[afPegger] [  4]    --> element - Processing... startTag (element / text)* endTag
-[afPegger] [  5]     --> startTag - Processing... "<" [a-zA-Z]+ ">"
+[afPegger] [  2]    > startTag - Matched: "<html>"
+[afPegger] [  4]    --> element - Processing: startTag (element / text)* endTag with: <title>Pegger Example<...
+[afPegger] [  5]     --> startTag - Processing: "<" [a-zA-Z]+ ">" with: <title>Pegger Example<...
 [afPegger] [  5]       > startTag - Passed!
-[afPegger] [  5]       > startTag - Matched "<title>"
-[afPegger] [  5]     <-- startTag - Processed. [001ms]
-[afPegger] [  7]       --> element - Processing... startTag (element / text)* endTag
-[afPegger] [  8]        --> startTag - Processing... "<" [a-zA-Z]+ ">"
-[afPegger] [  8]          > startTag - Did not match "<"
+[afPegger] [  5]       > startTag - Matched: "<title>"
+[afPegger] [  7]       --> element - Processing: startTag (element / text)* endTag with: Pegger Example</title>...
+[afPegger] [  8]        --> startTag - Processing: "<" [a-zA-Z]+ ">" with: Pegger Example</title>...
+[afPegger] [  8]          > startTag - Did not match "<".
 [afPegger] [  8]          > startTag - Failed. Rolling back.
-[afPegger] [  8]        <-- startTag - Processed. [000ms]
-[afPegger] [  7]         > element - Did not match startTag
+[afPegger] [  7]         > element - Did not match startTag.
 [afPegger] [  7]         > element - Failed. Rolling back.
-[afPegger] [  7]       <-- element - Processed. [004ms]
-[afPegger] [  7]       --> text - Processing... !"<"+
+[afPegger] [  7]       --> text - Processing: (!"<" .)+ with: Pegger Example</title>...
+[afPegger] [  7]         > text - Rule was successfully processed 14 times
 [afPegger] [  7]         > text - Passed!
+[afPegger] [  7]         > text - Matched: "Pegger Example"
 ...
 ...
 ...
