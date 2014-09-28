@@ -221,6 +221,10 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   rule1 rule2 rule3 ... rule4
+	** 
+	** When defining a 'sequence()' rule you may also use it-block syntax:
+	** 
+	**   sequence { rule1, rule2, rule3, }
 	static Rule sequence(Rule[] rules := [,]) {
 		SequenceRule(rules)
 	}
@@ -231,6 +235,10 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   rule1 / rule2 / rule3 / ... / rule4
+	** 
+	** When defining a 'firstOf()' rule you may also use it-block syntax:
+	** 
+	**   firstOf { rule1, rule2, rule3, }
 	static Rule firstOf(Rule[] rules := [,]) {
 		FirstOfRule(rules)
 	}
