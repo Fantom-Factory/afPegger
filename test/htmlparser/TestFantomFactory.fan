@@ -2,7 +2,7 @@
 internal class TestFantomFactory : HtmlParserTest {
 	
 	Void testFfWebSite() {
-//		PegCtx#.pod.log.level = LogLevel.debug
+//		afPegger::PegCtx#.pod.log.level = LogLevel.debug
 
 		HtmlParser().parseDocument(website)
 	}	
