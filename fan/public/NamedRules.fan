@@ -20,6 +20,10 @@ class NamedRules {
 	internal Rule getForReal(Str name) {
 		rules[name] ?: throw ArgNotFoundErr("Could not find rule '$name'", rules.keys)
 	}
+	
+	override Str toStr() {
+		rules.reduce("") |Str str, rule->Str| { str += rule.definition + "\n" }
+	}
 }
 
 internal class ProxyRule : Rule {
@@ -48,7 +52,7 @@ internal class ProxyRule : Rule {
 		rule.toStr
 	}
 	
-	private Rule rule() {
+	internal Rule rule() {
 		if (ruleForReal == null) {
 			ruleForReal = rules.getForReal(name)
 			if (ruleForReal.name == null)

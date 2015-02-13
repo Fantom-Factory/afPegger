@@ -244,7 +244,7 @@ mixin Rules {
 	}
 	
 	** A placeholder. 
-	** Succeeds if 'pass' is 'true'.
+	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
 	static Rule todo(Bool pass := false) {
 		TodoRule(pass)
 	}
