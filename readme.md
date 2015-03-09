@@ -1,4 +1,10 @@
-## Overview 
+#Pegger v0.0.4
+---
+[![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](http://fantom.org/)
+[![pod: v0.0.4](http://img.shields.io/badge/pod-v0.0.4-yellow.svg)](http://www.fantomfactory.org/pods/afPegger)
+![Licence: MIT](http://img.shields.io/badge/licence-MIT-blue.svg)
+
+## Overview
 
 *Pegger is a support library that aids Alien-Factory in the development of other libraries, frameworks and applications. Though you are welcome to use it, you may find features are missing and the documentation incomplete.*
 
@@ -8,7 +14,7 @@ For when Regular Expressions just aren't enough!
 
 `Pegger` was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf) and [Parboiled](https://github.com/sirthias/parboiled/wiki).
 
-## Install 
+## Install
 
 Install `Pegger` with the Fantom Repository Manager ( [fanr](http://fantom.org/doc/docFanr/Tool.html#install) ):
 
@@ -18,11 +24,11 @@ To use in a [Fantom](http://fantom.org/) project, add a dependency to `build.fan
 
     depends = ["sys 1.0", ..., "afPegger 0.0+"]
 
-## Documentation 
+## Documentation
 
 Full API & fandocs are available on the [Status302 repository](http://repo.status302.com/doc/afPegger/).
 
-## Quick Start 
+## Quick Start
 
 ```
 class Example : Rules {
@@ -35,11 +41,11 @@ class Example : Rules {
 }
 ```
 
-## Usage 
+## Usage
 
 When parsing text, `Pegger` on it's own will not return anything useful. Instead it is up to you to define useful rule actions that get executed when a rule passes; usually when a successful match happens.
 
-### Recursive / HTML Parsing 
+### Recursive / HTML Parsing
 
 A well known limitation of regular expressions is that they can not match nested patterns, such as HTML. (See [StackOverflow for explanation](http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454).) `Pegger` to the rescue!
 
@@ -113,11 +119,11 @@ class TagParser : Rules {
 
 Note that only *Chuck Norris* can parse HTML with regular expressions.
 
-### Dynamic Rules 
+### Dynamic Rules
 
 Should you require more dynamic behaviour from the rules, you can always implement your own [Rule](http://repo.status302.com/doc/afPegger/Rule.html).
 
-### Debug 
+### Debug
 
 By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for rules with names.
 
