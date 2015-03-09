@@ -173,6 +173,10 @@ pre>
 Release Notes [#releaseNotes]
 *****************************
 
+v0.0.4 [#v0.0.4]
+================
+ - New: 'Rules.doAction()' and 'Rules.anySpaceChars()'.
+
 v0.0.2 [#v0.0.2]
-----------------
+================
  - New: Preview release.

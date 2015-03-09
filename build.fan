@@ -5,20 +5,20 @@ class Build : BuildPod {
 	new make() {
 		podName = "afPegger"
 		summary = "For when Regular Expressions just aren't enough!"
-		version = Version("0.0.3")
+		version = Version("0.0.4")
 
 		meta = [
 			"proj.name"		: "Pegger",
 			"internal"		: "true",
 			"tags"			: "system",
-			"repo.private"	: "true"
+			"repo.private"	: "false"
 		]
 
 		depends = [
 			"sys 1.0",
 
 			// ---- Core ------------------------
-			"afBeanUtils 1.0",
+			"afBeanUtils 1.0.4 - 1.0",
 			
 			// ---- Test ------------------------
 			"xml 1.0",			// htmlParser

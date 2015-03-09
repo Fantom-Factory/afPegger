@@ -138,6 +138,16 @@ mixin Rules {
 		CharRule("[ ]") |Int peek->Bool| { peek.isSpace }
 	}
 
+	
+	** Matches multiple whitespace characters. 
+	** 
+	** PEG notation:
+	** 
+	**   [ \t\n\r\f]+
+	static Rule anySpaceChars() {
+		oneOrMore(anySpaceChar)
+	}
+
 	** Matches any *non* whitespace character. 
 	** 
 	** PEG notation:
@@ -249,6 +259,18 @@ mixin Rules {
 		TodoRule(pass)
 	}
 
+	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
+	** Useful for inserting arbitrary actions in sequences:
+	** 
+	**   sequence { rule1, doAction { echo("Hello!") }, rule2 }
+	** 
+	** Example PEG notation:
+	** 
+	**   ???
+	static Rule doAction(|Str|? action) {
+		ActionRule(action)
+	}
+	
 	** Processes the given rule and return success if it succeeded.
 	** The rule is always rolled back so the characters may be subsequently re-read. 
 	** 
