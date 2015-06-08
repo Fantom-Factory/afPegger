@@ -5,13 +5,13 @@ class Build : BuildPod {
 	new make() {
 		podName = "afPegger"
 		summary = "For when Regular Expressions just aren't enough!"
-		version = Version("0.0.4")
+		version = Version("0.0.5")
 
 		meta = [
 			"proj.name"		: "Pegger",
 			"repo.internal"	: "true",
 			"repo.tags"		: "system",
-			"repo.public"	: "true"
+			"repo.public"	: "false"
 		]
 
 		depends = [
