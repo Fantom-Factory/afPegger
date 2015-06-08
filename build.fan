@@ -5,13 +5,13 @@ class Build : BuildPod {
 	new make() {
 		podName = "afPegger"
 		summary = "For when Regular Expressions just aren't enough!"
-		version = Version("0.0.5")
+		version = Version("0.0.4")
 
 		meta = [
 			"proj.name"		: "Pegger",
-			"internal"		: "true",
-			"tags"			: "system",
-			"repo.private"	: "true"
+			"repo.internal"	: "true",
+			"repo.tags"		: "system",
+			"repo.public"	: "true"
 		]
 
 		depends = [
@@ -26,7 +26,7 @@ class Build : BuildPod {
 		]
 	
 		srcDirs = [`test/`, `test/htmlparser/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/internal/rules/`]
-		resDirs = [,]
+		resDirs = [`doc/`]
 	}
 	
 	override Void compile() {

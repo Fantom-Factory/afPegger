@@ -10,9 +10,9 @@
 
 For when Regular Expressions just aren't enough!
 
-`Pegger` is a [Parsing Expression Grammar (PEG)](http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf) implementation. It lets you build text parsers by building up a tree of simple matching [rules](http://repo.status302.com/doc/afPegger/Rules.html).
+Pegger is a [Parsing Expression Grammar (PEG)](http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf) implementation. It lets you build text parsers by building up a tree of simple matching [rules](http://pods.fantomfactory.org/pods/afPegger/api/Rules).
 
-`Pegger` was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf) and [Parboiled](https://github.com/sirthias/parboiled/wiki).
+Pegger was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf) and [Parboiled](https://github.com/sirthias/parboiled/wiki).
 
 ## Install
 
@@ -22,11 +22,11 @@ Install `Pegger` with the Fantom Repository Manager ( [fanr](http://fantom.org/d
 
 To use in a [Fantom](http://fantom.org/) project, add a dependency to `build.fan`:
 
-    depends = ["sys 1.0", ..., "afPegger 0.0+"]
+    depends = ["sys 1.0", ..., "afPegger 0.0"]
 
 ## Documentation
 
-Full API & fandocs are available on the [Status302 repository](http://repo.status302.com/doc/afPegger/).
+Full API & fandocs are available on the [Fantom Pod Repository](http://pods.fantomfactory.org/pods/afPegger/).
 
 ## Quick Start
 
@@ -47,9 +47,9 @@ When parsing text, `Pegger` on it's own will not return anything useful. Instead
 
 ### Recursive / HTML Parsing
 
-A well known limitation of regular expressions is that they can not match nested patterns, such as HTML. (See [StackOverflow for explanation](http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454).) `Pegger` to the rescue!
+A well known limitation of regular expressions is that they can not match nested patterns, such as HTML. (See [StackOverflow for explanation](http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454).) Pegger to the rescue!
 
-Below is an example that parses nested XML tags and throws a `ParseErr` should an incorrect end tag be used. It uses the [NamedRules](http://repo.status302.com/doc/afPegger/NamedRules.html) helper class to reference rules to get around inherent problems with recursion.
+Below is an example that parses nested XML tags and throws a `ParseErr` should an incorrect end tag be used. It uses the [NamedRules](http://pods.fantomfactory.org/pods/afPegger/api/NamedRules) helper class to reference rules to get around inherent problems with recursion.
 
 ```
 using xml
@@ -121,7 +121,7 @@ Note that only *Chuck Norris* can parse HTML with regular expressions.
 
 ### Dynamic Rules
 
-Should you require more dynamic behaviour from the rules, you can always implement your own [Rule](http://repo.status302.com/doc/afPegger/Rule.html).
+Should you require more dynamic behaviour from the rules, you can always implement your own [Rule](http://pods.fantomfactory.org/pods/afPegger/api/Rule).
 
 ### Debug
 
