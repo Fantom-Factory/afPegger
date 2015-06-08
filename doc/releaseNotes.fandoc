@@ -1,0 +1,11 @@
+Versions
+********
+
+v0.0.4
+======
+ - New: 'Rules.doAction()' and 'Rules.anySpaceChars()'.
+
+v0.0.2
+======
+ - New: Preview release.
+

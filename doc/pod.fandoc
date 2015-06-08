@@ -1,35 +1,19 @@
-Overview [#overview]
-********************
+Overview
+********
 For when Regular Expressions just aren't enough!
 
-'Pegger' is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf` implementation.
+Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf` implementation.
 It lets you build text parsers by building up a tree of simple matching [rules]`Rules`.
 
-'Pegger' was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf` and [Parboiled]`https://github.com/sirthias/parboiled/wiki`.
+Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf` and [Parboiled]`https://github.com/sirthias/parboiled/wiki`.
 
 
 
-Install [#Install]
-******************
-Install '@{project.name}' with the Fantom Repository Manager ( [fanr]`docFanr::Tool.install` ):
-
-  C:\> fanr install -r http://repo.status302.com/fanr/ @{pod.name}
-
-To use in a [Fantom]`http://fantom.org/` project, add a dependency to 'build.fan':
-
-  depends = ["sys 1.0", ..., "@{pod.name} @{pod.version}+"]
-
-
-
-Documentation [#documentation]
-******************************
-Full API & fandocs are available on the [Status302 repository]`http://repo.status302.com/doc/@{pod.name}/`.
-
-
-
-Quick Start [#quickStart]
-*************************
+Quick Start
+***********
 pre>
+syntax: fantom
+
 class Example : Rules {
     Void main() {
         nameRule   := oneOrMore(anyAlphaChar).withAction |Str match| { echo(match) }
@@ -42,22 +26,24 @@ class Example : Rules {
 
 
 
-Usage [#usage]
-**************
+Usage
+*****
 When parsing text, 'Pegger' on it's own will not return anything useful. Instead it is up to you to define useful rule actions that get executed when a rule passes; usually when a successful match happens.
 
 
 
-Recursive / HTML Parsing [#recursive]
-=====================================
+Recursive / HTML Parsing
+========================
 A well known limitation of regular expressions is that they can not match nested patterns, such as HTML.
 (See [StackOverflow for explanation]`http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454`.)
-'Pegger' to the rescue!
+Pegger to the rescue!
 
 Below is an example that parses nested XML tags and throws a 'ParseErr' should an incorrect end tag be used.
 It uses the `NamedRules` helper class to reference rules to get around inherent problems with recursion.
 
 pre>
+syntax: fantom
+
 using xml
 using afPegger
 
@@ -127,18 +113,20 @@ Note that only *Chuck Norris* can parse HTML with regular expressions.
 
 
 
-Dynamic Rules [#dynamicRule]
-============================
+Dynamic Rules
+=============
 Should you require more dynamic behaviour from the rules, you can always implement your own `Rule`.
 
 
 
-Debug [#debug]
-==============
+Debug
+=====
 By enabling debug logging, 'Pegger' will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!)
 But note it will only emit debug information for rules with names.
 
 Enable debug logging with the line:
+
+  syntax: fantom
 
   afPegger::Parser#.pod.log.level = LogLevel.debug
 
@@ -168,15 +156,3 @@ pre>
 ...
 <pre
 
-
-
-Release Notes [#releaseNotes]
-*****************************
-
-v0.0.4 [#v0.0.4]
-================
- - New: 'Rules.doAction()' and 'Rules.anySpaceChars()'.
-
-v0.0.2 [#v0.0.2]
-================
- - New: Preview release.
