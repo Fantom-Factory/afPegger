@@ -1,4 +1,5 @@
 
+@Js
 internal class TestCharRules : Test, Rules {
 	
 	Void testAnyChar() {

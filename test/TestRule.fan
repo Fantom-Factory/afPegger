@@ -1,4 +1,5 @@
 
+@Js
 class TestRule : Test {
 	
 	Void testWrapRuleName() {
@@ -14,6 +15,7 @@ class TestRule : Test {
 	}
 }
 
+@Js
 internal class ExpRule : Rule {
 	override Str expression 
 	new make(Str exp) {

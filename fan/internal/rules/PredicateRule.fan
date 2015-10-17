@@ -1,4 +1,5 @@
 
+@Js
 internal class PredicateRule : Rule {
 	private Rule rule
 	private Bool not

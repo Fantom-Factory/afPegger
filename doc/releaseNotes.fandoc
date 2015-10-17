@@ -1,6 +1,11 @@
 Versions
 ********
 
+v0.0.6
+======
+ - New: 'Rules.eos()' for detecting End-Of-Stream.
+ - New: An action ctx is passed into the action success funcs.
+
 v0.0.4
 ======
  - New: 'Rules.doAction()' and 'Rules.anySpaceChars()'.

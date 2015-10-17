@@ -1,4 +1,5 @@
 
+@Js
 internal class CharRule : Rule {
 	private		|Int?->Bool|	func
 	override	Str				expression
@@ -15,6 +16,7 @@ internal class CharRule : Rule {
 	}
 }
 
+@Js
 internal class StrRule : Rule {
 	private		Str				str
 	private		Bool			ignoreCase
@@ -27,12 +29,13 @@ internal class StrRule : Rule {
 	}
 
 	override Bool doProcess(PegCtx ctx) {
-		peek := ctx.read(str.size)
+		peek := ctx.readStr(str.size)
 		ctx.matched = peek
 		return ignoreCase ? str.equalsIgnoreCase(peek ?: Str.defVal) : str.equals(peek)
 	}
 }
 
+@Js
 internal class StrNotRule : Rule {
 	private		Str		str
 	private		Bool	ignoreCase
@@ -52,16 +55,16 @@ internal class StrNotRule : Rule {
 		
 		keepGoing := true
 		while (keepGoing) {
-			peek := ctx.read(toRead)
+			peek := ctx.readStr(toRead)
 			
 			i := ignoreCase ? peek.indexIgnoreCase(str) : peek.index(str)
 			if (i != null) {
 				keepGoing = false
 				if (i == 0) {
-					ctx.unread(peek)					
+					ctx.unreadStr(peek)					
 				} else {
 					matched += peek[0..<i]
-					ctx.unread(peek[i..-1])
+					ctx.unreadStr(peek[i..-1])
 				}
 
 			} else {
@@ -72,7 +75,7 @@ internal class StrNotRule : Rule {
 				} else {
 					i = toRead - str.size
 					matched += peek[0..<i]
-					ctx.unread(peek[i..-1])
+					ctx.unreadStr(peek[i..-1])
 					toRead = toRead * 2
 				}
 			}

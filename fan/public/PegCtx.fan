@@ -2,6 +2,7 @@
 ** Handed to 'Rule' classes during the matching process. 
 ** 
 ** Only needed when you're implementing your own rules.
+@Js
 class PegCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		InStream		in
@@ -25,8 +26,8 @@ class PegCtx {
 		
 		if (logger.isDebug) {
 			logOff = true
-			peek := read(22)
-			unread(peek)
+			peek := readStr(22)
+			unreadStr(peek)
 			peek += "..."
 			logOff = false
 			_log(result, "--> ${result.rule.name} - Processing: ${rule.expression} with: ${peek.toCode(null)}")
@@ -87,7 +88,7 @@ class PegCtx {
 	}
 	
 	** Reads 'n' characters from the underlying input stream.
-	Str? read(Int n) {
+	Str? readStr(Int n) {
 		read := (Str?) null
 		
 		if (n == 1) {
@@ -111,7 +112,7 @@ class PegCtx {
 
 	** Pushes back, or un-reads, the given string onto the underlying input stream.
 	** Use when rolling back a rule.
-	Void unread(Str? str) {
+	Void unreadStr(Str? str) {
 		if (str != null && !str.isEmpty) {
 			if (logger.isDebug)
 				log("${str.toCode} un-read")

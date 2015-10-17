@@ -1,10 +1,11 @@
 
+@Js
 internal class Result {
 	Rule 		rule	
 	Str? 		matchStr
 	Bool?		passed
 	Result[]?	resultList
-	|->|[]?		actions
+	|Obj?|[]?	actions
 	
 	new make(Rule rule) {
 		this.rule = rule
@@ -16,12 +17,12 @@ internal class Result {
 		resultList.add(result)
 	}
 	
-	Void success() {
-		actions?.each { it.call }
+	Void success(Obj? actionCtx) {
+		actions?.each { it.call(actionCtx) }
 	}
 
 	Void rollback(PegCtx ctx) {
-		ctx.unread(matched)
+		ctx.unreadStr(matched)
 		
 		// Ensure we only rollback the once
 		// Predicates rollback if successful, so they would rollback twice if their enclosing rule failed.
@@ -33,7 +34,7 @@ internal class Result {
 	Void rollup() {
 		matched := matched
 
-		this.actions = |->|[,]
+		this.actions = |Obj?|[,]
 		resultList?.each {
 			if (it.actions != null)
 				this.actions.addAll(it.actions)

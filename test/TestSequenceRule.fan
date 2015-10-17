@@ -1,4 +1,5 @@
 
+@Js
 internal class TestSequenceRule : Test, Rules {
 	
 	Void testSequence() {

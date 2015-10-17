@@ -1,6 +1,7 @@
-using afBeanUtils
+using afBeanUtils::ArgNotFoundErr
 
 ** A helper class that lets you reference Rules before they're defined.
+@Js
 class NamedRules {
 	private Str:Rule rules := Str:Rule[:] { caseInsensitive = true } 
 	
@@ -26,6 +27,7 @@ class NamedRules {
 	}
 }
 
+@Js
 internal class ProxyRule : Rule {
 	private NamedRules 	rules
 	private Rule?		ruleForReal
@@ -35,7 +37,7 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
-	override |Str|?	action {
+	override |Str, Obj?|?	action {
 		get { rule.action }
 		set { rule.action = it }
 	}

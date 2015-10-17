@@ -1,4 +1,5 @@
 
+@Js
 internal class TodoRule : Rule {
 	private Bool pass
 	

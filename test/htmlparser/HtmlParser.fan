@@ -2,6 +2,7 @@ using xml
 using concurrent
 
 // an old version of HtmlParser used for testing
+@Js
 internal class HtmlParser {
 	
 	private Rule htmlRules := HtmlRules().rootRule
@@ -24,9 +25,9 @@ internal class HtmlParser {
 		// see 8.4
 		XElem("dude")
 	}
-
 }
 
+@Js
 internal class HtmlRules : Rules {
 	
 	Rule rootRule() {
@@ -153,6 +154,7 @@ internal class HtmlRules : Rules {
 }
 
 
+@Js
 internal class ParseCtx {
 	XElem[]			roots		:= XElem[,]	
 	XElem?			openElement

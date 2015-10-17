@@ -1,4 +1,5 @@
 
+@Js
 class TestPredicateRule : Test, Rules {
 
 	Void testOnlyIf() {

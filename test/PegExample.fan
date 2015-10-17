@@ -1,4 +1,5 @@
 
+@Js
 class PegExample : Test, Rules {
 	
 	Void testBasics() {

@@ -1,4 +1,5 @@
 
+@Js
 internal class RepetitionRule : Rule {
 	private Int?		min
 	private Int?		max
