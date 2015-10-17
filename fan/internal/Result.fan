@@ -40,7 +40,7 @@ internal class Result {
 				this.actions.addAll(it.actions)
 		}
 		if (rule.action != null)
-			actions.add(rule.action.bind([matched]))
+			actions.add( |Obj? ctx| { rule.action(matched, ctx) })	// can't use bind in JS
 		matchStr = matched
 		resultList = null
 	}
