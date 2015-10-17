@@ -30,11 +30,14 @@ class Parser {
 	}
 	
 	Obj? parseAll(InStream in, Obj? actionCtx := null) {
-		Int? b
+		Int? b := 69
 		Bool parsed := true
-		while (parsed && (b = in.readChar) != null) {
-			in.unreadChar(b)
-			parsed = parse2(in, actionCtx, false)
+		// can't do this in JS - see http://fantom.org/forum/topic/2445
+//		while (parsed && (b = in.readChar) != null) { ... }
+		while (parsed && b != null) {
+			b = in.peekChar
+			if (b != null)
+				parsed = parse2(in, actionCtx, false)
 		}
 		return actionCtx
 	}
