@@ -1,6 +1,7 @@
 using xml
 //using afPegger
 
+@Js
 class Example {
 	Void main() {
 		Parser#.pod.log.level = LogLevel.debug
@@ -30,6 +31,7 @@ class Example {
 //	}
 //}
 
+@Js
 internal class TagParser : Rules {
 	XElem?	root
 	XElem?	elem

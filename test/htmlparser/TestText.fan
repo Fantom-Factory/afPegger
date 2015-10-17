@@ -1,4 +1,5 @@
 
+@Js
 internal class TestText : HtmlParserTest {
 	
 	HtmlParser parser := HtmlParser()

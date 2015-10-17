@@ -1,4 +1,5 @@
 
+@Js
 internal class FirstOfRule : Rule {
 	private Rule[]	rules
 	

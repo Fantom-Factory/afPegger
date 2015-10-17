@@ -1,6 +1,12 @@
 
 ** A collection of PEG rules, ready for use!
+@Js
 mixin Rules {
+	
+	** Matches if the of the stream (EOS) is reached. 
+	static Rule eos() {
+		EosRule()
+	}
 	
 	** Matches the given string. 
 	** 
@@ -228,6 +234,8 @@ mixin Rules {
 	** Processes the given rules in order until.
 	** Returns success if they all succeeded.
 	** 
+	**   sequence([rule1, rule2, rule3])
+	** 
 	** Example PEG notation:
 	** 
 	**   rule1 rule2 rule3 ... rule4
@@ -241,6 +249,8 @@ mixin Rules {
 	
 	** Processes the given rules in order until one succeeds.
 	** Returns success any succeeded.
+	** 
+	**   firstOf([rule1, rule2, rule3])
 	** 
 	** Example PEG notation:
 	** 

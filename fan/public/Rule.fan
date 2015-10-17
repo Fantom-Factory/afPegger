@@ -2,13 +2,14 @@
 ** A PEG Rule.
 ** 
 ** Use the common rules declared in `Rules` or implement to define your own.
+@Js
 abstract class Rule {
 	** The name of this rule. Only rules with names appear in debug output.
 	** Should be legal Fantom identifier (think variable names!).
 	Str? 		name	// TODO: validate name
 	
 	** The action to be performed upon successful completion of this rule.
-	virtual |Str|?	action
+	virtual |Str matched, Obj? actionCtx|?	action
 
 	** Override to implement Rule logic.
 	abstract protected Bool doProcess(PegCtx ctx)
@@ -26,7 +27,7 @@ abstract class Rule {
 	}
 	
 	** A helpful builder method for setting the action.
-	This withAction(|Str|? action) {
+	This withAction(|Str, Obj?|? action) {
 		this.action = action
 		return this
 	}
