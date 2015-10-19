@@ -1,4 +1,5 @@
 
+@Js
 class TreeRules : Rules {
 
 	Rule push(Str type, Obj? data := null) {
@@ -27,6 +28,7 @@ class TreeRules : Rules {
 }
 
 
+@Js
 class TreeCtx {
 	TreeItem[]	items	:= TreeItem[TreeItem("root")]
 
@@ -54,6 +56,7 @@ class TreeCtx {
 	}
 }
 
+@Js
 class TreeItem {
 	TreeItem[]	items	:= TreeItem#.emptyList
 	Str			type
