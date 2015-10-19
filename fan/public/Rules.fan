@@ -272,12 +272,12 @@ mixin Rules {
 	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
 	** Useful for inserting arbitrary actions in sequences:
 	** 
-	**   sequence { rule1, doAction { echo("Hello!") }, rule2 }
+	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
 	** 
 	** Example PEG notation:
 	** 
 	**   ???
-	static Rule doAction(|Str|? action) {
+	static Rule doAction(|Str, Obj?|? action) {
 		ActionRule(action)
 	}
 	
