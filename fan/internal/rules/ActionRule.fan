@@ -2,7 +2,7 @@
 @Js
 internal class ActionRule : Rule {
 	
-	new make(|Str|? action) {
+	new make(|Str, Obj?|? action) {
 		this.action = action
 	}
 	

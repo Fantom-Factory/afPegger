@@ -18,10 +18,10 @@ class Build : BuildPod {
 			"sys 1.0",
 
 			// ---- Core ------------------------
-			"afBeanUtils 1.0.4 - 1.0",	// for ArgNotFoundErr
+			"afBeanUtils 1.0.8 - 1.0",	// for ArgNotFoundErr
 			
 			// ---- Test ------------------------
-			"xml 1.0",			// htmlParser
+			"xml        1.0",	// htmlParser
 			"concurrent 1.0"	// htmlParser
 		]
 	
