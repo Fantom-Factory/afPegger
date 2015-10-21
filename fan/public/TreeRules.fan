@@ -38,13 +38,17 @@ class TreeCtx {
 		items.push(item)
 	}
 
+	Void pop() {
+		items.pop
+	}
+
+	TreeItem peek() {
+		items.peek
+	}
+
 	Void add(Str type, Str? matched := null, Obj? data := null) {
 		item := TreeItem(type, matched, data)
 		items.last.add(item)
-	}
-
-	Void pop() {
-		items.pop
 	}
 
 	TreeItem root() {

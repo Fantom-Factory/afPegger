@@ -5,6 +5,7 @@ v0.0.6
 ======
  - New: 'TreeRules' and support classes for generic parsing of tree structures.
  - New: 'Rules.eos()' for detecting End-Of-Stream.
+ - New: Added 'Rules.oneOf()'
  - New: An action ctx is passed into the action success funcs.
 
 v0.0.4

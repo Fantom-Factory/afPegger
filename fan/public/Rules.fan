@@ -191,6 +191,16 @@ mixin Rules {
 		RepetitionRule(1, null, rule)
 	}
 	
+	** Processes the given rule and returns success if it succeeded.
+	** Convenience for 'nTimes(1, rule)'
+	** 
+	** Example PEG notation:
+	** 
+	**   ???
+	static Rule oneOf(Rule rule) {
+		RepetitionRule(1, 1, rule)
+	}
+	
 	** Processes the given rule repeatedly until it fails.
 	** Returns success if it succeeded at least 'n' times.
 	** 
@@ -266,7 +276,7 @@ mixin Rules {
 	** A placeholder. 
 	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
 	static Rule todo(Bool pass := false) {
-		TodoRule(pass)
+		NoOpRule("-TODO-", pass)
 	}
 
 	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
@@ -278,8 +288,14 @@ mixin Rules {
 	** 
 	**   ???
 	static Rule doAction(|Str, Obj?|? action) {
-		ActionRule(action)
+		NoOpRule("-Action-", true).withAction(action)
 	}
+
+	// TODO: conflicts with Test.fail() in tests!
+//	** The rule will always fail.
+//	static Rule fail(Str expression := "-Fail-") {
+//		NoOpRule(expression, false)
+//	}
 	
 	** Processes the given rule and return success if it succeeded.
 	** The rule is always rolled back so the characters may be subsequently re-read. 
