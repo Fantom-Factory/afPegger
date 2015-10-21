@@ -9,6 +9,7 @@ class Parser {
 		this.rootRule 	= rootRule
 	}
 	
+	// FIXME: rename to match() -> then fix all the tests!
 	// TODO: parser to return actionCtx -> then fix all the tests!
 	** Runs the parsing rules against the characters in the given 'InStream'.
 	Str? parse(InStream in, Obj? actionCtx := null) {
