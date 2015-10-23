@@ -43,21 +43,13 @@ class TreeCtx {
 	}
 
 	This pop(Str? type := null) {
+		// TODO: add some err handling and proper msgs should we not find what we're looking for
 		if (type != null)
 			while (current.type != type)
 				current = current.parent
 		current = current.parent
 		return this
 	}
-
-//	TreeItem peek() {
-//		items.peek
-//	}
-
-//	Void add(Str type, Str? matched := null, Obj? data := null) {
-//		item := TreeItem(type, matched, data)
-//		items.last.add(item)
-//	}
 
 	TreeItem root() {
 		if (items.isEmpty)
@@ -94,7 +86,6 @@ class TreeItem {
 	TreeItem? next() {
 		idx := parent.items.findIndex { it === this }
 		return parent.items.getSafe(idx + 1)
-//		return parent.items.getSafe(parent.items.findIndex { it === this } + 1)
 	}
 
 	** Creates and adds a 'TreeItem' to the end of the child items.
