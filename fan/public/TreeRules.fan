@@ -10,20 +10,20 @@ class TreeRules : Rules {
 		doAction(addAction(type, data))
 	}
 	
-	Rule pop() {
-		doAction(popAction)
+	Rule pop(Str? type := null) {
+		doAction(popAction(type))
 	}
 	
 	|Str matched, Obj? ctx| pushAction(Str type, Obj? data := null) {
-		|Str matched, Obj? ctx| { ((TreeCtx) ctx).push(type, matched, data) }
+		|Str matched, TreeCtx ctx| { ctx.push(type, matched, data) }
 	}
 
 	|Str matched, Obj? ctx| addAction(Str type, Obj? data := null) {
-		|Str matched, Obj? ctx| { ((TreeCtx) ctx).add(type, matched, data) }
+		|Str matched, TreeCtx ctx| { ctx.current.add(type, matched, data) }
 	}
 
-	|Str matched, Obj? ctx| popAction() {
-		|Str matched, Obj? ctx| { ((TreeCtx) ctx).pop() }
+	|Str matched, Obj? ctx| popAction(Str? type := null) {
+		|Str matched, TreeCtx ctx| { ctx.pop(type) }
 	}
 }
 
@@ -32,27 +32,37 @@ class TreeRules : Rules {
 class TreeCtx {
 	TreeItem[]	items	:= TreeItem[TreeItem("root")]
 
-	Void push(Str type, Str? matched := null, Obj? data := null) {
+	TreeItem current	:= items.first
+	
+	This push(Str type, Str? matched := null, Obj? data := null) {
 		item := TreeItem(type, matched, data)
-		items.last.add(item)
-		items.push(item)
+		item.parent = current
+		current.items = current.items.rw.add(item)
+		current = item
+		return this
 	}
 
-	Void pop() {
-		items.pop
+	This pop(Str? type := null) {
+		if (type != null)
+			while (current.type != type)
+				current = current.parent
+		current = current.parent
+		return this
 	}
 
-	TreeItem peek() {
-		items.peek
-	}
+//	TreeItem peek() {
+//		items.peek
+//	}
 
-	Void add(Str type, Str? matched := null, Obj? data := null) {
-		item := TreeItem(type, matched, data)
-		items.last.add(item)
-	}
+//	Void add(Str type, Str? matched := null, Obj? data := null) {
+//		item := TreeItem(type, matched, data)
+//		items.last.add(item)
+//	}
 
 	TreeItem root() {
-		items.first
+		if (items.isEmpty)
+			throw Err("Too many pops! List is empty.")
+		return items.first
 	}
 	
 	override Str toStr() {
@@ -63,22 +73,44 @@ class TreeCtx {
 @Js
 class TreeItem {
 	TreeItem[]	items	:= TreeItem#.emptyList
+	TreeItem?	parent
 	Str			type
 	Str?		matched
 	Obj?		data
 
-	new make(Str type, Str? matched := null, Obj? data := null) {
+	internal new make(Str type, Str? matched := null, Obj? data := null) {
 		this.type		= type
 		this.matched	= matched
 		this.data		= data
 	}
-	
-	Void add(TreeItem item) {
-		if (items.isRO)
-			items = TreeItem[,]
-		items.add(item)
+
+	** Returns a sibling 'TreeItem' or 'null' if this is the first item in the list.
+	TreeItem? prev() {
+		idx := parent.items.findIndex { it === this }
+		return idx == 0 ? null : parent.items.getSafe(idx - 1)
 	}
-	
+
+	** Returns a sibling 'TreeItem' or 'null' if this is the last item in the list.
+	TreeItem? next() {
+		idx := parent.items.findIndex { it === this }
+		return parent.items.getSafe(idx + 1)
+//		return parent.items.getSafe(parent.items.findIndex { it === this } + 1)
+	}
+
+	** Creates and adds a 'TreeItem' to the end of the child items.
+	** Returns the created 'TreeItem'.
+	TreeItem add(Str type, Str? matched := null, Obj? data := null) {
+		addItem(TreeItem(type, matched, data))
+	}
+
+	** Adds the 'TreeItem' to the end of the child items and sets the parent.
+	** Returns the given 'TreeItem'.
+	TreeItem addItem(TreeItem item) {
+		item.parent = this
+		items = items.rw.add(item)
+		return item
+	}
+
 	Void walk(|TreeItem| enter, |TreeItem| exit) {
 		enter(this)
 		items.each { it.walk(enter, exit) }
