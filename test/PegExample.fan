@@ -15,10 +15,10 @@ class PegExample : Test, Rules {
 //		parser := Parser(numbers, "75 33.23 11".in)
 		in := "75 33.23 11".in
 		parser := Parser(match)
-		parser.parse(in)
+		parser.match(in)
 
-		Env.cur.err.printLine(parser.parse(in))
-		Env.cur.err.printLine(parser.parse(in))
-		Env.cur.err.printLine(parser.parse(in))
+		Env.cur.err.printLine(parser.match(in))
+		Env.cur.err.printLine(parser.match(in))
+		Env.cur.err.printLine(parser.match(in))
 	}
 }
