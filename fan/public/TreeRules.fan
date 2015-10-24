@@ -35,6 +35,7 @@ class TreeCtx {
 	TreeItem current	:= items.first
 	
 	This push(Str type, Str? matched := null, Obj? data := null) {
+//		echo("pushing $type")
 		item := TreeItem(type, matched, data)
 		item.parent = current
 		current.items = current.items.rw.add(item)
@@ -43,6 +44,7 @@ class TreeCtx {
 	}
 
 	This pop(Str? type := null) {
+//		echo("popping ${current.type}")
 		// TODO: add some err handling and proper msgs should we not find what we're looking for
 		if (type != null)
 			while (current.type != type)
@@ -78,7 +80,7 @@ class TreeItem {
 
 	** Returns a sibling 'TreeItem' or 'null' if this is the first item in the list.
 	TreeItem? prev() {
-		idx := parent.items.findIndex { it === this }
+		idx := parent?.items?.findIndex { it === this } ?: 0
 		return idx == 0 ? null : parent.items.getSafe(idx - 1)
 	}
 
