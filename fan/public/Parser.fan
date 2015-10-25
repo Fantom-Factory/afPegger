@@ -8,27 +8,19 @@ class Parser {
 	new make(Rule rootRule) {
 		this.rootRule 	= rootRule
 	}
-	
-	// FIXME: rename to match() -> then fix all the tests!
-	// TODO: parser to return actionCtx -> then fix all the tests!
-	** Runs the parsing rules against the characters in the given 'InStream'.
-	Str? match(InStream in, Obj? actionCtx := null) {
-		ctx		:= PegCtx(rootRule, in)
-		result	:= ctx.process(rootRule)
+
+	** Runs the parsing rules against characters in the given 'InStream'.
+	** The given 'ctx' object is passed to all successful actions, and returned.
+	Obj? parse(InStream in, Obj? ctx := null) {
+		pegCtx	:= PegCtx(rootRule, in)
+		result	:= pegCtx.process(rootRule)
 		if (result)
-			ctx.rootResult.success(actionCtx)
-		return result ? ctx.rootResult.matched : null
+			pegCtx.rootResult.success(ctx)
+		return ctx
 	}
-	
-	@Deprecated
-	Str? parse(InStream in) {
-		match(in)
-	}
-	
-	Bool matches(InStream in, Obj? ctx := null) {
-		match(in, ctx) != null
-	}
-	
+
+	** Continually parses the given 'InStream' until the end of the stream is reached, or nothing was matched.
+	** Returns the given action 'ctx' object.
 	Obj? parseAll(InStream in, Obj? ctx := null) {
 		Int? b := 69
 		Bool parsed := true
@@ -40,5 +32,23 @@ class Parser {
 				parsed = matches(in, ctx)
 		}
 		return ctx
+	}
+
+	** Runs the parsing rules against characters in the given 'InStream'.
+	** Returns the characters (if any) that were matched.
+	Str? match(InStream in, Obj? ctx := null) {
+		pegCtx	:= PegCtx(rootRule, in)
+		result	:= pegCtx.process(rootRule)
+		if (result)
+			pegCtx.rootResult.success(ctx)
+		return result ? pegCtx.rootResult.matched : null
+	}
+	
+	** Runs the parsing rules against characters in the given 'InStream'.
+	** Returns 'true' if anything was matched.
+	** 
+	** Convenience for 'match(in, ctx) != null'
+	Bool matches(InStream in, Obj? ctx := null) {
+		match(in, ctx) != null
 	}
 }
