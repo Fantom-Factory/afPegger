@@ -83,7 +83,8 @@ class PegCtx {
 	
 	** Call to rollback the matching of any subrules. 
 	Void rollback(Str msg := "Rolling back") {
-		log(msg)
+		if (logger.isDebug)
+			log(msg)
 		resultStack.peek.rollback(this)
 	}
 	
@@ -135,8 +136,10 @@ class PegCtx {
 	
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
 	Void log(Str msg) {
-		result := resultStack.peek ?: rootResult
-		_log(result, msg)
+		if (logger.isDebug) {
+			result := resultStack.peek ?: rootResult
+			_log(result, msg)
+		}
 	}
 
 	private Void _log(Result result, Str msg) {
