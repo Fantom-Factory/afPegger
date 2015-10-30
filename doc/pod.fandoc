@@ -32,7 +32,9 @@ Usage
 *****
 When parsing text, 'Pegger' on it's own will not return anything useful. Instead it is up to you to assign useful actions to rules that get executed when it is successfully matched against text.
 
-The `Rules` mixin contains a lot of useful pre-written rules. But should you require more dynamic behaviour from the rules, you can always implement your own `Rule`.
+The `Rules` mixin contains a lot of useful pre-written rules. But should you require more dynamic behaviour, you can always extend Pegger by implementing your own `Rule`.
+
+Pegger is stream based, meaning it will only consume as much of the input stream as it needs to verify that the next rule passes / fails.
 
 
 
