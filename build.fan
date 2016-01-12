@@ -25,7 +25,7 @@ class Build : BuildPod {
 			"concurrent 1.0"	// htmlParser
 		]
 	
-		srcDirs = [`test/`, `test/htmlparser/`, `fan/`, `fan/public/`, `fan/internal/`, `fan/internal/rules/`]
+		srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`, `test/htmlparser/`]
 		resDirs = [`doc/`]
 	}
 	
