@@ -1,7 +1,7 @@
 Versions
 ********
 
-v0.0.6
+v0.1.0
 ======
  - New: 'TreeRules' and support classes for generic parsing of tree structures.
  - New: 'Rules.eos()' for detecting End-Of-Stream.
