@@ -27,13 +27,7 @@ class Build : BuildPod {
 	
 		srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`, `test/htmlparser/`]
 		resDirs = [`doc/`]
-	}
-	
-	@Target { help = "Compile to pod file and associated natives" }
-	override Void compile() {
-		// remove test pods from final build
-		testPods := "xml concurrent".split
-		depends = depends.exclude { testPods.contains(it.split.first) }
-		super.compile
-	}
+		
+		meta["afBuild.testPods"]	= "xml concurrent"
+	}	
 }
