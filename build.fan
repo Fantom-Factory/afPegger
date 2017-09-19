@@ -5,10 +5,10 @@ class Build : BuildPod {
 	new make() {
 		podName = "afPegger"
 		summary = "For when Regular Expressions just aren't enough!"
-		version = Version("0.1.0")
+		version = Version("0.1.1")
 
 		meta = [
-			"proj.name"		: "Pegger",
+			"pod.dis"		: "Pegger",
 			"repo.internal"	: "true",
 			"repo.tags"		: "system",
 			"repo.public"	: "false"
