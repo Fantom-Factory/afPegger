@@ -1,5 +1,6 @@
-Versions
-********
+v0.1.2
+======
+ - New: Added 'checked' param to 'Parser.parse()' methods.
 
 v0.1.0
 ======
