@@ -62,8 +62,9 @@ internal class ProxyRule : Rule {
 				ruleForReal.name = name
 			else
 				name = ruleForReal.name
-			action = ruleForReal.action
-			debug = ruleForReal.debug
+			action		= ruleForReal.action
+			debug		= ruleForReal.debug
+			useInResult	= ruleForReal.useInResult
 		}
 		return ruleForReal
 	}

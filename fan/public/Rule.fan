@@ -15,7 +15,10 @@ abstract class Rule {
 	}
 	
 	** Disable debugging of this rule if it gets to noisy
-	Bool		debug	:= true
+	Bool debug			:= true
+
+	@NoDoc
+	Bool useInResult	:= true
 	
 	** The action to be performed upon successful completion of this rule.
 	virtual |Str matched|?	action

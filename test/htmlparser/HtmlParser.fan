@@ -30,10 +30,13 @@ internal class HtmlParser {
 @Js
 internal class HtmlRules : Rules {
 	
+	// updates:
+	// - preable -> dom
+	// - tagName -> useInResult = false
 	Rule rootRule() {
 		rules := NamedRules()
 
-		preamble						:= rules["preamble"]
+		dom								:= rules["dom"]
 		blurb							:= rules["blurb"]
 		bom								:= rules["bom"]
 		xml								:= rules["xml"]
@@ -85,7 +88,7 @@ internal class HtmlRules : Rules {
 
 		whitespace						:= rules["whitespace"]
 
-		rules["preamble"]						= sequence([bom, blurb, optional(doctype), xml, blurb, element, blurb])
+		rules["dom"]							= sequence([bom, blurb, optional(doctype), xml, blurb, element, blurb])
 		rules["blurb"]							= zeroOrMore(firstOf([oneOrMore(anySpaceChar), comment]))
 		rules["bom"]							= optional(str("\uFEFF"))
 		rules["xml"]							= optional(sequence([str("<?xml"), strNot("?>") ,str("?>")]))
@@ -141,11 +144,11 @@ internal class HtmlRules : Rules {
 		
 		rules["whitespace"]						= zeroOrMore(anySpaceChar)
 		
-		return preamble
+		return dom
 	}
 	
 	Rule tagNameRule(Rule rule) {
-		sequence([rule.withAction { ctx.tagName = it }, zeroOrMore(anySpaceChar)])
+		sequence([rule.withAction { ctx.tagName = it }, zeroOrMore(anySpaceChar)]) { it.useInResult = false }
 	}
 	
 	ParseCtx ctx() {
