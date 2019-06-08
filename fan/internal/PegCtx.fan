@@ -6,15 +6,24 @@
 internal class PegCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		Str				in
-	private		Result[]		resultStack	:= Result[,]
-				Result			rootResult	{ private set }
+	private		Rule			rootRule
+	private		Result[]		resultStack
+	private		Result			rootResult	{ private set }
 	 			Int				cur			{ private set }
 	
-	internal new make(Rule rootRule, Str in) {
-		if (rootRule.name == null)
-			rootRule.name = "root"
-		this.rootResult	= Result(rootRule, 0)
-		this.in			= in
+	internal new make(Str in, Rule rootRule) {
+		if (rootRule.name 	== null)
+			rootRule.name 	= "root"
+		this.in				= in
+		this.rootRule		= rootRule
+		this.resultStack	= Result[,]
+		this.rootResult		= Result(rootRule, cur)
+	}
+	
+	This clearResults() {
+		resultStack	= Result[,]
+		rootResult	= Result(rootRule, cur)
+		return this
 	}
 	
 	** Call to process a sub-rule.

@@ -12,14 +12,21 @@ class PegExample : Test, Rules {
 		match	:= sequence([number, wspace])			{ it.name = "match" }
 		numbers	:= oneOrMore(sequence([number, wspace])){ it.name = "numbers" }
 
-//		parser := Parser(numbers, "75 33.23 11".in)
-		in := "75 33.23 11"
+		in		:= "75 33.23 11"
+		verifyEq(in, Peg(in, numbers).matched)
 		
-		parser := Peg(in, match)
-		
-		// FIXME do multi-search
-//		Env.cur.err.printLine(parser.match(in))
-//		Env.cur.err.printLine(parser.match(in))
-//		Env.cur.err.printLine(parser.match(in))
+		peg		:= Peg(in, match)
+		verifyEq("75 "	 , peg.matched)
+		verifyEq("33.23 ", peg.matched)
+		verifyEq("11"	 , peg.matched)
+	}
+
+	Void testSearch() {
+		peg		:= Peg("--a---bb----ccc-----dddd------eeeee--", oneOrMore(alphaChar))
+		verifyEq("a",		peg.search)
+		verifyEq("bb",		peg.search)
+		verifyEq("ccc",		peg.search)
+		verifyEq("dddd",	peg.search)
+		verifyEq("eeeee",	peg.search)
 	}
 }
