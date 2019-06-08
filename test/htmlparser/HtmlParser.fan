@@ -16,6 +16,8 @@ internal class HtmlParser {
 		if (res == null)
 			throw ParseErr("Could not parse HTML: \n${html.toCode(null)}")
 		
+		res.dump
+		
 		return ctx.document
 	}
 

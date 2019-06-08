@@ -43,7 +43,7 @@
 	** Runs the PEG rule against the string.
 	PegMatch? match() {
 		pegCtx.process(rule)
-			? pegCtx.doSuccess(null)
+			? pegCtx.doSuccess
 			: null
 	}
 	

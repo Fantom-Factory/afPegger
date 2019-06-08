@@ -18,7 +18,7 @@ abstract class Rule {
 	Bool		debug	:= true
 	
 	** The action to be performed upon successful completion of this rule.
-	virtual |Str matched, Obj? actionCtx|?	action
+	virtual |Str matched|?	action
 
 	** Override to implement Rule logic.
 	abstract internal Bool doProcess(PegCtx ctx)
@@ -36,7 +36,7 @@ abstract class Rule {
 	}
 	
 	** A helpful builder method for setting the action.
-	This withAction(|Str, Obj?|? action) {
+	This withAction(|Str|? action) {
 		this.action = action
 		return this
 	}

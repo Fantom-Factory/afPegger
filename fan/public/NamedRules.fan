@@ -38,7 +38,7 @@ internal class ProxyRule : Rule {
 		this.rules		= rules
 	}
 	
-	override |Str, Obj?|?	action {
+	override |Str|?	action {
 		get { rule.action }
 		set { rule.action = it }
 	}

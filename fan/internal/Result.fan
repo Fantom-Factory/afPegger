@@ -26,10 +26,10 @@ internal class Result {
 		ctx.rollbackTo(strStart)
 	}
 
-	Void success(Str in, Obj? actionCtx) {
+	Void success(Str in) {
 		// I think we should call *ALL* passed rule actions, regardless of whether they consumed any chars
-		resultList?.each { it.success(in, actionCtx) }
-		rule.action?.call(matchedStr(in), actionCtx)
+		resultList?.each { it.success(in) }
+		rule.action?.call(matchedStr(in))
 	}
 
 	Str matchedStr(Str in) {

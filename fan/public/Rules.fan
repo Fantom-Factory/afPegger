@@ -287,7 +287,7 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   ???
-	static Rule doAction(|Str, Obj?|? action) {
+	static Rule doAction(|Str|? action) {
 		NoOpRule("-Action-", true).withAction(action)
 	}
 
