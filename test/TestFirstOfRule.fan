@@ -3,7 +3,7 @@
 internal class TestFirstOfRule : Test, Rules {
 	
 	Void testFirstOf() {
-		parser	:= Parser(firstOf([anyNumChar.withName("num"), anyAlphaChar.withName("alpha"), anySpaceChar.withName("sp")]))
+		parser	:= Parser(firstOf([numChar.withName("num"), alphaChar.withName("alpha"), whitespaceChar.withName("sp")]))
 		verifyEq(parser.match("1"), "1")
 		verifyEq(parser.match("a"), "a")
 		verifyEq(parser.match(" "), " ")
@@ -11,7 +11,7 @@ internal class TestFirstOfRule : Test, Rules {
 	}
 
 	Void testFirstOfFail() {
-		parser	:= Parser(firstOf([anyNumChar, anyAlphaChar]))
+		parser	:= Parser(firstOf([numChar, alphaChar]))
 		verifyFalse(parser.match(" ") != null)
 	}
 }

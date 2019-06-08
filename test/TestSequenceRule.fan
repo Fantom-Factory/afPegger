@@ -3,7 +3,7 @@
 internal class TestSequenceRule : Test, Rules {
 	
 	Void testSequence() {
-		parser	:= Parser(sequence([anyNumChar, anyAlphaChar, anySpaceChar]))
+		parser	:= Parser(sequence([numChar, alphaChar, whitespaceChar]))
 		verify     (parser.match("1a ") != null)
 		verifyEq   (parser.match("1a "), "1a ")
 		

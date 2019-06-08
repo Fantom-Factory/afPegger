@@ -6,10 +6,10 @@ internal class TestPropertyParsing : Test, Rules {
 		property := "obj.list[2].map[wot].meth(judge, dredd).str().prop"
 		
 		fieldName	:= sequence([
-			firstOf([str("_"), anyAlphaChar]), 
-			zeroOrMore(firstOf([str("_"), anyAlphaNumChar]))
+			firstOf([str("_"), alphaChar]), 
+			zeroOrMore(firstOf([str("_"), alphaNumChar]))
 		]) { it.name = "fieldName" }
-		indexName	:= oneOrMore(anyAlphaNumChar) { it.name = "indexName" }
+		indexName	:= oneOrMore(alphaNumChar) { it.name = "indexName" }
 		indexField	:= sequence([fieldName, str("["), indexName, str("]")])
 //		beanField	:= sequence([firstOf([indexField, basicField]), optional(str("."))])
 //		parser  	:= Parser(beanField, property.in)

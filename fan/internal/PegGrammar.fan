@@ -1,21 +1,4 @@
 
-//@Js
-//internal class PegParser {
-//	
-//	private Rule pegRules := PegRules().rootRule
-//	
-//	Obj? parseDocument(Str pegs) {
-//		parser := Parser(pegRules)
-//		
-//		res := parser.parse(pegs)
-//		
-////		if (res == null)
-////			throw ParseErr("Could not parse PEG: \n${pegs}")
-//		
-//		return null
-//	}
-//}
-
 @Js
 internal class PegGrammar : Rules {
 	
@@ -61,7 +44,7 @@ internal class PegGrammar : Rules {
 		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), oneOrMore(anyChar), firstOf { NL, EOS, }, }
 		
 //		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), rule, firstOf { NL, EOS, }, }
-		rules["ruleName"]		= sequence { anyCharInRange('a'..'z'), zeroOrMore(anyAlphaNumChar), }
+		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
 //		rules["rule"]			= firstOf  { _firstOf, _sequence, FAIL, }
 //		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(WSP), expression, }), }

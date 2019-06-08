@@ -1,6 +1,6 @@
 
 ** (Advanced) 
-** A collection of PEG rules, ready for use!
+** A collection of PEG rules, use when creating grammar in Fantom code.
 @Js
 mixin Rules {
 	
@@ -49,8 +49,8 @@ mixin Rules {
 	** 
 	** Example PEG notation:
 	** 
-	**   ![C]
-	static Rule anyCharNot(Int ch) {
+	**   [^C]
+	static Rule charNot(Int ch) {
 		char(ch, true)
 	}
 
@@ -59,7 +59,7 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   [ChukNoris]
-	static Rule anyCharOf(Int[] chars, Bool not := false) {
+	static Rule charOf(Int[] chars, Bool not := false) {
 		CharRule("[${Str.fromChars(chars)}]", not) |Int peek->Bool| { chars.contains(peek) }
 	}
 	
@@ -67,9 +67,9 @@ mixin Rules {
 	** 
 	** Example PEG notation:
 	** 
-	**   ![ChukNoris]
-	static Rule anyCharNotOf(Int[] chars) {
-		anyCharOf(chars, true)
+	**   [^ChukNoris]
+	static Rule charNotOf(Int[] chars) {
+		charOf(chars, true)
 	}
 
 	** Matches any character in the given range.  
@@ -77,17 +77,8 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   [C-N]
-	static Rule anyCharInRange(Range charRange, Bool not := false) {
+	static Rule charIn(Range charRange, Bool not := false) {
 		CharRule("[${charRange.min.toChar}-${charRange.last.toChar}]", not) |Int peek->Bool| { charRange.contains(peek) }
-	}
-
-	** Matches any character *not* in the given range. 
-	** 
-	** Example PEG notation:
-	** 
-	**   ![C-N]
-	static Rule anyCharNotInRange(Range charRange) {
-		anyCharInRange(charRange, true)
 	}
 	
 	** Matches any alphabetical character. 
@@ -95,7 +86,7 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [a-zA-Z]
-	static Rule anyAlphaChar(Bool not := false) {
+	static Rule alphaChar(Bool not := false) {
 		CharRule("[a-zA-Z]", not) |Int peek->Bool| { peek.isAlpha }
 	}
 
@@ -104,7 +95,7 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [a-zA-Z0-9]
-	static Rule anyAlphaNumChar(Bool not := false) {
+	static Rule alphaNumChar(Bool not := false) {
 		CharRule("[a-zA-Z0-9]", not) |Int peek->Bool| { peek.isAlphaNum }
 	}
 
@@ -113,7 +104,7 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [0-9]
-	static Rule anyNumChar(Bool not := false) {
+	static Rule numChar(Bool not := false) {
 		CharRule("[0-9]", not) |Int peek->Bool| { peek.isDigit }
 	}
 
@@ -122,17 +113,26 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [a-fA-F0-9]
-	static Rule anyHexChar(Bool not := false) {
+	static Rule hexChar(Bool not := false) {
 		CharRule("[a-fA-F0-9]", not) |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
 	}
 	
-	** Matches any whitespace character. 
+	** Matches any whitespace character, including new lines.
 	** 
 	** PEG notation:
 	** 
 	**   [ \t\n\r\f]
-	static Rule anySpaceChar(Bool not := false) {
+	static Rule whitespaceChar(Bool not := false) {
 		CharRule("[ \t\n\r\f]", not) |Int peek->Bool| { peek.isSpace }
+	}
+	
+	** Matches any space character (excluding new line chars). 
+	** 
+	** PEG notation:
+	** 
+	**   [ \t]
+	static Rule spaceChar(Bool not := false) {
+		CharRule("[ \t]", not) |Int peek->Bool| { peek == ' ' || peek == '\t' }
 	}
 
 	** Matches new line character.
@@ -143,24 +143,6 @@ mixin Rules {
 	**   [\n]
 	static Rule newLineChar(Bool not := false) {
 		CharRule("[\n]", not) |Int peek->Bool| { peek == '\n' }
-	}
-
-	** Matches any *non* whitespace character. 
-	** 
-	** PEG notation:
-	** 
-	**   ![ \t\n\r\f]
-	static Rule anyNonSpaceChar() {
-		anySpaceChar(true)
-	}
-	
-	** Matches multiple whitespace characters. 
-	** 
-	** PEG notation:
-	** 
-	**   [ \t\n\r\f]+
-	static Rule anySpaceChars() {
-		oneOrMore(anySpaceChar)
 	}
 
 	** Processes the given rule and returns success whether it passes or not. 
@@ -189,16 +171,6 @@ mixin Rules {
 	**   (rule)+
 	static Rule oneOrMore(Rule rule) {
 		RepetitionRule(1, null, rule)
-	}
-	
-	** Processes the given rule and returns success if it succeeded.
-	** Convenience for 'nTimes(1, rule)'
-	** 
-	** Example PEG notation:
-	** 
-	**   ???
-	static Rule oneOf(Rule rule) {
-		RepetitionRule(1, 1, rule)
 	}
 	
 	** Processes the given rule repeatedly until it fails.
@@ -283,10 +255,6 @@ mixin Rules {
 	** Useful for inserting arbitrary actions in sequences:
 	** 
 	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
-	** 
-	** Example PEG notation:
-	** 
-	**   ???
 	static Rule doAction(|Str|? action) {
 		NoOpRule("-Action-", true).withAction(action)
 	}

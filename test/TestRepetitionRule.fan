@@ -3,7 +3,7 @@
 internal class TestRepetitionRule : Test, Rules {
 
 	Void testOptional() {
-		parser	:= Parser(optional(anyAlphaChar))
+		parser	:= Parser(optional(alphaChar))
 		verify     (parser.match("X") != null)
 		verifyEq   (parser.match("X"), "X")
 
@@ -18,7 +18,7 @@ internal class TestRepetitionRule : Test, Rules {
 	}
 
 	Void testZeroOrMore() {
-		parser	:= Parser(zeroOrMore(anyAlphaChar))
+		parser	:= Parser(zeroOrMore(alphaChar))
 		verify     (parser.match("X") != null)
 		verifyEq   (parser.match("X"), "X")
 
@@ -36,7 +36,7 @@ internal class TestRepetitionRule : Test, Rules {
 	}
 
 	Void testOneOrMore() {
-		parser	:= Parser(oneOrMore(anyAlphaChar))
+		parser	:= Parser(oneOrMore(alphaChar))
 		verify     (parser.match("X") != null)
 		verifyEq   (parser.match("X"), "X")
 
@@ -52,7 +52,7 @@ internal class TestRepetitionRule : Test, Rules {
 	}
 
 	Void testAtLeast() {
-		parser	:= Parser(atLeast(2, anyAlphaChar))
+		parser	:= Parser(atLeast(2, alphaChar))
 		verifyFalse(parser.match("X") != null)
 
 		verifyFalse(parser.match("1") != null)
@@ -67,7 +67,7 @@ internal class TestRepetitionRule : Test, Rules {
 	}
 
 	Void testAtMost() {
-		parser	:= Parser(atMost(2, anyAlphaChar))
+		parser	:= Parser(atMost(2, alphaChar))
 		verify     (parser.match("X") != null)
 		verifyEq   (parser.match("X"), "X")
 
@@ -85,7 +85,7 @@ internal class TestRepetitionRule : Test, Rules {
 	}
 	
 	Void testNTimes() {
-		parser	:= Parser(nTimes(2, anyAlphaChar))
+		parser	:= Parser(nTimes(2, alphaChar))
 		verifyFalse(parser.match("X") != null)
 
 		verifyFalse(parser.match("1") != null)

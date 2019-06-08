@@ -1,5 +1,5 @@
 
-class TestParser : Test {
+class TestPegGrammar : Test {
 	
 	Void testEmptyLine() {
 		Peg#.pod.log.level = LogLevel.debug
@@ -33,7 +33,7 @@ class TestParser : Test {
 		
 		res := parsePeg(rulesTxt)
 		
-		echo(res.dump)
+//		res.dump
 	}
 	
 	

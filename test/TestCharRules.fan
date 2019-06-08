@@ -10,21 +10,21 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnyCharOf() {
-		parser	:= Parser(anyCharOf("ab".chars))
+		parser	:= Parser(charOf("ab".chars))
 		verify     (parser.match("a") != null)
 		verify     (parser.match("b") != null)
 		verifyFalse(parser.match("c") != null)
 	}
 
 	Void testAnyCharNotOf() {
-		parser	:= Parser(anyCharNotOf("ab".chars))
+		parser	:= Parser(charNotOf("ab".chars))
 		verifyFalse(parser.match("a") != null)
 		verifyFalse(parser.match("b") != null)
 		verify     (parser.match("c") != null)
 	}
 
 	Void testAnyCharInRange() {
-		parser	:= Parser(anyCharInRange('b'..'d'))
+		parser	:= Parser(charIn('b'..'d'))
 		verifyFalse(parser.match("a") != null)
 		verify     (parser.match("b") != null)
 		verify     (parser.match("c") != null)
@@ -33,7 +33,7 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnyCharNotInRange() {
-		parser	:= Parser(anyCharNotInRange('b'..'d'))
+		parser	:= Parser(charIn('b'..'d', true))
 		verify     (parser.match("a") != null)
 		verifyFalse(parser.match("b") != null)
 		verifyFalse(parser.match("c") != null)
@@ -42,7 +42,7 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnyAlphaChar() {
-		parser	:= Parser(anyAlphaChar)
+		parser	:= Parser(alphaChar)
 		verify     (parser.match("a") != null)
 		verify     (parser.match("b") != null)
 		verifyFalse(parser.match("1") != null)
@@ -51,7 +51,7 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnyNumChar() {
-		parser	:= Parser(anyNumChar)
+		parser	:= Parser(numChar)
 		verifyFalse(parser.match("a") != null)
 		verifyFalse(parser.match("b") != null)
 		verify     (parser.match("1") != null)
@@ -60,7 +60,7 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnyAlphaNumChar() {
-		parser	:= Parser(anyAlphaNumChar)
+		parser	:= Parser(alphaNumChar)
 		verify     (parser.match("a") != null)
 		verify     (parser.match("b") != null)
 		verify     (parser.match("1") != null)
@@ -69,7 +69,7 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnySpaceChar() {
-		parser	:= Parser(anySpaceChar)
+		parser	:= Parser(whitespaceChar)
 		verifyFalse(parser.match("a") != null)
 		verifyFalse(parser.match("b") != null)
 		verifyFalse(parser.match("1") != null)
@@ -78,7 +78,7 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testAnyNonSpaceChar() {
-		parser	:= Parser(anyNonSpaceChar)
+		parser	:= Parser(whitespaceChar(true))
 		verify     (parser.match("a") != null)
 		verify     (parser.match("b") != null)
 		verify     (parser.match("1") != null)
