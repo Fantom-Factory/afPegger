@@ -5,7 +5,7 @@ class Build : BuildPod {
     new make() {
         podName = "afPegger"
         summary = "For when Regular Expressions just aren't enough!"
-        version = Version("0.1.1")
+        version = Version("0.2.0")
 
         meta = [
             "pod.dis"       : "Pegger",
@@ -25,7 +25,7 @@ class Build : BuildPod {
             "concurrent 1.0"    // htmlParser
         ]
 
-        srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`, `test/htmlparser/`]
+        srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`, `test/htmlparser/`, `test/pegParser/`]
         resDirs = [`doc/`]
 
         meta["afBuild.testPods"]    = "xml concurrent"

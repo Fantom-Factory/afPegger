@@ -1,14 +1,15 @@
 
 @Js
 internal class Result {
-	Rule 		rule	
-	Str? 		matchStr
-	Bool?		passed
-	Result[]?	resultList
-	|Obj?|[]?	actions
-	
-	new make(Rule rule) {
-		this.rule = rule
+			Rule 		rule	{ private set }
+	private Result[]?	resultList
+	private Int			strStart
+	private Int			strEnd
+	private PegMatch?	_node
+
+	new make(Rule rule, Int strStart) {
+		this.rule		= rule
+		this.strStart	= strStart
 	}	
 	
 	Void addResult(Result result) {
@@ -17,41 +18,49 @@ internal class Result {
 		resultList.add(result)
 	}
 	
-	Void success(Obj? actionCtx) {
-		actions?.each { it.call(actionCtx) }
-	}
-
-	Void rollback(PegCtx ctx) {
-		ctx.unreadStr(matched)
-		
-		// Ensure we only rollback the once
-		// Predicates rollback if successful, so they would rollback twice if their enclosing rule failed.
-		resultList		= null
-		matchStr		= null
-		actions			= null
-	}
-
-	Void rollup() {
-		matched := matched
-
-		this.actions = |Obj?|[,]
-		resultList?.each {
-			if (it.actions != null)
-				this.actions.addAll(it.actions)
-		}
-		if (rule.action != null)
-			actions.add( |Obj? ctx| { rule.action(matched, ctx) })	// can't use bind in JS
-		matchStr = matched
-		resultList = null
+	Void end(PegCtx ctx) {
+		strEnd = ctx.cur
 	}
 	
-	Str matched() {
-		return (matchStr ?: Str.defVal) + (resultList?.join(Str.defVal) { it.matchStr } ?: Str.defVal)
+	Void rollback(PegCtx ctx) {
+		ctx.rollbackTo(strStart)
+	}
+
+	Void success(Str in, Obj? actionCtx) {
+		// I think we should call *ALL* passed rule actions, regardless of whether they consumed any chars
+		resultList?.each { it.success(in, actionCtx) }
+		rule.action?.call(matchedStr(in), actionCtx)
+	}
+
+	Str matchedStr(Str in) {
+		in[matchedRange(in)]
+	}
+	
+	Range matchedRange(Str in) {
+		strStart..<strEnd.min(in.size)
+	}
+	
+	Int matchedSize() {
+		strEnd - strStart
+	}
+	
+	Result? findResult(Str name) {
+		resultList?.find { it.rule.name == name }
+	}
+	
+	PegMatch match(Str in) {
+		if (_node == null) _node = PegMatch(this, in)
+		return _node
+	}
+	
+	PegMatch[] matches(Str in) {
+		// only bring back noteworthy nodes that actually consumed content
+		resultList?.findAll { !it.matchedRange(in).isEmpty && it.rule.name != null }?.map { it.match(in) } ?: PegMatch#.emptyList
 	}
 	
 	@NoDoc
 	override Str toStr() {
-		"${rule.name}:${matched}"
+		rule.name
 	}
 }
 

@@ -1,18 +1,27 @@
 
 ** A PEG Rule.
 ** 
-** Use the common rules declared in `Rules` or implement to define your own.
+** Use the common rules declared in `Rules`.
 @Js
 abstract class Rule {
 	** The name of this rule. Only rules with names appear in debug output.
 	** Should be legal Fantom identifier (think variable names!).
-	Str? 		name	// TODO: validate name
+	Str? 		name {
+		set {
+			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' })
+				throw ArgErr("Name must be a valid Fantom identifier: $it")
+			&name = it
+		}
+	}
+	
+	** Disable debugging of this rule if it gets to noisy
+	Bool		debug	:= true
 	
 	** The action to be performed upon successful completion of this rule.
 	virtual |Str matched, Obj? actionCtx|?	action
 
 	** Override to implement Rule logic.
-	abstract protected Bool doProcess(PegCtx ctx)
+	abstract internal Bool doProcess(PegCtx ctx)
 	
 	** Returns the PEG expression for this rule. Example:
 	** 
@@ -53,6 +62,7 @@ abstract class Rule {
 	** Use when deriving your own Rule expressions.  
 	@NoDoc	// needs a lot more work - needs to looks for spaces NOT in [ ] and not ((double wrap)) existing brackets
 	static protected Str wrapRuleName(Rule rule) {
+		// FIXME deprecate and remove - this is only used for debugging
 		desc := rule.name ?: rule.expression
 		if (Regex<|[^\[]\s+[^\]]|>.matcher(desc).find) {
 			if (desc.startsWith("(") && desc.endsWith(")")) {

@@ -3,14 +3,15 @@
 internal class TestFirstOfRule : Test, Rules {
 	
 	Void testFirstOf() {
-		parser	:= Parser(firstOf([anyNumChar, anyAlphaChar, anySpaceChar]))
-		verifyEq(parser.match("1".in), "1")
-		verifyEq(parser.match("a".in), "a")
-		verifyEq(parser.match(" ".in), " ")
+		parser	:= Parser(firstOf([anyNumChar.withName("num"), anyAlphaChar.withName("alpha"), anySpaceChar.withName("sp")]))
+		verifyEq(parser.match("1"), "1")
+		verifyEq(parser.match("a"), "a")
+		verifyEq(parser.match(" "), " ")
+		verifyEq(parser.match("?"), null)
 	}
 
 	Void testFirstOfFail() {
 		parser	:= Parser(firstOf([anyNumChar, anyAlphaChar]))
-		verifyFalse(parser.match(" ".in) != null)
+		verifyFalse(parser.match(" ") != null)
 	}
 }

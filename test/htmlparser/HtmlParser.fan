@@ -8,12 +8,10 @@ internal class HtmlParser {
 	private Rule htmlRules := HtmlRules().rootRule
 	
 	XDoc parseDocument(Str html) {
-		
-		parser := Parser(htmlRules)
-		
 		ctx := ParseCtx()
 		Actor.locals["htmlToXml.ctx"] = ctx
-		res := parser.match(html.in)
+			
+		res := Peg(html, htmlRules).match
 		
 		if (res == null)
 			throw ParseErr("Could not parse HTML: \n${html.toCode(null)}")

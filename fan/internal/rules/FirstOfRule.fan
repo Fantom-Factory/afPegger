@@ -8,6 +8,7 @@ internal class FirstOfRule : Rule {
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
+		// TODO we can NEVER rollback further than the FIRST "firstOf", or the last choice in any subsequent "firstOf" - each point is a FAIL point with syntax detail 
 		rules.any |Rule rule->Bool| {
 			ctx.process(rule)
 		}		
@@ -19,6 +20,8 @@ internal class FirstOfRule : Rule {
 	}
 
 	override Str expression() {
-		"(" + rules.join(" / ") + ")"
+		rules.size == 1 || name != null
+			?       rules.join(" / ") { it.expression }
+			: "(" + rules.join(" / ") { it.expression } + ")"
 	}
 }

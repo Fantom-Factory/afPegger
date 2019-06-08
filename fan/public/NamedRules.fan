@@ -1,5 +1,6 @@
 using afBeanUtils::ArgNotFoundErr
 
+** (Advanced) 
 ** A helper class that lets you reference Rules before they're defined.
 @Js
 class NamedRules {
@@ -62,6 +63,7 @@ internal class ProxyRule : Rule {
 			else
 				name = ruleForReal.name
 			action = ruleForReal.action
+			debug = ruleForReal.debug
 		}
 		return ruleForReal
 	}
