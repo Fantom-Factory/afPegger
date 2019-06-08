@@ -6,6 +6,7 @@ internal class EosRule : Rule {
 		char := ctx.readChar
 		if (char == null)
 			return true
+		// TODO have an unreadChar
 		ctx.unreadStr(char.toChar)
 		return false
 	}
