@@ -82,11 +82,17 @@ internal class PegGrammar : Rules {
 					exType	:= match["type"]
 					exRule	:= fromExpression(exType)
 					multi	:= match["multiplicity"]?.matched
+					pred	:= match["predicate"]?.matched
 					
 					switch (multi) {
 						case "?"	: exRule = Rules.optional(exRule)
 						case "+"	: exRule = Rules.oneOrMore(exRule)
 						case "*"	: exRule = Rules.zeroOrMore(exRule)
+					}
+					
+					switch (pred) {
+						case "&"	: exRule = Rules.onlyIf(exRule)
+						case "!"	: exRule = Rules.onlyIfNot(exRule)
 					}
 					
 					return exRule

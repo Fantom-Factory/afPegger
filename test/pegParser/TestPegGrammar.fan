@@ -60,10 +60,10 @@ class TestPegGrammar : Test {
 		verifyRule(".*")
 	}
 	
-//	Void testPredicate() {
-//		verifyRule("&.")
-//		verifyRule("!.")
-//	}
+	Void testPredicate() {
+		verifyRule("&.")
+		verifyRule("!.")
+	}
 	
 //	Void testSequence() {
 //		verifyRule(". . .")
