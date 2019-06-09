@@ -17,8 +17,15 @@
 
 	** Returns the first match with the given rule name.
 	@Operator
-	PegMatch? get(Str name, Bool checked := true) {
-		result.findResult(name)?.match(in) ?: (checked ? throw Err("Could not find node: $name") : null)
+	PegMatch? getMatch(Str name) {
+		result.findMatch(name, in)
+	}
+	
+	** Returns the matched group at the given index.
+	@Operator
+	Str? getGroup(Int groupNum) {
+		// TODO PegMatch.getGroup(Int) -> keyValPair <-- \s* {\w+} \s* '=' \s* {\w+}
+		throw UnsupportedErr()
 	}
 	
 	** Returns all sub-mataches.

@@ -54,6 +54,27 @@ class TestPegGrammar : Test {
 		verifyRule("\\ident"		, "([a-zA-Z_] [a-zA-Z0-9_]*)")
 	}
 	
+	Void testMultiplicity() {
+		verifyRule(".?")
+		verifyRule(".+")
+		verifyRule(".*")
+	}
+	
+//	Void testPredicate() {
+//		verifyRule("&.")
+//		verifyRule("!.")
+//	}
+	
+//	Void testSequence() {
+//		verifyRule(". . .")
+//	}
+//	
+//	Void testFirstOf() {
+//		verifyRule(". / . / .")
+//	}
+	
+	
+	
 //	Void testEmptyLine() {
 //		Peg#.pod.log.level = LogLevel.debug
 //		

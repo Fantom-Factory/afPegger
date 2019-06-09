@@ -51,7 +51,7 @@ internal class PegGrammar : Rules {
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(WSP), expression, }), }
 		rules["firstOf"]		= sequence { expression, oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, zeroOrMore(sequence { oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, }), }
 
-		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, }, optional(multiplicity), }
+		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, }.withName("type"), optional(multiplicity), }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
@@ -63,7 +63,7 @@ internal class PegGrammar : Rules {
 		rules["WSP"]			= spaceChar { it.useInResult = false }
 		rules["NL"]				= newLineChar { it.debug = false }
 		rules["EOS"]			= eos { it.debug = false }
-		rules["FAIL"]			= NoOpRule("FAIL", false)
+		rules["FAIL"]			= NoOpRule("PEG parse FAIL", false)
 		
 		return rules
 	}
@@ -79,19 +79,17 @@ internal class PegGrammar : Rules {
 			if (match.name == "sequence") {
 				match = match.matches.first
 				if (match.name == "expression") {
-					match = match.matches.first
-					if (match.name == "dot") {
-						return Rules.anyChar
+					exType	:= match["type"]
+					exRule	:= fromExpression(exType)
+					multi	:= match["multiplicity"]?.matched
+					
+					switch (multi) {
+						case "?"	: exRule = Rules.optional(exRule)
+						case "+"	: exRule = Rules.oneOrMore(exRule)
+						case "*"	: exRule = Rules.zeroOrMore(exRule)
 					}
-					if (match.name == "chars") {
-						return CharRule.fromStr(match.matched)
-					}
-					if (match.name == "literal") {
-						return StrRule.fromStr(match.matched)
-					}
-					if (match.name == "macro") {
-						return fromMacro(match.matched)
-					}
+					
+					return exRule
 				}
 			}
 		}
@@ -99,6 +97,16 @@ internal class PegGrammar : Rules {
 		throw UnsupportedErr()
 	}
 
+	private Rule fromExpression(PegMatch match) {
+		switch (match.matches.first.name) {
+			case "dot"		: return Rules.anyChar
+			case "chars"	: return CharRule.fromStr(match.matched)
+			case "literal"	: return StrRule.fromStr(match.matched)
+			case "macro"	: return fromMacro(match.matched)
+		}
+		throw UnsupportedErr("Unknown expression: ${match.name}")
+	}
+	
 	private Rule fromMacro(Str macro) {
 		switch (macro[1..-1]) {
 			case "s"		:
@@ -117,7 +125,7 @@ internal class PegGrammar : Rules {
 			case "lower"	: return Rules.charIn('a'..'z')
 			case "ident"	: return Rules.sequence { Rules.charRule("[a-zA-Z_]"), Rules.zeroOrMore(Rules.wordChar), }
 		}
-		throw UnsupportedErr("Unknow macro: $macro")
+		throw UnsupportedErr("Unknown macro: $macro")
 	}
 	
 	Rule parseRule(Str pattern) {

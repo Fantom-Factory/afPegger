@@ -45,8 +45,8 @@ internal class Result {
 		strEnd - strStart
 	}
 	
-	Result? findResult(Str name) {
-		resultList?.find { it.rule.name == name }
+	PegMatch? findMatch(Str name, Str in) {
+		matches(in).find { it.name == name }
 	}
 	
 	PegMatch match(Str in) {
