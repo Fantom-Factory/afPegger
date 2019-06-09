@@ -36,7 +36,7 @@ abstract class Rule {
 	** 
 	**   alphaNum <- [a-zA-Z0-9]
 	Str definition() {
-		((name == null) ? Str.defVal : "${name} <- ") + expression		
+		((name == null) ? "" : "${name} <- ") + expression		
 	}
 	
 	** A helpful builder method for setting the action.
@@ -57,24 +57,9 @@ abstract class Rule {
 	}
 	
 	@NoDoc
-	override Str toStr() {
-		name ?: expression
-	}
-	
-	** Wraps the given rule's expression in brackets only when required to remove ambiguity.
-	** 
-	** Use when deriving your own Rule expressions.  
-	@NoDoc	// needs a lot more work - needs to looks for spaces NOT in [ ] and not ((double wrap)) existing brackets
-	static protected Str wrapRuleName(Rule rule) {
-		// FIXME deprecate and remove - this is only used for debugging
-		desc := rule.name ?: rule.expression
-		if (Regex<|[^\[]\s+[^\]]|>.matcher(desc).find) {
-			if (desc.startsWith("(") && desc.endsWith(")")) {
-				if (desc.index("(", 1) > desc.index(")", 1))
-					desc = "(${desc})" 
-			} else
-				desc = "(${desc})" 			
-		}
-		return desc
-	}
+	Str dis() { name ?: expression }
+
+	@NoDoc
+	override Str toStr() { dis }  
+
 }

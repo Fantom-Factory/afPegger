@@ -22,8 +22,6 @@ internal class SequenceRule : Rule {
 	}
 
 	override Str expression() {
-		rules.size == 1 || name != null
-			? rules.first.expression
-			: "(" + rules.join(" ") { it.expression } + ")"
+		rules.join(" ") { it.dis }
 	}
 }

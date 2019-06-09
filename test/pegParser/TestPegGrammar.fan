@@ -37,21 +37,21 @@ class TestPegGrammar : Test {
 	}
 
 	Void testMacro() {
-		verifyRule("\\d"			, "[0-9]")
-		verifyRule("\\D"			, "[^0-9]")
-		verifyRule("\\s"			, "[ \\t\\n]")
-		verifyRule("\\S"			, "[^ \\t\\n]")
-		verifyRule("\\w"			, "[a-zA-Z0-9_]")
-		verifyRule("\\W"			, "[^a-zA-Z0-9_]")
-		verifyRule("\\a"			, "[a-zA-Z]")
-		verifyRule("\\A"			, "[^a-zA-Z]")
-		verifyRule("\\n"			, "[\\n]")
-		verifyRule("\\letter"		, "[a-zA-Z]")
-		verifyRule("\\digit"		, "[0-9]")
-		verifyRule("\\upper"		, "[A-Z]")
-		verifyRule("\\lower"		, "[a-z]")
-		verifyRule("\\white"		, "[ \\t\\n]")
-		verifyRule("\\ident"		, "([a-zA-Z_] [a-zA-Z0-9_]*)")
+		verifyRule("\\d"		, "[0-9]")
+		verifyRule("\\D"		, "[^0-9]")
+		verifyRule("\\s"		, "[ \\t\\n]")
+		verifyRule("\\S"		, "[^ \\t\\n]")
+		verifyRule("\\w"		, "[a-zA-Z0-9_]")
+		verifyRule("\\W"		, "[^a-zA-Z0-9_]")
+		verifyRule("\\a"		, "[a-zA-Z]")
+		verifyRule("\\A"		, "[^a-zA-Z]")
+		verifyRule("\\n"		, "[\\n]")
+		verifyRule("\\letter"	, "[a-zA-Z]")
+		verifyRule("\\digit"	, "[0-9]")
+		verifyRule("\\upper"	, "[A-Z]")
+		verifyRule("\\lower"	, "[a-z]")
+		verifyRule("\\white"	, "[ \\t\\n]")
+		verifyRule("\\ident"	, "[a-zA-Z_] [a-zA-Z0-9_]*")
 	}
 	
 	Void testMultiplicity() {
@@ -66,6 +66,7 @@ class TestPegGrammar : Test {
 	}
 	
 	Void testSequence() {
+		Peg.debugOn
 		verifyRule(". . .")
 	}
 	
