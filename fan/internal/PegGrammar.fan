@@ -2,7 +2,7 @@
 @Js
 internal class PegGrammar : Rules {
 	
-	Rule rule() {
+	private NamedRules rules() {
 		rules			:= NamedRules()
 		line			:= rules["line"]
 		emptyLine		:= rules["emptyLine"]
@@ -41,29 +41,70 @@ internal class PegGrammar : Rules {
 		rules["emptyLine"]		= sequence { zeroOrMore(WSP), firstOf { NL, EOS, }, }
 		rules["commentLine"]	= sequence { zeroOrMore(WSP), str("//"), zeroOrMore(anyChar), firstOf { NL, EOS, }, }
 		
-		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), oneOrMore(anyChar), firstOf { NL, EOS, }, }
+//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), oneOrMore(anyChar), firstOf { NL, EOS, }, }
+		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), rule, firstOf { NL, EOS, }, }
 		
-//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), rule, firstOf { NL, EOS, }, }
 		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
-//		rules["rule"]			= firstOf  { _firstOf, _sequence, FAIL, }
-//		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(WSP), expression, }), }
-//		rules["firstOf"]		= sequence { expression, oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, zeroOrMore(sequence { oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, }), }
-//
-//		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, dot, }, optional(multiplicity), }
-//		rules["predicate"]		= firstOf  { char('!'), char('&'), }
-//		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
-//		rules["literal"]		= sequence { char('"'), anyCharNot('"'), char('"'), }	// TODO make specific
-//		rules["chars"]			= sequence { char('['), anyCharNot(']'), char(']'), }	// TODO make specific
-//		rules["dot"]			= char('.')
+		rules["rule"]			= firstOf  { _firstOf, _sequence, FAIL, }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(WSP), expression, }), }
+		rules["firstOf"]		= sequence { expression, oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, zeroOrMore(sequence { oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, }), }
+
+		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, dot, }, optional(multiplicity), }
+		rules["predicate"]		= firstOf  { char('!'), char('&'), }
+		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
+		rules["literal"]		= sequence { char('"'), charNot('"'), char('"'), }	// TODO make specific, test for \"
+		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }	// TODO make specific
+		rules["dot"]			= char('.')
 		
 		// built in rules
-		rules["WSP"]			= CharRule("[ \t]", false) |Int peek->Bool| { peek == ' ' || peek == '\t' } { it.debug = false }
+		rules["WSP"]			= spaceChar { it.useInResult = false }
 		rules["NL"]				= newLineChar { it.debug = false }
 		rules["EOS"]			= eos { it.debug = false }
 		rules["FAIL"]			= NoOpRule("FAIL", false)
 		
-		return line
+		return rules
+	}
+	
+	// FIXME , Str? rootRuleName
+	private Rule toRule(PegMatch? match) {
+		if (match == null)
+			throw ParseErr("Could not match PEG")
+		match.dump
+		
+		if (match.name == "rule") {
+			match = match.matches.first
+			if (match.name == "sequence") {
+				match = match.matches.first
+				if (match.name == "expression") {
+					match = match.matches.first
+					if (match.name == "dot") {
+						return Rules.anyChar
+					}
+					if (match.name == "chars") {
+						return CharRule.fromStr(match.matched)
+					}
+				}
+			}
+		}
+		
+		throw UnsupportedErr()
+	}
+
+//	private Void mRule(PegMatch match) {
+//		if 
+//	}
+	
+	
+	
+	
+	
+	Rule parseRule(Str pattern) {
+		toRule(Peg(pattern, rules["rule"]).match)
+	}
+	
+	Rule parseGrammar(Str grammar, Str? rootRuleName) {
+		toRule(Peg(grammar, rules["grammar"]).match)
 	}
 }
 

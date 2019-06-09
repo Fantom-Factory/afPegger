@@ -87,37 +87,37 @@ internal class TestCharRules : Test, Rules {
 	}
 
 	Void testCharClass() {
-		parser	:= Parser(CharRule("[a]"))
+		parser	:= Parser(CharRule.fromStr("[a]"))
 		verify		(parser.matches("a"))
 		verifyFalse	(parser.matches("A"))
 		verifyFalse	(parser.matches("b"))
 		verifyFalse	(parser.matches("B"))
 
-		parser	 = Parser(CharRule("[a]i"))
+		parser	 = Parser(CharRule.fromStr("[a]i"))
 		verify		(parser.matches("a"))
 		verify		(parser.matches("A"))
 		verifyFalse	(parser.matches("b"))
 		verifyFalse	(parser.matches("B"))
 
-		parser	 = Parser(CharRule("[^a]i"))
+		parser	 = Parser(CharRule.fromStr("[^a]i"))
 		verifyFalse	(parser.matches("a"))
 		verifyFalse	(parser.matches("A"))
 		verify		(parser.matches("b"))
 		verify		(parser.matches("B"))
 
-		parser	 = Parser(CharRule("[ ]"))
+		parser	 = Parser(CharRule.fromStr("[ ]"))
 		verify		(parser.matches(" "))
 		verifyFalse	(parser.matches("A"))
 
-		parser	 = Parser(CharRule("[\n]"))
+		parser	 = Parser(CharRule.fromStr("[\n]"))
 		verify		(parser.matches("\n"))
 		verifyFalse	(parser.matches("A"))
 
-		parser	 = Parser(CharRule("[^\n]"))
+		parser	 = Parser(CharRule.fromStr("[^\n]"))
 		verifyFalse	(parser.matches("\n"))
 		verify		(parser.matches("A"))
 
-		parser	 = Parser(CharRule("[b-d]"))
+		parser	 = Parser(CharRule.fromStr("[b-d]"))
 		verifyFalse	(parser.matches("a"))
 		verify		(parser.matches("b"))
 		verify		(parser.matches("c"))
@@ -129,7 +129,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.matches("D"))
 		verifyFalse	(parser.matches("E"))
 
-		parser	 = Parser(CharRule("[b-d]i"))
+		parser	 = Parser(CharRule.fromStr("[b-d]i"))
 		verifyFalse	(parser.matches("a"))
 		verify		(parser.matches("b"))
 		verify		(parser.matches("c"))
@@ -141,7 +141,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.matches("D"))
 		verifyFalse	(parser.matches("E"))
 
-		parser	 = Parser(CharRule("[^b-d]i"))
+		parser	 = Parser(CharRule.fromStr("[^b-d]i"))
 		verify		(parser.matches("a"))
 		verifyFalse	(parser.matches("b"))
 		verifyFalse	(parser.matches("c"))
@@ -153,7 +153,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.matches("D"))
 		verify		(parser.matches("E"))
 
-		parser	 = Parser(CharRule("[\tb-dX-Z34]"))
+		parser	 = Parser(CharRule.fromStr("[\tb-dX-Z34]"))
 		verify		(parser.matches("\t"))
 		verify		(parser.matches("b"))
 		verify		(parser.matches("c"))

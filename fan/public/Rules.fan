@@ -33,7 +33,16 @@ mixin Rules {
 	** 
 	**   .
 	static Rule anyChar() {
-		CharRule(".", false) |Int peek->Bool| { true }
+		AnyCharRule()
+	}
+
+	** Multi-purpose char class rule.  
+	** 
+	** Example PEG notation:
+	** 
+	**   [a-z_]i
+	static Rule charRule(Str charClass) {
+		CharRule.fromStr(charClass)
 	}
 
 	** Matches the given character.  
@@ -42,7 +51,8 @@ mixin Rules {
 	** 
 	**   [C]
 	static Rule char(Int char, Bool not := false) {
-		CharRule(not ? "[${char.toChar}]" : "\"${char.toChar}\"", not) |Int peek->Bool| { char == peek }
+		not ? CharRule(char.toChar.toCode(null).replace("]", "\\]").replace("-", "\\-"), not) |Int peek->Bool| { char == peek }
+			: StrMimickCharRule(char, false)	// this looks better than char rule & parses faster than a str rule 
 	}
 
 	** Matches any character except the given one.  
@@ -60,7 +70,7 @@ mixin Rules {
 	** 
 	**   [ChukNoris]
 	static Rule charOf(Int[] chars, Bool not := false) {
-		CharRule("[${Str.fromChars(chars)}]", not) |Int peek->Bool| { chars.contains(peek) }
+		CharRule(Str.fromChars(chars), not) |Int peek->Bool| { chars.contains(peek) }
 	}
 	
 	** Matches any character *not* in the given list.  
@@ -78,7 +88,7 @@ mixin Rules {
 	** 
 	**   [C-N]
 	static Rule charIn(Range charRange, Bool not := false) {
-		CharRule("[${charRange.min.toChar}-${charRange.last.toChar}]", not) |Int peek->Bool| { charRange.contains(peek) }
+		CharRule(charRange.min.toChar + "-" + charRange.last.toChar, not) |Int peek->Bool| { charRange.contains(peek) }
 	}
 	
 	** Matches any alphabetical character. 
@@ -87,7 +97,7 @@ mixin Rules {
 	** 
 	**   [a-zA-Z]
 	static Rule alphaChar(Bool not := false) {
-		CharRule("[a-zA-Z]", not) |Int peek->Bool| { peek.isAlpha }
+		CharRule("a-zA-Z", not) |Int peek->Bool| { peek.isAlpha }
 	}
 
 	** Matches any alphabetical or numerical character. 
@@ -96,7 +106,7 @@ mixin Rules {
 	** 
 	**   [a-zA-Z0-9]
 	static Rule alphaNumChar(Bool not := false) {
-		CharRule("[a-zA-Z0-9]", not) |Int peek->Bool| { peek.isAlphaNum }
+		CharRule("a-zA-Z0-9", not) |Int peek->Bool| { peek.isAlphaNum }
 	}
 
 	** Matches any numerical character. 
@@ -105,7 +115,7 @@ mixin Rules {
 	** 
 	**   [0-9]
 	static Rule numChar(Bool not := false) {
-		CharRule("[0-9]", not) |Int peek->Bool| { peek.isDigit }
+		CharRule("0-9", not) |Int peek->Bool| { peek.isDigit }
 	}
 
 	** Matches any hexadecimal character. 
@@ -114,16 +124,16 @@ mixin Rules {
 	** 
 	**   [a-fA-F0-9]
 	static Rule hexChar(Bool not := false) {
-		CharRule("[a-fA-F0-9]", not) |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
+		CharRule("a-fA-F0-9", not) |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
 	}
 	
 	** Matches any whitespace character, including new lines.
 	** 
 	** PEG notation:
 	** 
-	**   [ \t\n\r\f]
+	**   [ \t\n]
 	static Rule whitespaceChar(Bool not := false) {
-		CharRule("[ \t\n\r\f]", not) |Int peek->Bool| { peek.isSpace }
+		CharRule(" \t\n".toCode(null), not) |Int peek->Bool| { peek.isSpace }
 	}
 	
 	** Matches any space character (excluding new line chars). 
@@ -132,7 +142,7 @@ mixin Rules {
 	** 
 	**   [ \t]
 	static Rule spaceChar(Bool not := false) {
-		CharRule("[ \t]", not) |Int peek->Bool| { peek == ' ' || peek == '\t' }
+		CharRule(" \t".toCode(null), not) |Int peek->Bool| { peek == ' ' || peek == '\t' }
 	}
 
 	** Matches new line character.
@@ -142,7 +152,7 @@ mixin Rules {
 	** 
 	**   [\n]
 	static Rule newLineChar(Bool not := false) {
-		CharRule("[\n]", not) |Int peek->Bool| { peek == '\n' }
+		CharRule("\n".toCode(null), not) |Int peek->Bool| { peek == '\n' }
 	}
 
 	** Processes the given rule and returns success whether it passes or not. 

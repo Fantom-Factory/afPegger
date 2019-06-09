@@ -1,9 +1,43 @@
 
+** This is its own rule class to override the expression
+@Js internal class AnyCharRule : Rule {
+	override Str expression	:= "."	
+	override Bool doProcess(PegCtx ctx) {
+		ctx.readChar != 0
+	}
+}
+
+** This is its own rule class to override the expression
+@Js internal class StrMimickCharRule : Rule {
+	private const Int	char
+	private const Bool	ignoresCase
+
+	new make(Int char, Bool caseInsensitive) {
+		this.char		 = char
+		this.ignoresCase = caseInsensitive
+	}
+
+	override Bool doProcess(PegCtx ctx) {
+		peek := ctx.readChar
+		pass := peek == char
+		if (!pass && ignoresCase) {
+			peek = peek.isLower ? peek.upper : peek.lower
+			pass = peek == char
+		}
+		return pass
+	}
+
+	override Str expression() {
+		char.toChar.toCode + (ignoresCase ? "i" : "")
+	}
+}
+
 @Js
 internal class CharRule : Rule {
 	private		const |Int->Bool|	func
 	private		const Bool			not
 	private		const Str			express
+	private			  Bool			ignoresCase
 	
 	new make(Str expression, Bool not, |Int->Bool| func) {
 		this.func 	 = func
@@ -11,7 +45,7 @@ internal class CharRule : Rule {
 		this.not	 = not
 	}
 
-	static new fromStr(Str charClass) {
+	static Rule fromStr(Str charClass) {
 		cClass := charClass
 		ignore := cClass[-1] == 'i'
 		if (ignore) cClass = cClass[0..<-1]
@@ -52,14 +86,18 @@ internal class CharRule : Rule {
 				}
 			}
 			
-			return CharRule(charClass.replace("[^", "["), not) |Int peek->Bool| {
+			if (ranges.isEmpty && chars.size == 1 && !not)
+				return StrMimickCharRule(chars.first, ignore)
+
+			express := ranges.join("") { it.start.toChar + "-" + it.end.toChar } + chars.join("") { it.toChar }.toCode(null).replace("]", "\\]").replace("-", "\\-") 
+			return CharRule(express, not) |Int peek->Bool| {
 				fn := chars.contains(peek) || ranges.any { it.contains(peek) }
 				if (!fn && ignore) {
 					peek = peek.isLower ? peek.upper : peek.lower
 					fn   = chars.contains(peek) || ranges.any { it.contains(peek) }
 				}
 				return fn
-			}
+			} { it.ignoresCase = ignore }
 			
 		} catch throw ParseErr("Invalid Char class: $charClass")
 	}
@@ -71,8 +109,6 @@ internal class CharRule : Rule {
 	}
 	
 	override Str expression() {
-		if (not && express.startsWith("["))
-			return "[^" + express[1..-1].toCode(null)
-		return (not ? "!" : "") + express.toCode(null)
+		"[" + (not ? "^" : "") + express + "]" + (ignoresCase ? "i" : "")
 	}
 }

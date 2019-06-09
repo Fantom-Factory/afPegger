@@ -22,14 +22,20 @@
 		Peg#.pod.log.level = debug ? LogLevel.debug : LogLevel.info
 	}
 	
-//	static Rule parseRule(Str pattern) {		
-//	}
+	static Rule parseRule(Str pattern) {
+		PegGrammar().parseRule(pattern)
+	}
 	
-//	new make(Str str, Str pattern) {
+	static Rule parseGrammar(Str grammar, Str? rootRuleName) {
+		PegGrammar().parseGrammar(grammar, rootRuleName)
+	}
+	
+//	new make(Str str, Str pattern) {	// rule or grammar ??
 //		this.str	= str
 //		this.rule	= PegGrammar.parse(pattern)		
 //	}
 	
+	// FIXME Int startOffset
 	** Searches for the next match and returns the matched string (if any).
 	Str? search() {
 		c := pegCtx.cur
@@ -49,8 +55,12 @@
 		search != null
 	}
 	
-//	Str replace(Str replacePattern, Int index := 0) { "" }
+	// TODO replace()
+//	Str replace(Str replacePattern, Int startOffset := 0) { "" }
 //	Str replaceAll(Str replacePattern) { "" }
+	
+//	Str replaceFn(Str replacePattern) |PegMatch m -> Str| { "" }
+//	Str replaceAllFn(Str replacePattern) |PegMatch m -> Str| { "" }
 	
 	** Runs the PEG rule against the string.
 	PegMatch? match() {
