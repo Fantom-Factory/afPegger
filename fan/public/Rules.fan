@@ -144,8 +144,17 @@ mixin Rules {
 	static Rule spaceChar(Bool not := false) {
 		CharRule(" \t".toCode(null), not) |Int peek->Bool| { peek == ' ' || peek == '\t' }
 	}
+	
+	** Matches any word character, used as a Fantom identifier. 
+	** 
+	** PEG notation:
+	** 
+	**   [a-zA-Z0-9_]
+	static Rule wordChar(Bool not := false) {
+		CharRule("a-zA-Z0-9_".toCode(null), not) |Int peek->Bool| { peek.isAlphaNum || peek == '_' }
+	}
 
-	** Matches new line character.
+	** Matches the new line character.
 	** This assumes all new lines have been normalised to '\n'. 
 	** 
 	** PEG notation:

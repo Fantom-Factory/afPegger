@@ -17,6 +17,7 @@ internal class PegGrammar : Rules {
 		multiplicity	:= rules["multiplicity"]
 		literal			:= rules["literal"]
 		chars			:= rules["chars"]
+		macro			:= rules["macro"]
 		dot				:= rules["dot"]
 		WSP				:= rules["WSP"]
 		NL				:= rules["NL"]
@@ -50,11 +51,12 @@ internal class PegGrammar : Rules {
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(WSP), expression, }), }
 		rules["firstOf"]		= sequence { expression, oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, zeroOrMore(sequence { oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, }), }
 
-		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, dot, }, optional(multiplicity), }
+		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, }, optional(multiplicity), }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
 		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }
+		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), }
 		rules["dot"]			= char('.')
 		
 		// built in rules
@@ -87,6 +89,9 @@ internal class PegGrammar : Rules {
 					if (match.name == "literal") {
 						return StrRule.fromStr(match.matched)
 					}
+					if (match.name == "macro") {
+						return fromMacro(match.matched)
+					}
 				}
 			}
 		}
@@ -94,13 +99,26 @@ internal class PegGrammar : Rules {
 		throw UnsupportedErr()
 	}
 
-//	private Void mRule(PegMatch match) {
-//		if 
-//	}
-	
-	
-	
-	
+	private Rule fromMacro(Str macro) {
+		switch (macro[1..-1]) {
+			case "s"		:
+			case "white"	: return Rules.whitespaceChar
+			case "S"		: return Rules.whitespaceChar(true)
+			case "n"		: return Rules.newLineChar
+			case "d"		:
+			case "digit"	: return Rules.numChar
+			case "D"		: return Rules.numChar(true)
+			case "a"		:
+			case "letter"	: return Rules.alphaChar
+			case "A"		: return Rules.alphaChar(true)
+			case "w"		: return Rules.wordChar
+			case "W"		: return Rules.wordChar(true)
+			case "upper"	: return Rules.charIn('A'..'Z')
+			case "lower"	: return Rules.charIn('a'..'z')
+			case "ident"	: return Rules.sequence { Rules.charRule("[a-zA-Z_]"), Rules.zeroOrMore(Rules.wordChar), }
+		}
+		throw UnsupportedErr("Unknow macro: $macro")
+	}
 	
 	Rule parseRule(Str pattern) {
 		toRule(Peg(pattern, rules["rule"]).match)
@@ -109,8 +127,4 @@ internal class PegGrammar : Rules {
 	Rule parseGrammar(Str grammar, Str? rootRuleName) {
 		toRule(Peg(grammar, rules["grammar"]).match)
 	}
-}
-
-internal class PegAstNode {
-	
 }
