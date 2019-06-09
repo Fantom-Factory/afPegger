@@ -53,8 +53,8 @@ internal class PegGrammar : Rules {
 		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, dot, }, optional(multiplicity), }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
-		rules["literal"]		= sequence { char('"'), charNot('"'), char('"'), }	// TODO make specific, test for \"
-		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }	// TODO make specific
+		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
+		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }
 		rules["dot"]			= char('.')
 		
 		// built in rules
@@ -83,6 +83,9 @@ internal class PegGrammar : Rules {
 					}
 					if (match.name == "chars") {
 						return CharRule.fromStr(match.matched)
+					}
+					if (match.name == "literal") {
+						return StrRule.fromStr(match.matched)
 					}
 				}
 			}

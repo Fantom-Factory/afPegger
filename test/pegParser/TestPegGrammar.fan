@@ -25,6 +25,17 @@ class TestPegGrammar : Test {
 		verifyRule("[\tb-dX-Z34]", "[b-dX-Z\\t34]")
 	}
 	
+	Void testLiteral() {
+		verifyRule("\"h\"")
+		verifyRule("\"hello\"")
+		verifyRule("\"hel lo\"")
+		verifyRule("\"hel\tlo\""	, "\"hel\\tlo\"")
+		verifyRule("\"hel\\tlo\"")
+		verifyRule("\"hel\\\"lo\"")	// man, fyck all this escaping! 
+		verifyRule("\"h\"i")
+		verifyRule("\"hello\"i")
+	}
+	
 	
 //	Void testEmptyLine() {
 //		Peg#.pod.log.level = LogLevel.debug
@@ -60,7 +71,6 @@ class TestPegGrammar : Test {
 //	}
 	
 	private Void verifyRule(Str in, Str out := in) {
-		echo("${out} =?= ${Peg.parseRule(in).expression}")
 		verifyEq(out, Peg.parseRule(in).expression)
 	}
 	
