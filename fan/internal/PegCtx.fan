@@ -36,7 +36,7 @@ internal class PegCtx {
 			peek := in[cur..<(cur+22).min(in.size)]
 			if (cur+22 < in.size)
 				peek += "..."
-			_log(result, "--> ${rule.name} - Processing: ${rule.expression} with: ${peek.toCode(null)}")
+			_log(result, "--> ${curRuleName} - Processing: ${rule.expression} with: ${peek.toCode(null)}")
 		}
 		
 		try {
@@ -62,7 +62,7 @@ internal class PegCtx {
 //			// Logs look better without this...!?
 //			if (logger.isDebug) { 
 //				millis := (Duration.now - result.startTime).toMillis.toLocale("#,000")
-//				_log(result, "<-- ${result.rule.name} - Processed. [${millis}ms]")
+//				_log(result, "<-- ${curRuleName} - Processed. [${millis}ms]")
 //			}
 
 			return passed
@@ -100,12 +100,16 @@ internal class PegCtx {
 	}
 
 	private Void _log(Result result, Str msg) {
-		if (logger.isDebug && result.rule.name != null && result.rule.debug) {
+		if (result.rule.debug) {
 			depth := resultStack.size
 			if (!msg.startsWith("--> ") && !msg.startsWith("<-- "))
-				msg = "  > ${result.rule.name} - ${msg}"
+				msg = "  > ${curRuleName} - ${msg}"
 			pad	:= "".justr(depth)
 			logger.debug("[${depth.toStr.justr(3)}]${pad}${msg}")
 		}
+	}
+	
+	private Str curRuleName() {
+		resultStack.eachrWhile { it.rule.name } ?: rootResult.rule.name
 	}
 }

@@ -15,10 +15,10 @@ abstract class Rule {
 		}
 	}
 	
-	** Disable debugging of this rule if it gets to noisy
+	** Disable debugging of this rule if it gets to noisy.
 	Bool debug			:= true
 
-	@NoDoc
+	** Not all rules are useful in the parsed AST. 
 	Bool useInResult	:= true
 	
 	** Action to be performed upon successful completion of this rule.
@@ -57,9 +57,13 @@ abstract class Rule {
 	}
 	
 	@NoDoc
-	Str dis() { name ?: expression }
+	internal Str _dis(Bool inner := false) {
+		inner && name == null && (this is SequenceRule || this is FirstOfRule)
+			? "(" + expression + ")"
+			: (name ?: expression)
+	}
 
 	@NoDoc
-	override Str toStr() { dis }  
+	override Str toStr() { _dis }  
 
 }

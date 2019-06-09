@@ -66,12 +66,15 @@ class TestPegGrammar : Test {
 	}
 	
 	Void testSequence() {
-		Peg.debugOn
 		verifyRule(". . .")
+
+		verifyRule(". (\\d \\d) .", ". ([0-9] [0-9]) .")
 	}
 	
 	Void testFirstOf() {
 		verifyRule(". / . / .")
+
+		verifyRule(". / (\\d / \\d) / .", ". / ([0-9] / [0-9]) / .")
 	}
 	
 	

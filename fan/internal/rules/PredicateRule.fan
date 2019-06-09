@@ -20,6 +20,6 @@ internal class PredicateRule : Rule {
 	}
 
 	override Str expression() {
-		(not ? "!" : "&") + rule.dis 
+		(not ? "!" : "&") + rule._dis
 	}
 }

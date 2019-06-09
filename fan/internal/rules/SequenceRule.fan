@@ -22,6 +22,6 @@ internal class SequenceRule : Rule {
 	}
 
 	override Str expression() {
-		rules.join(" ") { it.dis }
+		rules.join(" ") { it._dis(true) }
 	}
 }

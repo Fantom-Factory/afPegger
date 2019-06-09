@@ -60,7 +60,7 @@ internal class PegGrammar : Rules {
 		rules["dot"]			= char('.')
 		
 		// built in rules
-		rules["WSP"]			= spaceChar { it.useInResult = false }
+		rules["WSP"]			= spaceChar { it.useInResult = false; it.debug = false }
 		rules["NL"]				= newLineChar { it.debug = false }
 		rules["EOS"]			= eos { it.debug = false }
 		rules["FAIL"]			= NoOpRule("PEG parse FAIL", false)
@@ -77,23 +77,7 @@ internal class PegGrammar : Rules {
 		if (match.name == "rule") {
 			match = match.matches.first
 			
-			rule := null as Rule
-			switch (match.name) {
-				case "sequence":
-					if (match.matches.size == 1)
-						rule = fromExpression(match.matches.first)
-					else {
-						rules := match.matches.map { fromExpression(it) }
-						rule = Rules.sequence(rules)
-					}
-
-				case "firstOf":
-					rules := match.matches.map { fromExpression(it) }
-					rule = Rules.firstOf(rules)
-				
-				default:
-					throw UnsupportedErr("Unknown rule: ${match.name}")
-			}
+			rule := fromRule(match)
 			
 			return rule
 		}
@@ -101,6 +85,27 @@ internal class PegGrammar : Rules {
 		throw UnsupportedErr()
 	}
 
+	private Rule fromRule(PegMatch match) {
+		rule := null as Rule
+		switch (match.name) {
+			case "sequence":
+				if (match.matches.size == 1)
+					rule = fromExpression(match.matches.first)
+				else {
+					rules := match.matches.map { fromExpression(it) }
+					rule = Rules.sequence(rules)
+				}
+
+			case "firstOf":
+				rules := match.matches.map { fromExpression(it) }
+				rule = Rules.firstOf(rules)
+			
+			default:
+				throw UnsupportedErr("Unknown rule: ${match.name}")
+		}
+		return rule
+	}
+	
 	private Rule fromExpression(PegMatch match) {
 		if (match.name != "expression")
 			throw ArgErr("Match should be 'expression', not '${match.name}'")
@@ -108,14 +113,17 @@ internal class PegGrammar : Rules {
 		exType	:= match["type"] as PegMatch
 		multi	:= match["multiplicity"]?.matched
 		pred	:= match["predicate"]?.matched
+		exName	:= exType.matches.first.name
 		exRule	:= null as Rule
 
-		switch (exType.matches.first.name) {
-			case "dot"		: exRule = Rules.anyChar
-			case "chars"	: exRule = CharRule.fromStr(match.matched)
+		switch (exName) {
+			case "rule"		: exRule = fromRule(exType.matches.first.matches.first)
+//			case "ruleName"	: exRule = fromRuleName(exName)
 			case "literal"	: exRule = StrRule.fromStr(match.matched)
+			case "chars"	: exRule = CharRule.fromStr(match.matched)
 			case "macro"	: exRule = fromMacro(match.matched)
-			default			: throw UnsupportedErr("Unknown expression: ${match.name}")
+			case "dot"		: exRule = Rules.anyChar
+			default			: throw UnsupportedErr("Unknown expression: ${exName}")
 		}
 		
 		if (multi != null)
