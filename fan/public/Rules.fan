@@ -4,9 +4,23 @@
 @Js
 mixin Rules {
 	
-	** Matches if the of the stream (EOS) is reached. 
+	** Matches if the of the stream (EOS) is reached.
+	**  
+	** Example PEG notation:
+	** 
+	**   \eos
 	static Rule eos() {
 		EosRule()
+	}
+	
+	** Matches end of line (or the end of the stream).
+	**  
+	** Example PEG notation:
+	** 
+	**   \nl / \eos
+	static Rule eol() {
+		EolRule()
+//		firstOf { newLineChar, eos, }
 	}
 	
 	** Matches the given string. 
@@ -161,7 +175,8 @@ mixin Rules {
 	** 
 	**   [\n]
 	static Rule newLineChar(Bool not := false) {
-		CharRule("\n".toCode(null), not) |Int peek->Bool| { peek == '\n' }
+		// use fromStr() so we get the mimic class 
+		CharRule.fromStr("[" + (not ? "^" : "") + "\\n]")
 	}
 
 	** Processes the given rule and returns success whether it passes or not. 

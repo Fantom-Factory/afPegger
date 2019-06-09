@@ -36,7 +36,7 @@ abstract class Rule {
 	** 
 	**   alphaNum <- [a-zA-Z0-9]
 	Str definition() {
-		((name == null) ? "" : "${name} <- ") + expression		
+		((name == null) ? "" : "${name} <- ") + expression
 	}
 	
 	** A helpful builder method for setting the action.

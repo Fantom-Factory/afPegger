@@ -45,14 +45,16 @@ class TestPegGrammar : Test {
 		verifyRule("\\W"		, "[^a-zA-Z0-9_]")
 		verifyRule("\\a"		, "[a-zA-Z]")
 		verifyRule("\\A"		, "[^a-zA-Z]")
-		verifyRule("\\n"		, "[\\n]")
+		verifyRule("\\n"		, "\"\\n\"")
 		verifyRule("\\letter"	, "[a-zA-Z]")
 		verifyRule("\\digit"	, "[0-9]")
 		verifyRule("\\upper"	, "[A-Z]")
 		verifyRule("\\lower"	, "[a-z]")
 		verifyRule("\\white"	, "[ \\t\\n]")
+		verifyRule("\\space"	, "[ \\t]")
 		verifyRule("\\ident"	, "[a-zA-Z_] [a-zA-Z0-9_]*")
 		verifyRule("\\eos"		, "\\eos")
+		verifyRule("\\eol"		, "\\eol")
 	}
 	
 	Void testMultiplicity() {
@@ -77,6 +79,7 @@ class TestPegGrammar : Test {
 	}
 	
 	Void testGrammar() {
+		Peg.debugOn
 		verifyLine("eol = nl / eos")
 	}
 	

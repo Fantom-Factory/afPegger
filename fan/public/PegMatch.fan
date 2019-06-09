@@ -28,6 +28,12 @@
 		throw UnsupportedErr()
 	}
 	
+	** Returns the first match.
+	@NoDoc	// I may remove this...?
+	PegMatch match() {
+		matches.first
+	}
+
 	** Returns all sub-mataches.
 	PegMatch[] matches() {
 		result.matches(in)

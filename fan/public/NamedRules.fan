@@ -3,28 +3,50 @@
 ** A helper class that lets you reference Rules before they're defined.
 @Js
 class NamedRules {
-	private Str:Rule rules := Str:Rule[:] { caseInsensitive = true } 
+	private Str:Rule 		_rules		:= Str:Rule[:] { it.ordered = true } 
+	private Str:ProxyRule	_proxies	:= Str:ProxyRule[:] 
 	
 	** Returns a proxy to the named rule.
 	@Operator
 	Rule get(Str name) {
-		ProxyRule(this, name)
+		if (!_proxies.containsKey(name))
+			_proxies[name] = ProxyRule(this, name)
+		return _proxies[name]
 	}
 	
 	** Sets the real implementation of the named rule.
 	@Operator
 	Rule set(Str name, Rule rule) {
-		rules[name] = rule
+		_rules[name] = rule
 		return rule
 	}
 	
-	internal Rule getForReal(Str name) {
-		rules[name] ?: throw ArgNotFoundErr("Could not find rule '$name'", rules.keys)
+	** Returns all named rules.
+	Rule[] rules() {
+		_rules.vals
 	}
 	
-	override Str toStr() {
-		rules.reduce("") |Str str, rule->Str| { str += rule.definition + "\n" }
+	** Returns the grammar definition
+	Str definition() {
+		max := (Int) _rules.keys.reduce(0) |Int max, name| { max.max(name.size) }
+		buf := StrBuf()
+		_rules.each |rule| {
+			buf.add(rule.name.justl(max)).add(" <- ").add(rule.expression).addChar('\n')
+		}
+		return buf.toStr		
 	}
+	
+	internal This validate() {
+		_proxies.vals.each { it.rule }
+		// no need to warn of un-used rules - it may be irritating
+		return this
+	}
+	
+	internal Rule getForReal(Str name) {
+		_rules[name] ?: throw ArgNotFoundErr("Rule not defined in grammar: $name", _rules.keys)
+	}
+	
+	override Str toStr() { definition }
 }
 
 @Js
