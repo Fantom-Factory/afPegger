@@ -244,7 +244,7 @@ mixin Rules {
 	** When defining a 'sequence()' rule you may also use it-block syntax:
 	** 
 	**   sequence { rule1, rule2, rule3, }
-	static Rule sequence(Rule[] rules := [,]) {
+	static Rule sequence(Rule[] rules := Rule[,]) {
 		SequenceRule(rules)
 	}
 	
@@ -260,7 +260,7 @@ mixin Rules {
 	** When defining a 'firstOf()' rule you may also use it-block syntax:
 	** 
 	**   firstOf { rule1, rule2, rule3, }
-	static Rule firstOf(Rule[] rules := [,]) {
+	static Rule firstOf(Rule[] rules := Rule[,]) {
 		FirstOfRule(rules)
 	}
 	

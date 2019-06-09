@@ -65,13 +65,13 @@ class TestPegGrammar : Test {
 		verifyRule("!.")
 	}
 	
-//	Void testSequence() {
-//		verifyRule(". . .")
-//	}
-//	
-//	Void testFirstOf() {
-//		verifyRule(". / . / .")
-//	}
+	Void testSequence() {
+		verifyRule(". . .")
+	}
+	
+	Void testFirstOf() {
+		verifyRule(". / . / .")
+	}
 	
 	
 	

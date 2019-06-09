@@ -76,41 +76,64 @@ internal class PegGrammar : Rules {
 		
 		if (match.name == "rule") {
 			match = match.matches.first
-			if (match.name == "sequence") {
-				match = match.matches.first
-				if (match.name == "expression") {
-					exType	:= match["type"]
-					exRule	:= fromExpression(exType)
-					multi	:= match["multiplicity"]?.matched
-					pred	:= match["predicate"]?.matched
-					
-					switch (multi) {
-						case "?"	: exRule = Rules.optional(exRule)
-						case "+"	: exRule = Rules.oneOrMore(exRule)
-						case "*"	: exRule = Rules.zeroOrMore(exRule)
+			
+			rule := null as Rule
+			switch (match.name) {
+				case "sequence":
+					if (match.matches.size == 1)
+						rule = fromExpression(match.matches.first)
+					else {
+						rules := match.matches.map { fromExpression(it) }
+						rule = Rules.sequence(rules)
 					}
-					
-					switch (pred) {
-						case "&"	: exRule = Rules.onlyIf(exRule)
-						case "!"	: exRule = Rules.onlyIfNot(exRule)
-					}
-					
-					return exRule
-				}
+
+				case "firstOf":
+					rules := match.matches.map { fromExpression(it) }
+					rule = Rules.firstOf(rules)
+				
+				default:
+					throw UnsupportedErr("Unknown rule: ${match.name}")
 			}
+			
+			return rule
 		}
 		
 		throw UnsupportedErr()
 	}
 
 	private Rule fromExpression(PegMatch match) {
-		switch (match.matches.first.name) {
-			case "dot"		: return Rules.anyChar
-			case "chars"	: return CharRule.fromStr(match.matched)
-			case "literal"	: return StrRule.fromStr(match.matched)
-			case "macro"	: return fromMacro(match.matched)
+		if (match.name != "expression")
+			throw ArgErr("Match should be 'expression', not '${match.name}'")
+
+		exType	:= match["type"] as PegMatch
+		multi	:= match["multiplicity"]?.matched
+		pred	:= match["predicate"]?.matched
+		exRule	:= null as Rule
+
+		switch (exType.matches.first.name) {
+			case "dot"		: exRule = Rules.anyChar
+			case "chars"	: exRule = CharRule.fromStr(match.matched)
+			case "literal"	: exRule = StrRule.fromStr(match.matched)
+			case "macro"	: exRule = fromMacro(match.matched)
+			default			: throw UnsupportedErr("Unknown expression: ${match.name}")
 		}
-		throw UnsupportedErr("Unknown expression: ${match.name}")
+		
+		if (multi != null)
+			switch (multi) {
+				case "?"	: exRule = Rules.optional(exRule)
+				case "+"	: exRule = Rules.oneOrMore(exRule)
+				case "*"	: exRule = Rules.zeroOrMore(exRule)
+				default		: throw UnsupportedErr("Unknown multiplicity: ${multi}")
+			}
+		
+		if (pred != null)
+			switch (pred) {
+				case "&"	: exRule = Rules.onlyIf(exRule)
+				case "!"	: exRule = Rules.onlyIfNot(exRule)
+				default		: throw UnsupportedErr("Unknown predicate: ${pred}")
+			}
+		
+		return exRule
 	}
 	
 	private Rule fromMacro(Str macro) {
