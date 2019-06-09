@@ -42,9 +42,7 @@ internal class PegGrammar : Rules {
 		rules["emptyLine"]		= sequence { zeroOrMore(WSP), firstOf { NL, EOS, }, }
 		rules["commentLine"]	= sequence { zeroOrMore(WSP), str("//"), zeroOrMore(anyChar), firstOf { NL, EOS, }, }
 		
-//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), oneOrMore(anyChar), firstOf { NL, EOS, }, }
 		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), rule, firstOf { NL, EOS, }, }
-		
 		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, FAIL, }
@@ -60,9 +58,9 @@ internal class PegGrammar : Rules {
 		rules["dot"]			= char('.')
 		
 		// built in rules
-		rules["WSP"]			= spaceChar { it.useInResult = false; it.debug = false }
-		rules["NL"]				= newLineChar { it.debug = false }
-		rules["EOS"]			= eos { it.debug = false }
+		rules["WSP"]			= spaceChar		{ it.debug = false; it.useInResult = false }
+		rules["NL"]				= newLineChar	{ it.debug = false }
+		rules["EOS"]			= eos			{ it.debug = false }
 		rules["FAIL"]			= NoOpRule("PEG parse FAIL", false)
 		
 		return rules
@@ -161,6 +159,7 @@ internal class PegGrammar : Rules {
 			case "upper"	: return Rules.charIn('A'..'Z')
 			case "lower"	: return Rules.charIn('a'..'z')
 			case "ident"	: return Rules.sequence { Rules.charRule("[a-zA-Z_]"), Rules.zeroOrMore(Rules.wordChar), }
+			case "eos"		: return Rules.eos
 		}
 		throw UnsupportedErr("Unknown macro: $macro")
 	}

@@ -52,6 +52,7 @@ class TestPegGrammar : Test {
 		verifyRule("\\lower"	, "[a-z]")
 		verifyRule("\\white"	, "[ \\t\\n]")
 		verifyRule("\\ident"	, "[a-zA-Z_] [a-zA-Z0-9_]*")
+		verifyRule("\\eos"		, "\\eos")
 	}
 	
 	Void testMultiplicity() {
@@ -67,16 +68,17 @@ class TestPegGrammar : Test {
 	
 	Void testSequence() {
 		verifyRule(". . .")
-
 		verifyRule(". (\\d \\d) .", ". ([0-9] [0-9]) .")
 	}
 	
 	Void testFirstOf() {
 		verifyRule(". / . / .")
-
 		verifyRule(". / (\\d / \\d) / .", ". / ([0-9] / [0-9]) / .")
 	}
 	
+	Void testGrammar() {
+		verifyLine("eol = nl / eos")
+	}
 	
 	
 //	Void testEmptyLine() {
@@ -114,6 +116,10 @@ class TestPegGrammar : Test {
 	
 	private Void verifyRule(Str in, Str out := in) {
 		verifyEq(out, Peg.parseRule(in).expression)
+	}
+	
+	private Void verifyLine(Str in, Str out := in) {
+		verifyEq(out, Peg.parseGrammar(in, null).expression)
 	}
 	
 //	private PegMatch? parseRule(Str in) {

@@ -1,4 +1,3 @@
-using afBeanUtils::ArgNotFoundErr
 
 ** (Advanced) 
 ** A helper class that lets you reference Rules before they're defined.
@@ -67,5 +66,25 @@ internal class ProxyRule : Rule {
 			useInResult	= ruleForReal.useInResult
 		}
 		return ruleForReal
+	}
+}
+
+** A simple implementation of `NotFoundErr`.
+** This class can not extend 'ArgErr' due to [Cannot extend sys Errs in Javascript]`http://fantom.org/forum/topic/2468`.
+@Js internal const class ArgNotFoundErr : Err {
+	const Str?[] availableValues
+	
+	new make(Str msg, Obj?[] availableValues, Err? cause := null) : super.make(msg, cause) {
+		this.availableValues = availableValues.map { it?.toStr }.sort
+	}
+	
+	** Pre-pends the list of available values to the stack trace.
+	override Str toStr() {
+		buf := StrBuf()
+		buf.add("${typeof.qname}: ${msg}\n")
+		buf.add("\nAvailable values:\n")
+		availableValues.each { buf.add("  $it\n")}
+		buf.add("\nStack Trace:")
+		return buf.toStr
 	}
 }

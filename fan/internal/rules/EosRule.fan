@@ -6,5 +6,5 @@ internal class EosRule : Rule {
 		ctx.eos
 	}
 	
-	override Str expression() { "EOS" } 
+	override Str expression() { "\\eos" } 
 }

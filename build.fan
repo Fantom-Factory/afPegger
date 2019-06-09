@@ -15,10 +15,8 @@ class Build : BuildPod {
         ]
 
         depends = [
-            "sys 1.0",
-
             // ---- Core ------------------------
-            "afBeanUtils 1.0.8 - 1.0",  // for ArgNotFoundErr
+            "sys 1.0",
 
             // ---- Test ------------------------
             "xml        1.0",   // htmlParser
