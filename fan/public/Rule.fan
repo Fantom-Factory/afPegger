@@ -21,7 +21,7 @@ abstract class Rule {
 	@NoDoc
 	Bool useInResult	:= true
 	
-	** The action to be performed upon successful completion of this rule.
+	** Action to be performed upon successful completion of this rule.
 	virtual |Str matched|?	action
 
 	** Override to implement Rule logic.

@@ -85,6 +85,85 @@ internal class TestCharRules : Test, Rules {
 		verify     (parser.match("2") != null)
 		verifyFalse(parser.match(" ") != null)
 	}
+
+	Void testCharClass() {
+		parser	:= Parser(CharRule("[a]"))
+		verify		(parser.matches("a"))
+		verifyFalse	(parser.matches("A"))
+		verifyFalse	(parser.matches("b"))
+		verifyFalse	(parser.matches("B"))
+
+		parser	 = Parser(CharRule("[a]i"))
+		verify		(parser.matches("a"))
+		verify		(parser.matches("A"))
+		verifyFalse	(parser.matches("b"))
+		verifyFalse	(parser.matches("B"))
+
+		parser	 = Parser(CharRule("[^a]i"))
+		verifyFalse	(parser.matches("a"))
+		verifyFalse	(parser.matches("A"))
+		verify		(parser.matches("b"))
+		verify		(parser.matches("B"))
+
+		parser	 = Parser(CharRule("[ ]"))
+		verify		(parser.matches(" "))
+		verifyFalse	(parser.matches("A"))
+
+		parser	 = Parser(CharRule("[\n]"))
+		verify		(parser.matches("\n"))
+		verifyFalse	(parser.matches("A"))
+
+		parser	 = Parser(CharRule("[^\n]"))
+		verifyFalse	(parser.matches("\n"))
+		verify		(parser.matches("A"))
+
+		parser	 = Parser(CharRule("[b-d]"))
+		verifyFalse	(parser.matches("a"))
+		verify		(parser.matches("b"))
+		verify		(parser.matches("c"))
+		verify		(parser.matches("d"))
+		verifyFalse	(parser.matches("e"))
+		verifyFalse	(parser.matches("A"))
+		verifyFalse	(parser.matches("B"))
+		verifyFalse	(parser.matches("C"))
+		verifyFalse	(parser.matches("D"))
+		verifyFalse	(parser.matches("E"))
+
+		parser	 = Parser(CharRule("[b-d]i"))
+		verifyFalse	(parser.matches("a"))
+		verify		(parser.matches("b"))
+		verify		(parser.matches("c"))
+		verify		(parser.matches("d"))
+		verifyFalse	(parser.matches("e"))
+		verifyFalse	(parser.matches("A"))
+		verify		(parser.matches("B"))
+		verify		(parser.matches("C"))
+		verify		(parser.matches("D"))
+		verifyFalse	(parser.matches("E"))
+
+		parser	 = Parser(CharRule("[^b-d]i"))
+		verify		(parser.matches("a"))
+		verifyFalse	(parser.matches("b"))
+		verifyFalse	(parser.matches("c"))
+		verifyFalse	(parser.matches("d"))
+		verify		(parser.matches("e"))
+		verify		(parser.matches("A"))
+		verifyFalse	(parser.matches("B"))
+		verifyFalse	(parser.matches("C"))
+		verifyFalse	(parser.matches("D"))
+		verify		(parser.matches("E"))
+
+		parser	 = Parser(CharRule("[\tb-dX-Z34]"))
+		verify		(parser.matches("\t"))
+		verify		(parser.matches("b"))
+		verify		(parser.matches("c"))
+		verify		(parser.matches("X"))
+		verify		(parser.matches("Z"))
+		verify		(parser.matches("4"))
+		verifyFalse	(parser.matches("A"))
+		verifyFalse	(parser.matches(" "))
+		verifyFalse	(parser.matches("9"))
+	}
 }
 
 
@@ -98,5 +177,9 @@ class Parser {
 
 	Str? match(Str in) {
 		Peg(in, rootRule).matched
+	}
+
+	Bool matches(Str in) {
+		Peg(in, rootRule).matches
 	}
 }
