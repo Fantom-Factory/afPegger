@@ -13,15 +13,15 @@ Quick Start
 ***********
 pre>
 syntax: fantom
+using afPegger::Peg
 
-using afPegger
-
-class Example : Rules {
+class Example {
     Void main() {
-        nameRule   := oneOrMore(anyAlphaChar).withAction |Str match| { echo(match) }
-        parseRules := sequence([char('<'), nameRule, char('>')])
+        input := "<<<Hello Mum>>>"
+        rule  := "'<'+ name:[a-zA-Z ]+ '>'+"
+        match := Peg(input, rule).match
 
-        Parser(parseRules).parse("<HelloMum>".in)  // --> HelloMum
+        name  := match["name"]    // --> "Hello Mum"
     }
 }
 <pre

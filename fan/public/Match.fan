@@ -68,13 +68,14 @@ class Match {
 		return buf.toStr
 	}
 
-	** Walks the match tree, calling the given funcs as it steps in to, and out of, a 'Match'.
-	** Start with *this* 'Match'. 
-	Void walk(|Match|? start, |Match|? end) {
-		start?.call(this)
-		matches.each { it.walk(start, end) }
-		end?.call(this)
-	}
+	// Meh - I don't actually like this - and it's often easier to just itr over the matches yourself
+//	** Walks the match tree, calling the given funcs as it steps in to, and out of, a 'Match'.
+//	** Start with *this* 'Match'. 
+//	Void walk(|Match|? start, |Match|? end) {
+//		start?.call(this)
+//		matches.each { it.walk(start, end) }
+//		end?.call(this)
+//	}
 	
 	@NoDoc
 	override Str toStr() { matched }
