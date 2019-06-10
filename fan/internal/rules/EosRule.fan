@@ -1,6 +1,5 @@
 
-@Js
-internal class EolRule : Rule {
+@Js internal class EolRule : Rule {
 
 	override Bool doProcess(PegCtx ctx) {
 		ctx.eos || ctx.readChar == '\n'

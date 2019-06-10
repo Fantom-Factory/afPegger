@@ -28,7 +28,7 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   "ChuckNorris"
-	static Rule str(Str string, Bool ignoreCase := true) {
+	static Rule str(Str string, Bool ignoreCase := false) {
 		StrRule(string, ignoreCase)
 	}
 
@@ -37,7 +37,7 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   (!"ChuckNorris" .)+
-	static Rule strNot(Str string, Bool ignoreCase := true) {
+	static Rule strNot(Str string, Bool ignoreCase := false) {
 		StrNotRule(string, ignoreCase)
 	}
 	
@@ -84,7 +84,8 @@ mixin Rules {
 	** 
 	**   [ChukNoris]
 	static Rule charOf(Int[] chars, Bool not := false) {
-		CharRule(Str.fromChars(chars), not) |Int peek->Bool| { chars.contains(peek) }
+		if (chars.isEmpty) throw ArgErr("Chars may not be empty")
+		return CharRule(Str.fromChars(chars).toCode(null), not) |Int peek->Bool| { chars.contains(peek) }
 	}
 	
 	** Matches any character *not* in the given list.  
@@ -279,10 +280,15 @@ mixin Rules {
 		FirstOfRule(rules)
 	}
 	
-	** A placeholder. 
+	** No operation - a placeholder. 
 	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
-	static Rule todo(Bool pass := false) {
-		NoOpRule("-TODO-", pass)
+	static Rule noop(Str msg := "-TODO-", Bool pass := false) {
+		NoOpRule(msg, pass)
+	}
+
+	** This rule throws an error if processed. 
+	static Rule err(Str msg := "-FAIL-") {
+		ErrRule(msg)
 	}
 
 	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.

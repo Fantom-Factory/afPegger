@@ -3,67 +3,52 @@
 internal class PegGrammar : Rules {
 	
 	private NamedRules rules() {
-		rules			:= NamedRules()
-		grammar			:= rules["grammar"]
-		line			:= rules["line"]
-		emptyLine		:= rules["emptyLine"]
-		commentLine		:= rules["commentLine"]
-		ruleDef			:= rules["ruleDef"]
-		ruleName		:= rules["ruleName"]
-		rule			:= rules["rule"]
-		_sequence		:= rules["sequence"]
-		_firstOf		:= rules["firstOf"]
-		expression		:= rules["expression"]
-		predicate		:= rules["predicate"]
-		multiplicity	:= rules["multiplicity"]
-		literal			:= rules["literal"]
-		chars			:= rules["chars"]
-		macro			:= rules["macro"]
-		dot				:= rules["dot"]
-		
-//		ruleDef			= ruleName WSP* ":" WSP* rule (NL / EOS)		// what of multiline?
-//		ruleName		= [a-z]i [a-z0-9]i*
-//
-//		rule			= firstOf / sequence / FAIL
-//		sequence		= expression (WSP+ expression)*
-//		firstOf			= expression WSP+ "/" WSP+ expression (WSP+ "/" WSP+ expression)*
-//		
-//		expression		= predicate? ("(" rule ")" / ruleName / literal / chars / dot) multiplicity?
-//		predicate		= "!" / "&"
-//		multiplicity	= "*" / "+" / "?"
-//		literal			= ("\"" (("\" [\\"fnrt]) / [^"])+ "\"") / ("'" (("\" [\\'fnrt]) / [^'])+ "'")
-//		chars			= "[" "^"? (("\" [\\"fnrt]) / ([a-zA-Z0-9] "-" [a-zA-Z0-9]) / [a-zA-Z0-9])+ "]" "i"?
-//		dot				= "."
-		
+		rules					:= NamedRules()
+		grammar					:= rules["grammar"]
+		line					:= rules["line"]
+		emptyLine				:= rules["emptyLine"]
+		commentLine				:= rules["commentLine"]
+		comment					:= rules["comment"]
+		ruleDef					:= rules["ruleDef"]
+		ruleName				:= rules["ruleName"]
+		rule					:= rules["rule"]
+		_sequence				:= rules["sequence"]
+		_firstOf				:= rules["firstOf"]
+		expression				:= rules["expression"]
+		type					:= rules["type"]
+		predicate				:= rules["predicate"]
+		multiplicity			:= rules["multiplicity"]
+		literal					:= rules["literal"]
+		chars					:= rules["chars"]
+		macro					:= rules["macro"]
+		dot						:= rules["dot"]
 		eos						:= eos			{ it.debug = false; it.useInResult = false }
-		WSP						:= spaceChar	{ it.debug = false; it.useInResult = false }
-		NL						:= newLineChar	{ it.debug = false; it.useInResult = false }
-		EOL						:= eol			{ it.debug = false; it.useInResult = false }
-		FAIL					:= NoOpRule("PEG parse FAIL", false)
-		
-		rules["grammar"]		= oneOrMore(sequence { onlyIfNot(eos), line } )
-		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, FAIL, }
-		rules["emptyLine"]		= sequence { zeroOrMore(WSP), EOL, }
-		rules["commentLine"]	= sequence { zeroOrMore(WSP), str("//"), zeroOrMore(WSP), zeroOrMore(newLineChar(true)).withName("comment"), EOL, }
+		wsp						:= spaceChar	{ it.debug = false; it.useInResult = false }
+		eol						:= eol			{ it.debug = false; it.useInResult = false }
+		fail					:= err("FAIL")
 
-		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(WSP), char('='), zeroOrMore(WSP), rule, EOL, }
+		rules["grammar"]		= oneOrMore(sequence { onlyIfNot(eos), line } )
+		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
+		rules["emptyLine"]		= sequence { zeroOrMore(wsp), eol, }
+		rules["commentLine"]	= sequence { zeroOrMore(wsp), str("//"), zeroOrMore(wsp), comment, eol, }
+		rules["comment"]		= zeroOrMore(newLineChar(true))
+
+		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(wsp), char('='), zeroOrMore(wsp), rule, eol, }
 		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
-		rules["rule"]			= firstOf  { _firstOf, _sequence, FAIL, }
-		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(WSP), expression, }), }
-		rules["firstOf"]		= sequence { expression, oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, zeroOrMore(sequence { oneOrMore(WSP), char('/'), oneOrMore(WSP), expression, }), }
+		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(wsp), expression, }), }
+		rules["firstOf"]		= sequence { expression, oneOrMore(wsp), char('/'), oneOrMore(wsp), expression, zeroOrMore(sequence { oneOrMore(wsp), char('/'), oneOrMore(wsp), expression, }), }
 
-		rules["expression"]		= sequence { optional(predicate), firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, FAIL, }.withName("type"), optional(multiplicity), }
+		rules["expression"]		= sequence { optional(predicate), type, optional(multiplicity), }
+		rules["type"]			= firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, fail, }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
 		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }
-		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), }
+		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), optional(sequence { char('('), zeroOrMore(charNotOf(")\n".chars)), char(')'), }), }
 		rules["dot"]			= char('.')
 		
-		// built in rules
-		
-		echo(rules.validate.definition)
 		return rules.validate
 	}
 	
@@ -72,8 +57,6 @@ internal class PegGrammar : Rules {
 			throw ParseErr("Could not match PEG")
 		if (match.name != "grammar")
 			throw UnsupportedErr("Unknown rule: ${match.name}")
-		
-		match.dump
 		
 		rules := NamedRules()
 		lines := match.matches
@@ -95,8 +78,7 @@ internal class PegGrammar : Rules {
 		if (match.name != "rule")
 			throw UnsupportedErr("Unknown rule: ${match.name}")
 
-		rule := fromRule(match.match, allRules)
-		return rule
+		return fromRule(match.match, allRules)
 	}
 
 	private Rule fromRule(PegMatch match, NamedRules? allRules) {
@@ -185,7 +167,17 @@ internal class PegGrammar : Rules {
 			case "eol"		: return Rules.eol
 			case "eos"		: return Rules.eos
 		}
+
+		if (macro.startsWith("\\err(") && macro.endsWith(")"))
+			return Rules.err(deEscape(macro[5..<-1]))
+		if (macro.startsWith("\\noop(") && macro.endsWith(")"))
+			return Rules.noop(deEscape(macro[6..<-1]))
+		
 		throw UnsupportedErr("Unknown macro: $macro")
+	}
+	
+	private Str deEscape(Str str) {
+		str.replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
 	}
 	
 	Rule parseRule(Str pattern) {
@@ -195,8 +187,7 @@ internal class PegGrammar : Rules {
 	Rule parseGrammar(Str grammar, Str? rootRuleName) {
 		ruleDefs := toRuleDefs(Peg(grammar, rules["grammar"]).match)
 		
-		echo(ruleDefs.definition)
-		
-		throw Err("fail")
+ 		echo(ruleDefs.definition)
+		return rootRuleName == null ? ruleDefs.rules.first : ruleDefs[rootRuleName]
 	}
 }

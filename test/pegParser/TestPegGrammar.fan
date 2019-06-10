@@ -55,6 +55,8 @@ class TestPegGrammar : Test {
 		verifyRule("\\ident"	, "[a-zA-Z_] [a-zA-Z0-9_]*")
 		verifyRule("\\eos"		, "\\eos")
 		verifyRule("\\eol"		, "\\eol")
+		verifyRule("\\err(FAIL)", "\\err(FAIL)")
+		verifyRule("\\noop(TODO)","\\noop(TODO)")
 	}
 	
 	Void testMultiplicity() {
@@ -79,8 +81,14 @@ class TestPegGrammar : Test {
 	}
 	
 	Void testGrammar() {
-		Peg.debugOn
-		verifyLine("eol = nl / eos")
+		verifyLine("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
+
+		// diff symbols
+		
+		// multi-defs
+		
+		// empty lines
+		verifyLine("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
 	}
 	
 	
@@ -122,7 +130,7 @@ class TestPegGrammar : Test {
 	}
 	
 	private Void verifyLine(Str in, Str out := in) {
-		verifyEq(out, Peg.parseGrammar(in, null).expression)
+		verifyEq(out, Peg.parseGrammar(in, null).definition)
 	}
 	
 //	private PegMatch? parseRule(Str in) {
