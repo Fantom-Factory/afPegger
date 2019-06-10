@@ -19,6 +19,8 @@ internal class PegGrammar : Rules {
 		predicate				:= rules["predicate"]
 		multiplicity			:= rules["multiplicity"]
 		literal					:= rules["literal"]
+		singleQuote				:= rules["singleQuote"] { it.useInResult = false }
+		doubleQuote				:= rules["doubleQuote"] { it.useInResult = false }
 		chars					:= rules["chars"]
 		macro					:= rules["macro"]
 		dot						:= rules["dot"]
@@ -44,7 +46,9 @@ internal class PegGrammar : Rules {
 		rules["type"]			= firstOf  { sequence { char('('), zeroOrMore(sp), rule, zeroOrMore(sp), char(')'), }, ruleName, literal, chars, macro, dot, fail, }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
-		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
+		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }
+		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }
+		rules["doubleQuote"]	= sequence { char('"' ), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"' ), }), char('"' ), optional(char('i')), }
 		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }
 		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), optional(sequence { char('('), zeroOrMore(charNotOf(")\n".chars)), char(')'), }), }
 		rules["dot"]			= char('.')

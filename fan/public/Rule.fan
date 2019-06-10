@@ -12,6 +12,8 @@ abstract class Rule {
 	** 
 	**   syntax: fantom 
 	**   Rule.fromPattern("[abc] / [xyz]")
+	** 
+	** See `Peg.parseRule`
 	static new fromPattern(Str pattern) {
 		PegGrammar().parseRule(pattern)
 	}

@@ -1,14 +1,12 @@
 
-// TODO Peg Methods
-** 
-** pegMatch.walk |???| {  }
+** Parsing Expression Grammar (PEG)
 ** 
 @Js
 class Peg {
 	private PegCtx	pegCtx
 	private Rule	rule
 	
-	** Creates a PEG class ready to match the given string with the given rule.
+	** Creates a PEG class ready to match the given string and rule.
 	new make(Str str, Rule rule) {
 		this.rule	= rule
 		this.pegCtx	= PegCtx(str, rule)
@@ -19,6 +17,8 @@ class Peg {
 	** 
 	**   syntax: fantom 
 	**   Peg(str, Peg.parsePattern(pattern))
+	** 
+	** See `parseRule`
 	new makePattern(Str str, Str pattern) {
 		this.rule	= Peg.parseRule(pattern)
 		this.pegCtx	= PegCtx(str, rule)
@@ -36,16 +36,20 @@ class Peg {
 	** 
 	**   syntax: fantom 
 	**   parseRule("[abc] / [xyz]")
+	** 
+	** See `Rule.fromPattern`
 	static Rule parseRule(Str pattern) {
 		PegGrammar().parseRule(pattern)
 	}
 	
-	** Parses grammar definitions, and returns the root rule (if given) or the first rule parsed.
+	** Parses a list grammar definitions.
 	** For example:
 	** 
 	**   syntax: fantom 
 	**   parseGrammar("a <- [abc] / [xyz] / b
 	**                 b <- \space+ [^abc]")
+	** 
+	** See `Grammar.fromDefs`
 	static Grammar parseGrammar(Str grammar) {
 		PegGrammar().parseGrammar(grammar)
 	}
@@ -59,9 +63,11 @@ class Peg {
 	
 	// ---- Instance methods ----
 
-	// FIXME Int startOffset
 	** Searches for the next match and returns the matched string (if any).
-	Str? search() {
+	Str? search(Int? offset := null) {
+		if (offset != null)
+			pegCtx.rollbackTo(offset)
+
 		c := pegCtx.cur
 		m := null as Match
 		while (m == null && !pegCtx.eos) {

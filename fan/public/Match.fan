@@ -68,7 +68,7 @@ class Match {
 		return buf.toStr
 	}
 
-	// FIXME
+	// FIXME walk
 //	Void walk(|Match| start, |Match| end) {
 //		
 //	}

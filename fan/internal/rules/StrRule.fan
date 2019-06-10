@@ -15,12 +15,12 @@ internal class StrRule : Rule {
 		ignore := sClass[-1] == 'i'
 		if (ignore) sClass = sClass[0..<-1]
 
-		if (sClass[0] != '\"' && sClass[-1] != '\"')
+		if ((sClass[0] != '"' && sClass[-1] != '"') && (sClass[0] != '\'' && sClass[-1] != '\''))
 			throw ParseErr("Invalid str class: $str")
 		sClass = sClass[1..<-1]
 
 		// de-escape chars
-		sClass = sClass.replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
+		sClass = sClass.replace("\\'", "'").replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
 
 		return StrRule(sClass, ignore)
 	}

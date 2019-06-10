@@ -31,6 +31,18 @@ class Grammar {
 	private Str:Rule 		_rules		:= Str:Rule[:] { it.ordered = true } 
 	private Str:ProxyRule	_proxies	:= Str:ProxyRule[:] 
 	
+	** Parses grammar definitions, and returns the root rule (if given) or the first rule parsed.
+	** For example:
+	** 
+	**   syntax: fantom 
+	**   Grammar.fromDefs("a <- [abc] / [xyz] / b
+	**                     b <- \space+ [^abc]")
+	** 
+	** See `Peg.parseGrammar`
+	static Grammar fromDefs(Str grammar) {
+		PegGrammar().parseGrammar(grammar)
+	}
+	
 	** Returns a proxy to the named rule.
 	@Operator
 	Rule get(Str name) {
