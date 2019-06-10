@@ -38,7 +38,7 @@ internal class Result {
 	}
 	
 	Range matchedRange(Str in) {
-		strStart..<strEnd.min(in.size)
+		strStart.min(in.size)..<strEnd.min(in.size)
 	}
 	
 	Int matchedSize() {

@@ -105,8 +105,8 @@ internal class CharRule : Rule {
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
-		chr := ctx.readChar
-		res := chr == 0 ? false : func(chr)
+		if (ctx.eos) return false
+		res := func(ctx.readChar)
 		return not ? !res : res
 	}
 	

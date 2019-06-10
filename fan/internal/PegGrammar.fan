@@ -27,9 +27,6 @@ internal class PegGrammar : Rules {
 		eol						:= eol { it.debug = false; it.useInResult = false }
 		fail					:= err ("FAIL")
 
-//		eos						= eos { it.useInResult = false }
-//		eol						= eol { it.useInResult = false }
-
 		rules["grammar"]		= oneOrMore(sequence { onlyIfNot(eos), line } )
 		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
 		rules["emptyLine"]		= sequence { zeroOrMore(sp), eol, }
@@ -40,7 +37,7 @@ internal class PegGrammar : Rules {
 		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
-		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, }), }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, /* TODO trailing whitespace fails here - see other fail()s */}), }
 		rules["firstOf"]		= sequence { expression, zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, zeroOrMore(sequence { zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, }), }
 
 		rules["expression"]		= sequence { optional(predicate), type, optional(multiplicity), }

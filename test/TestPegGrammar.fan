@@ -81,7 +81,6 @@ class TestPegGrammar : Test {
 	}
 	
 	Void testGrammar() {
-		Peg.debugOn
 		verifyDefs("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
 
 		// diff symbols
@@ -92,25 +91,19 @@ class TestPegGrammar : Test {
 		verifyDefs("a <- [bc] [de]\nb <- [bc] [de]", "a <- [bc] [de]\nb <- [bc] [de]")
 		
 		// empty lines
-		Peg.debugOn
-		verifyDefs("  \n\n  \na = [bc] [de] \n\n  \n  ", "a <- [bc] [de]")
+		verifyDefs("  \n\n  \na = [bc] [de]\n\n  \n  ", "a <- [bc] [de]")
 		
 		// comments
-		fail("TODO")
+		verifyDefs("// comment\n  # comment\na = [bc] [de]", "a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de]\n // comment", "a <- [bc] [de]")
 	}
 	
 	Void testPegCanParseItself() {
-		Peg.debugOn(false)
-
 		echo
 		PegGrammar.pegGrammar.definition { echo(it) }
-		echo
 
-		defsIn  := PegGrammar.pegGrammar   .rules.join("\n") { it.definition }
-		defsOut := Peg.parseGrammar(defsIn).rules.join("\n") { it.definition }
-
-		echo(defsOut)
-		
+		defsIn  := PegGrammar.pegGrammar   .definition
+		defsOut := Peg.parseGrammar(defsIn).definition
 		verifyEq(defsIn, defsOut)
 	}
 	
