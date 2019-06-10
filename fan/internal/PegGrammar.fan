@@ -15,6 +15,7 @@ internal class PegGrammar : Rules {
 		_sequence				:= rules["sequence"]
 		_firstOf				:= rules["firstOf"]
 		expression				:= rules["expression"]
+		label					:= rules["label"]
 		type					:= rules["type"]
 		predicate				:= rules["predicate"]
 		multiplicity			:= rules["multiplicity"]
@@ -36,13 +37,14 @@ internal class PegGrammar : Rules {
 		rules["comment"]		= zeroOrMore(newLineChar(true))
 
 		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(sp), firstOf { char('='), str("<-")}, zeroOrMore(sp), rule, zeroOrMore(sp), eol, }
-		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
+		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, /* TODO trailing whitespace fails here - see other fail()s */}), }
 		rules["firstOf"]		= sequence { expression, zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, zeroOrMore(sequence { zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, }), }
 
-		rules["expression"]		= sequence { optional(predicate), type, optional(multiplicity), }
+		rules["expression"]		= sequence { optional(predicate), optional(sequence { label, char(':') } ), type, optional(multiplicity), }
+		rules["label"]			= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
 		rules["type"]			= firstOf  { sequence { char('('), zeroOrMore(sp), rule, zeroOrMore(sp), char(')'), }, ruleName, literal, chars, macro, dot, fail, }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
@@ -126,6 +128,7 @@ internal class PegGrammar : Rules {
 		exType	:= match["type"] as Match
 		multi	:= match["multiplicity"]?.matched
 		pred	:= match["predicate"]?.matched
+		label	:= match["label"]?.matched
 		exName	:= exType.match.name
 		exRule	:= null as Rule
 
@@ -154,6 +157,9 @@ internal class PegGrammar : Rules {
 				default		: throw UnsupportedErr("Unknown predicate: ${pred}")
 			}
 		
+		if (label != null && exRule.name == null)
+			exRule.name = label
+
 		return exRule
 	}
 	
@@ -165,24 +171,27 @@ internal class PegGrammar : Rules {
 	
 	private Rule fromMacro(Str macro) {
 		switch (macro[1..-1]) {
-			case "n"		: return Rules.newLineChar
-			case "space"	: return Rules.spaceChar
-			case "white"	: 
-			case "s"		: return Rules.whitespaceChar
-			case "S"		: return Rules.whitespaceChar(true)
-			case "digit"	: 
-			case "d"		: return Rules.numChar
-			case "D"		: return Rules.numChar(true)
-			case "letter"	: 
 			case "a"		: return Rules.alphaChar
-			case "A"		: return Rules.alphaChar(true)
+			case "d"		: return Rules.numChar
+			case "n"		: return Rules.newLineChar
+			case "s"		: return Rules.whitespaceChar
 			case "w"		: return Rules.wordChar
-			case "W"		: return Rules.wordChar(true)
-			case "upper"	: return Rules.charIn('A'..'Z')
-			case "lower"	: return Rules.charIn('a'..'z')
-			case "ident"	: return Rules.sequence { Rules.charRule("[a-zA-Z_]"), Rules.zeroOrMore(Rules.wordChar), }
+			case "sp"		: return Rules.spaceChar
 			case "eol"		: return Rules.eol
 			case "eos"		: return Rules.eos
+
+			// todo do I actually want all these macros?
+//			case "A"		: return Rules.alphaChar(true)
+//			case "D"		: return Rules.numChar(true)
+//			case "S"		: return Rules.whitespaceChar(true)
+//			case "W"		: return Rules.wordChar(true)
+//			case "space"	: return Rules.spaceChar
+//			case "white"	: return Rules.whitespaceChar
+//			case "digit"	: return Rules.numChar
+//			case "letter"	: return Rules.alphaChar
+//			case "upper"	: return Rules.charIn('A'..'Z')
+//			case "lower"	: return Rules.charIn('a'..'z')
+//			case "ident"	: return Rules.sequence { Rules.charRule("[a-zA-Z_]"), Rules.zeroOrMore(Rules.wordChar), }
 		}
 
 		if (macro.startsWith("\\err(") && macro.endsWith(")"))

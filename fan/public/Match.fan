@@ -73,6 +73,9 @@ class Match {
 //		
 //	}
 	
+	@NoDoc
+	override Str toStr() { matched }
+	
 	// chars from `https://atom.io/packages/ascii-tree`
 	private Void doDump(StrBuf buf, Bool[] indent) {
 		buf.add(name ?: rule.expression)

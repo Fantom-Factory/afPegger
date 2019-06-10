@@ -9,6 +9,9 @@ http://bford.info/packrat/
 
 https://nim-lang.org/docs/pegs.html
 
+
+Create afBnfParser -> with one Bnf class!
+
 CSS
 https://developer.mozilla.org/en-US/docs/Web/CSS/Syntax
 https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
