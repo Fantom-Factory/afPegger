@@ -2,6 +2,7 @@
 @Js
 internal class Result {
 			Rule 		rule	{ private set }
+			Result?		parent
 	private Result[]?	resultList
 	private Int			strStart
 	private Int			strEnd
@@ -49,15 +50,15 @@ internal class Result {
 		matches(in).find { it.name == name }
 	}
 	
-	Match match(Str in) {
-		if (_match == null) _match = Match(this, in)
+	Match match(Result? parent, Str in) {
+		if (_match == null) _match = Match(this, in) { this.parent = parent }
 		return _match
 	}
 	
 	Match[] matches(Str in) {
 		if (_matches == null)
 			// only bring back noteworthy nodes that actually consumed content
-			_matches = resultList?.findAll { !it.matchedRange(in).isEmpty && it.hasNamedRules }?.map { it.findNamedMatches(in) }?.flatten ?: Match#.emptyList
+			_matches = resultList?.findAll { !it.matchedRange(in).isEmpty && it.hasNamedRules }?.map { it.findNamedMatches(this, in) }?.flatten ?: Match#.emptyList
 		return _matches
 	}
 	
@@ -65,12 +66,12 @@ internal class Result {
 		(rule.name != null && rule.useInResult)|| (resultList != null && resultList.any { it.hasNamedRules })
 	}
 	
-	private Obj findNamedMatches(Str in) {
+	private Obj findNamedMatches(Result? parent, Str in) {
 		if (rule.name != null && rule.useInResult)
-			return match(in)
+			return match(parent, in)
 		if (resultList == null)
 			return Match#.emptyList
-		return resultList.map { it.findNamedMatches(in) }
+		return resultList.map { it.findNamedMatches(parent, in) }
 	}
 	
 	@NoDoc

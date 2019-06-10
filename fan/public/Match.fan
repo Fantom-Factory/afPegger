@@ -2,9 +2,11 @@
 ** Represents a PEG match result.
 @Js
 class Match {
-	
 	private Result	result
 	private Str		in
+	
+	** Storage for user data - use when investigating match results.
+	[Str:Obj?]?		data
 	
 	internal new make(Result result, Str in) {
 		this.result = result
@@ -21,13 +23,6 @@ class Match {
 	Match? getMatch(Str name) {
 		result.findMatch(name, in)
 	}
-	
-//	** Returns the matched group at the given index.
-//	@Operator
-//	Str? getGroup(Int groupNum) {
-//		// TODO PegMatch.getGroup(Int) -> keyValPair <-- \s* {\w+} \s* '=' \s* {\w+}
-//		throw UnsupportedErr()
-//	}
 	
 	** Returns the first match.
 	@NoDoc	// I'm not sure I like this name - I may delete it...?
@@ -50,6 +45,11 @@ class Match {
 		result.matchedRange(in)
 	}
 
+	** Returns the parent Match in the tree, or 'null' if this is the root.
+	Match? parent() {
+		result.parent?.match(null, in)	// null is fine, as we've already set the parent
+	}
+	
 	** Returns the rule associated with this match.
 	Rule rule() {
 		result.rule
@@ -68,10 +68,13 @@ class Match {
 		return buf.toStr
 	}
 
-	// FIXME walk
-//	Void walk(|Match| start, |Match| end) {
-//		
-//	}
+	** Walks the match tree, calling the given funcs as it steps in to, and out of, a 'Match'.
+	** Start with *this* 'Match'. 
+	Void walk(|Match|? start, |Match|? end) {
+		start?.call(this)
+		matches.each { it.walk(start, end) }
+		end?.call(this)
+	}
 	
 	@NoDoc
 	override Str toStr() { matched }

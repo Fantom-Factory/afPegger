@@ -96,7 +96,7 @@ internal class PegCtx {
 
 	Match doSuccess() {
 		rootResult.success(in)
-		return rootResult.match(in)
+		return rootResult.match(null, in)
 	}
 
 	PegParseErr parseErr(Str errMsg) {
