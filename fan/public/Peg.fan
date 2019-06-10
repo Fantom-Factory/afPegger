@@ -1,14 +1,10 @@
 
 // TODO Peg Methods
-** Peg.parseRule("...")
-** Peg.parseGrammar("...", <rootRuleName>)
-** 
-** Peg("str", "...").replace("Steve \2{backRef}")
-** Peg("str", "...").replaceAll("...")
 ** 
 ** pegMatch.walk |???| {  }
 ** 
-@Js class Peg {
+@Js
+class Peg {
 	private PegCtx	pegCtx
 	private Rule	rule
 	
@@ -24,10 +20,12 @@
 	**   syntax: fantom 
 	**   Peg(str, Peg.parsePattern(pattern))
 	new makePattern(Str str, Str pattern) {
-		this.rule	= Peg.parsePattern(pattern)
+		this.rule	= Peg.parseRule(pattern)
 		this.pegCtx	= PegCtx(str, rule)
 	}
 
+	// ---- Static methods ----
+	
 	** Turns debug messaging on and off.
 	static Void debugOn(Bool debug := true) {
 		Peg#.pod.log.level = debug ? LogLevel.debug : LogLevel.info
@@ -38,8 +36,8 @@
 	** 
 	**   syntax: fantom 
 	**   parseRule("[abc] / [xyz]")
-	static Rule parsePattern(Str pattern) {
-		PegGrammar().parsePattern(pattern)
+	static Rule parseRule(Str pattern) {
+		PegGrammar().parseRule(pattern)
 	}
 	
 	** Parses grammar definitions, and returns the root rule (if given) or the first rule parsed.
@@ -48,15 +46,24 @@
 	**   syntax: fantom 
 	**   parseGrammar("a <- [abc] / [xyz] / b
 	**                 b <- \space+ [^abc]")
-	static Rule[] parseGrammar(Str grammar) {
+	static Grammar parseGrammar(Str grammar) {
 		PegGrammar().parseGrammar(grammar)
 	}
 	
+	** Returns the grammar PEG uses to parse PEG grammar.
+	** 
+	** It's not particularly useful, but it may be interesting to some.
+	static Grammar pegGrammar() {
+		PegGrammar.pegGrammar
+	}
+	
+	// ---- Instance methods ----
+
 	// FIXME Int startOffset
 	** Searches for the next match and returns the matched string (if any).
 	Str? search() {
 		c := pegCtx.cur
-		m := null as PegMatch
+		m := null as Match
 		while (m == null && !pegCtx.eos) {
 			m = match
 			if (m == null)
@@ -73,14 +80,14 @@
 	}
 	
 	// TODO replace()
-//	Str replace(Str replacePattern, Int startOffset := 0) { "" }
+//	Str replace(Str replacePattern, Int startOffset := 0) { "" } // replace("Steve \2{backRef}")
 //	Str replaceAll(Str replacePattern) { "" }
 	
 //	Str replaceFn(Str replacePattern) |PegMatch m -> Str| { "" }
 //	Str replaceAllFn(Str replacePattern) |PegMatch m -> Str| { "" }
 	
 	** Runs the PEG rule against the string.
-	PegMatch? match() {
+	Match? match() {
 		pegCtx.clearResults.process(rule)
 			? pegCtx.doSuccess
 			: null
@@ -99,7 +106,7 @@
 	}
 	
 	** Calls the given function for each rule match found in the string.
-	Void each(|PegMatch| fn) {
+	Void each(|Match| fn) {
 		m := match
 		while (m != null) {
 			fn(m)
@@ -109,7 +116,7 @@
 
 	** Calls the given function for each rule match found, until a non-null result is returned.
 	** If there are no matches, null is returned.
-	Obj? eachWhile(|PegMatch->Obj?| fn) {
+	Obj? eachWhile(|Match->Obj?| fn) {
 		r := null
 		m := match
 		while (m != null && r == null) {

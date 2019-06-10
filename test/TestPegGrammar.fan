@@ -94,18 +94,17 @@ class TestPegGrammar : Test {
 		verifyDefs(" \n\n  \n  a  = [bc] [de] \n\n  \n  ", "a <- [bc] [de]")
 		
 		// comments
-		verifyDefs(" \n\n  \n  a  = [bc] [de] \n\n  \n  ", "a <- [bc] [de]")
+		fail()
 	}
-	
 	
 	Void testPegCanParseItself() {
 //		Peg.debugOn
 
-		defsIn  := PegGrammar().rules.rules.join("\n") { it.definition }
-		defsOut := Peg.parseGrammar(defsIn).join("\n") { it.definition }
+		defsIn  := PegGrammar.pegGrammar   .rules.join("\n") { it.definition }
+		defsOut := Peg.parseGrammar(defsIn).rules.join("\n") { it.definition }
 
 		echo
-		PegGrammar().rules.definition { echo(it) }
+		PegGrammar.pegGrammar.definition { echo(it) }
 		echo
 		echo(defsOut)
 		
@@ -113,20 +112,11 @@ class TestPegGrammar : Test {
 	}
 	
 	private Void verifyRule(Str in, Str out := in) {
-		verifyEq(out, Peg.parsePattern(in).expression)
+		verifyEq(out, Peg.parseRule(in).expression)
 	}
 	
 	private Void verifyDefs(Str in, Str out := in) {
-		defs := PegGrammar().toRuleDefs(Peg(in,  PegGrammar().rules["grammar"]).match).definition.trim
+		defs := PegGrammar().parseGrammar(in).definition.trim
 		verifyEq(out, defs)
 	}
-	
-//	private PegMatch? parseRule(Str in) {
-//		Peg(in, PegGrammar().rule).match
-//	}
-//	
-//	private PegMatch? parsePeg(Str in) {
-//		Peg(in, PegGrammar().grammar).match
-//	}
-	
 }

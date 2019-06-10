@@ -29,7 +29,7 @@ internal class HtmlParser {
 internal class HtmlRules : Rules {
 
 	Rule rootRule() {
-		rules := NamedRules()
+		rules := Grammar()
 
 		dom								:= rules["dom"]
 		blurb							:= rules["blurb"]

@@ -1,6 +1,7 @@
 
-** Represents PEG match result.
-@Js class PegMatch {
+** Represents a PEG match result.
+@Js
+class Match {
 	
 	private Result	result
 	private Str		in
@@ -17,25 +18,25 @@
 
 	** Returns the first match with the given rule name.
 	@Operator
-	PegMatch? getMatch(Str name) {
+	Match? getMatch(Str name) {
 		result.findMatch(name, in)
 	}
 	
-	** Returns the matched group at the given index.
-	@Operator
-	Str? getGroup(Int groupNum) {
-		// TODO PegMatch.getGroup(Int) -> keyValPair <-- \s* {\w+} \s* '=' \s* {\w+}
-		throw UnsupportedErr()
-	}
+//	** Returns the matched group at the given index.
+//	@Operator
+//	Str? getGroup(Int groupNum) {
+//		// TODO PegMatch.getGroup(Int) -> keyValPair <-- \s* {\w+} \s* '=' \s* {\w+}
+//		throw UnsupportedErr()
+//	}
 	
 	** Returns the first match.
-	@NoDoc	// I may remove this...?
-	PegMatch match() {
+	@NoDoc	// I'm not sure I like this name - I may delete it...?
+	Match match() {
 		matches.first
 	}
 
 	** Returns all sub-mataches.
-	PegMatch[] matches() {
+	Match[] matches() {
 		result.matches(in)
 	}
 	

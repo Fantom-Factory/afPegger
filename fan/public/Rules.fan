@@ -1,27 +1,12 @@
 
 ** (Advanced) 
-** A collection of PEG rules, use when creating grammar in Fantom code.
+** A collection of utility methods that return PEG rules.
+** 
+** Use when programmatically creating PEG grammar.
 @Js
 mixin Rules {
 	
-	** Matches if the of the stream (EOS) is reached.
-	**  
-	** Example PEG notation:
-	** 
-	**   \eos
-	static Rule eos() {
-		EosRule()
-	}
-	
-	** Matches end of line (or the end of the stream).
-	**  
-	** Example PEG notation:
-	** 
-	**   \nl / \eos
-	static Rule eol() {
-		EolRule()
-//		firstOf { newLineChar, eos, }
-	}
+	// ---- Str rules -----------------------------------------------------------------------------
 	
 	** Matches the given string. 
 	** 
@@ -40,7 +25,9 @@ mixin Rules {
 	static Rule strNot(Str string, Bool ignoreCase := false) {
 		StrNotRule(string, ignoreCase)
 	}
-	
+
+	// ---- Char rules ----------------------------------------------------------------------------
+
 	** Matches any character.  
 	** 
 	** PEG notation:
@@ -180,6 +167,8 @@ mixin Rules {
 		CharRule.fromStr("[" + (not ? "^" : "") + "\\n]")
 	}
 
+	// ---- Repetition rules ----------------------------------------------------------------------
+
 	** Processes the given rule and returns success whether it passes or not. 
 	** 
 	** Example PEG notation:
@@ -248,6 +237,8 @@ mixin Rules {
 		RepetitionRule(times.min, times.max, rule)
 	}
 
+	// ---- Expression rules ----------------------------------------------------------------------
+	
 	** Processes the given rules in order until.
 	** Returns success if they all succeeded.
 	** 
@@ -279,31 +270,9 @@ mixin Rules {
 	static Rule firstOf(Rule[] rules := Rule[,]) {
 		FirstOfRule(rules)
 	}
+
+	// ---- Predicate rules -----------------------------------------------------------------------
 	
-	** No operation - a placeholder. 
-	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
-	static Rule noop(Str msg := "-TODO-", Bool pass := false) {
-		NoOpRule(msg, pass)
-	}
-
-	** This rule throws an error if processed. 
-	static Rule err(Str msg := "-FAIL-") {
-		ErrRule(msg)
-	}
-
-	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
-	** Useful for inserting arbitrary actions in sequences:
-	** 
-	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
-	static Rule doAction(|Str|? action) {
-		NoOpRule("-Action-", true).withAction(action)
-	}
-
-	// TODO: conflicts with Test.fail() in tests!
-//	** The rule will always fail.
-//	static Rule fail(Str expression := "-Fail-") {
-//		NoOpRule(expression, false)
-//	}
 	
 	** Processes the given rule and return success if it succeeded.
 	** The rule is always rolled back so the characters may be subsequently re-read. 
@@ -323,5 +292,52 @@ mixin Rules {
 	**   !(rule)
 	static Rule onlyIfNot(Rule rule) {
 		PredicateRule(rule, true)
+	}
+
+	// ---- Macro rules ---------------------------------------------------------------------------
+
+	** Matches if the of the stream (EOS) is reached.
+	**  
+	** Example PEG notation:
+	** 
+	**   \eos
+	static Rule eos() {
+		EosRule()
+	}
+	
+	** Matches end of line (or the end of the stream).
+	**  
+	** Example PEG notation:
+	** 
+	**   \nl / \eos
+	static Rule eol() {
+		EolRule()
+	}
+	
+	** No operation - a placeholder. 
+	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
+	** 
+	** Example PEG notation:
+	** 
+	**   \\noop(TODO)
+	static Rule noop(Str msg := "TODO") {
+		NoOpRule(msg)
+	}
+
+	** This rule throws an error if processed. 
+	** 
+	** Example PEG notation:
+	** 
+	**   \\fail(FAIL)
+	static Rule err(Str msg := "FAIL") {
+		ErrRule(msg)
+	}
+
+	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
+	** Useful for inserting arbitrary actions in sequences:
+	** 
+	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
+	static Rule doAction(|Str|? action) {
+		NoOpRule("-Action-").withAction(action)
 	}
 }

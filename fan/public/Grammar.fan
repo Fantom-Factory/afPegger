@@ -1,8 +1,33 @@
 
 ** (Advanced) 
-** A helper class that lets you reference Rules before they're defined.
+** Use to programmatically define PEG rules.
+** 
+** Rules may be used before they, themselves are defined:
+** 
+**   syntax: fantom
+**   grammar := Grammar()
+**   grammar["a"] := Rules.sequence { grammar["b"], grammar["c"], }
+**   grammar["b"] := Rules.zeroOrMore(Rules.spaceChar)
+**   grammar["c"] := Rules.oneOrMore(Rules.alphaNumChar)
+** 
+** Sometimes it's easier to hold rules in local variables:
+** 
+**   syntax: fantom
+**   grammar := Grammar()
+**   
+**   a            := grammar["a"]
+**   b            := grammar["b"]
+**   c            := grammar["c"]
+** 
+**   grammar["a"] := Rules.sequence { b, c, }
+**   grammar["b"] := Rules.zeroOrMore(Rules.spaceChar)
+**   grammar["c"] := Rules.oneOrMore(Rules.alphaNumChar)
+** 
+** All named rules must be defined before the grammar is used.
+** 
+** It is not mandatory to use the 'Grammar' class to create rules and grammars, but it is usually easier.
 @Js
-class NamedRules {
+class Grammar {
 	private Str:Rule 		_rules		:= Str:Rule[:] { it.ordered = true } 
 	private Str:ProxyRule	_proxies	:= Str:ProxyRule[:] 
 	
@@ -14,19 +39,19 @@ class NamedRules {
 		return _proxies[name]
 	}
 	
-	** Sets the real implementation of the named rule.
+	** Sets the real implementation / definition of the named rule.
 	@Operator
 	Rule set(Str name, Rule rule) {
 		_rules[name] = rule
 		return rule
 	}
 	
-	** Returns all named rules.
+	** Returns all the named rules.
 	Rule[] rules() {
-		_rules.vals
+		validate._rules.vals
 	}
 	
-	** Returns the grammar definition
+	** Pretty prints the grammar definition.
 	Str definition() {
 		max := (Int) _rules.keys.reduce(0) |Int max, name| { max.max(name.size) }
 		buf := StrBuf()
@@ -51,10 +76,10 @@ class NamedRules {
 
 @Js
 internal class ProxyRule : Rule {
-	private NamedRules 	rules
+	private Grammar 	rules
 	private Rule?		ruleForReal
 
-	new make(NamedRules rules, Str name) {
+	new make(Grammar rules, Str name) {
 		this.name		= name
 		this.rules		= rules
 	}
@@ -93,7 +118,8 @@ internal class ProxyRule : Rule {
 
 ** A simple implementation of `NotFoundErr`.
 ** This class can not extend 'ArgErr' due to [Cannot extend sys Errs in Javascript]`http://fantom.org/forum/topic/2468`.
-@Js internal const class ArgNotFoundErr : Err {
+@Js
+internal const class ArgNotFoundErr : Err {
 	const Str?[] availableValues
 	
 	new make(Str msg, Obj?[] availableValues, Err? cause := null) : super.make(msg, cause) {

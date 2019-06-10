@@ -1,9 +1,9 @@
 
 @Js
 internal class PegGrammar : Rules {
-	
-	internal NamedRules rules() {
-		rules					:= NamedRules()
+
+	static Grammar pegGrammar() {
+		rules					:= Grammar()
 		grammar					:= rules["grammar"]
 		line					:= rules["line"]
 		emptyLine				:= rules["emptyLine"]
@@ -52,48 +52,60 @@ internal class PegGrammar : Rules {
 		return rules.validate
 	}
 	
-	internal NamedRules toRuleDefs(PegMatch? match) {
+	Rule parseRule(Str pattern) {
+		peg := Peg(pattern, pegGrammar["rule"])
+		return toRule(peg.match, null)
+	}
+	
+	Grammar parseGrammar(Str grammar) {
+		peg := Peg(grammar, pegGrammar["grammar"])
+		return toGrammar(peg.match)
+	}
+
+	// ---- Helper methods ----
+	
+	private Grammar toGrammar(Match? match) {
 		if (match == null)
 			throw ParseErr("Could not match PEG")
 		if (match.name != "grammar")
 			throw UnsupportedErr("Unknown rule: ${match.name}")
 		
-		rules := NamedRules()
+		newGrammar := Grammar()
 		lines := match.matches
 		lines.each |line| {
 			if (line.match.name == "ruleDef") {
 				def  := line.match
 				name := def["ruleName"].matched
-				rule := toRule(def["rule"], rules)
+				rule := toRule(def["rule"], newGrammar)
 				rule.name = name
-				rules[name] = rule
+				newGrammar[name] = rule
 			}
 		}
-		return rules.validate
+		return newGrammar.validate
 	}
 
-	private Rule toRule(PegMatch? match, NamedRules? allRules) {
+	private Rule toRule(Match? match, Grammar? newGrammar) {
 		if (match == null)
 			throw ParseErr("Could not match PEG")
 		if (match.name != "rule")
 			throw UnsupportedErr("Unknown rule: ${match.name}")
 
-		return fromRule(match.match, allRules)
+		return fromRule(match.match, newGrammar)
 	}
 
-	private Rule fromRule(PegMatch match, NamedRules? allRules) {
+	private Rule fromRule(Match match, Grammar? newGrammar) {
 		rule := null as Rule
 		switch (match.name) {
 			case "sequence":
 				if (match.matches.size == 1)
-					rule = fromExpression(match.match, allRules)
+					rule = fromExpression(match.match, newGrammar)
 				else {
-					rules := match.matches.map { fromExpression(it, allRules) }
+					rules := match.matches.map { fromExpression(it, newGrammar) }
 					rule = Rules.sequence(rules)
 				}
 
 			case "firstOf":
-				rules := match.matches.map { fromExpression(it, allRules) }
+				rules := match.matches.map { fromExpression(it, newGrammar) }
 				rule = Rules.firstOf(rules)
 			
 			default:
@@ -102,19 +114,19 @@ internal class PegGrammar : Rules {
 		return rule
 	}
 	
-	private Rule fromExpression(PegMatch match, NamedRules? allRules) {
+	private Rule fromExpression(Match match, Grammar? newGrammar) {
 		if (match.name != "expression")
 			throw ArgErr("Match should be 'expression', not '${match.name}'")
 
-		exType	:= match["type"] as PegMatch
+		exType	:= match["type"] as Match
 		multi	:= match["multiplicity"]?.matched
 		pred	:= match["predicate"]?.matched
 		exName	:= exType.match.name
 		exRule	:= null as Rule
 
 		switch (exName) {
-			case "rule"		: exRule = fromRule(exType.match.match, allRules)
-			case "ruleName"	: exRule = fromRuleName(exType.matched, allRules)
+			case "rule"		: exRule = fromRule(exType.match.match, newGrammar)
+			case "ruleName"	: exRule = fromRuleName(exType.matched, newGrammar)
 			case "literal"	: exRule = StrRule.fromStr(exType.matched)
 			case "chars"	: exRule = CharRule.fromStr(exType.matched)
 			case "macro"	: exRule = fromMacro(exType.matched)
@@ -140,10 +152,10 @@ internal class PegGrammar : Rules {
 		return exRule
 	}
 	
-	private Rule fromRuleName(Str ruleName, NamedRules? rules) {
-		if (rules == null)
-			throw ParseErr("Patterns may not contain named rules")
-		return rules[ruleName]
+	private Rule fromRuleName(Str ruleName, Grammar? newGrammar) {
+		if (newGrammar == null)
+			throw ParseErr("Patterns may not contain custom Grammar")
+		return newGrammar[ruleName]
 	}
 	
 	private Rule fromMacro(Str macro) {
@@ -178,13 +190,5 @@ internal class PegGrammar : Rules {
 	
 	private Str deEscape(Str str) {
 		str.replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
-	}
-	
-	Rule parsePattern(Str pattern) {
-		toRule(Peg(pattern, rules["rule"]).match, null)
-	}
-	
-	Rule[] parseGrammar(Str grammar) {
-		toRuleDefs(Peg(grammar, rules["grammar"]).match).rules
 	}
 }

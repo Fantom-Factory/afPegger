@@ -1,5 +1,6 @@
 
-@Js internal class EosRule : Rule {
+@Js
+internal class EosRule : Rule {
 
 	override Bool doProcess(PegCtx ctx) {
 		ctx.eos

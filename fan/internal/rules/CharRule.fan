@@ -1,6 +1,7 @@
 
 ** This is its own rule class to override the expression
-@Js internal class AnyCharRule : Rule {
+@Js
+internal class AnyCharRule : Rule {
 	override Str expression	:= "."	
 	override Bool doProcess(PegCtx ctx) {
 		ctx.readChar != 0
@@ -8,7 +9,8 @@
 }
 
 ** This is its own rule class to override the expression
-@Js internal class StrMimickCharRule : Rule {
+@Js
+internal class StrMimickCharRule : Rule {
 	private const Int	char
 	private const Bool	ignoresCase
 

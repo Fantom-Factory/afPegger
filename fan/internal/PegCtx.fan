@@ -94,7 +94,7 @@ internal class PegCtx {
 		cur >= in.size
 	}
 
-	PegMatch doSuccess() {
+	Match doSuccess() {
 		rootResult.success(in)
 		return rootResult.match(in)
 	}

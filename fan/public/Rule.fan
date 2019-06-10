@@ -1,13 +1,24 @@
 
 ** (Advanced)  
-** A PEG Rule.
+** Models a PEG Rule.
 ** 
-** Use the common rules declared in `Rules`.
+** Rules are commonly created by using methods from the `Rules` mixin, but may be parsed from patterns.
+** 
+** `Rule` is not intended to be created or subclassed by the user. 
 @Js
 abstract class Rule {
+	
+	** Creates a rule by parsing the given pattern:
+	** 
+	**   syntax: fantom 
+	**   Rule.fromPattern("[abc] / [xyz]")
+	static new fromPattern(Str pattern) {
+		PegGrammar().parseRule(pattern)
+	}
+
 	** The name of this rule. Only rules with names appear in debug output.
 	** Should be legal Fantom identifier (think variable names!).
-	Str? 		name {
+	Str? name {
 		set {
 			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' })
 				throw ArgErr("Name must be a valid Fantom identifier: $it")
@@ -65,5 +76,4 @@ abstract class Rule {
 
 	@NoDoc
 	override Str toStr() { _dis }  
-
 }
