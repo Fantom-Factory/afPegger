@@ -39,7 +39,7 @@ class Grammar {
 	**                     b <- \space+ [^abc]")
 	** 
 	** See `Peg.parseGrammar`
-	static Grammar fromDefs(Str grammar) {
+	static Grammar parseGrammar(Str grammar) {
 		PegGrammar().parseGrammar(grammar)
 	}
 	

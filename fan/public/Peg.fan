@@ -37,7 +37,7 @@ class Peg {
 	**   syntax: fantom 
 	**   parseRule("[abc] / [xyz]")
 	** 
-	** See `Rule.fromPattern`
+	** See `Rule.parseRule`
 	static Rule parseRule(Str pattern) {
 		PegGrammar().parseRule(pattern)
 	}
@@ -49,7 +49,7 @@ class Peg {
 	**   parseGrammar("a <- [abc] / [xyz] / b
 	**                 b <- \space+ [^abc]")
 	** 
-	** See `Grammar.fromDefs`
+	** See `Grammar.parseGrammar`
 	static Grammar parseGrammar(Str grammar) {
 		PegGrammar().parseGrammar(grammar)
 	}

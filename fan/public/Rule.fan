@@ -8,13 +8,17 @@
 @Js
 abstract class Rule {
 	
+	** Internal ctor.
+	** The 'abstract doProcess()' is internal, so it's not like anyone can write their own Rules.
+	internal new make() { }
+	
 	** Creates a rule by parsing the given pattern:
 	** 
 	**   syntax: fantom 
 	**   Rule.fromPattern("[abc] / [xyz]")
 	** 
 	** See `Peg.parseRule`
-	static new fromPattern(Str pattern) {
+	static new parseRule(Str pattern) {
 		PegGrammar().parseRule(pattern)
 	}
 
