@@ -12,28 +12,45 @@
 	private PegCtx	pegCtx
 	private Rule	rule
 	
+	** Creates a PEG class ready to match the given string with the given rule.
 	new make(Str str, Rule rule) {
 		this.rule	= rule
 		this.pegCtx	= PegCtx(str, rule)
 	}
-	
+
+	** Parses the given PEG pattern in to a rule.
+	** Convenience for:
+	** 
+	**   syntax: fantom 
+	**   Peg(str, Peg.parsePattern(pattern))
+	new makePattern(Str str, Str pattern) {
+		this.rule	= Peg.parsePattern(pattern)
+		this.pegCtx	= PegCtx(str, rule)
+	}
+
 	** Turns debug messaging on and off.
 	static Void debugOn(Bool debug := true) {
 		Peg#.pod.log.level = debug ? LogLevel.debug : LogLevel.info
 	}
 	
-	static Rule parseRule(Str pattern) {
-		PegGrammar().parseRule(pattern)
+	** Parses a pattern in to simple rule.
+	** For example:
+	** 
+	**   syntax: fantom 
+	**   parseRule("[abc] / [xyz]")
+	static Rule parsePattern(Str pattern) {
+		PegGrammar().parsePattern(pattern)
 	}
 	
-	static Rule parseGrammar(Str grammar, Str? rootRuleName) {
-		PegGrammar().parseGrammar(grammar, rootRuleName)
+	** Parses grammar definitions, and returns the root rule (if given) or the first rule parsed.
+	** For example:
+	** 
+	**   syntax: fantom 
+	**   parseGrammar("a <- [abc] / [xyz] / b
+	**                 b <- \space+ [^abc]")
+	static Rule[] parseGrammar(Str grammar) {
+		PegGrammar().parseGrammar(grammar)
 	}
-	
-//	new make(Str str, Str pattern) {	// rule or grammar ??
-//		this.str	= str
-//		this.rule	= PegGrammar.parse(pattern)		
-//	}
 	
 	// FIXME Int startOffset
 	** Searches for the next match and returns the matched string (if any).

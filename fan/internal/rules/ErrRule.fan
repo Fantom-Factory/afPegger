@@ -7,6 +7,7 @@
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
+		// TODO add lineNum and afPlastic::SrcCodeSnippet
 		throw Err(msg)
 	}
 	

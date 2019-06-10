@@ -2,7 +2,7 @@
 @Js
 internal class PegGrammar : Rules {
 	
-	private NamedRules rules() {
+	internal NamedRules rules() {
 		rules					:= NamedRules()
 		grammar					:= rules["grammar"]
 		line					:= rules["line"]
@@ -30,10 +30,10 @@ internal class PegGrammar : Rules {
 		rules["grammar"]		= oneOrMore(sequence { onlyIfNot(eos), line } )
 		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
 		rules["emptyLine"]		= sequence { zeroOrMore(wsp), eol, }
-		rules["commentLine"]	= sequence { zeroOrMore(wsp), str("//"), zeroOrMore(wsp), comment, eol, }
+		rules["commentLine"]	= sequence { zeroOrMore(wsp), firstOf { char('#'), str("//"), }, zeroOrMore(wsp), comment, eol, }
 		rules["comment"]		= zeroOrMore(newLineChar(true))
 
-		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(wsp), char('='), zeroOrMore(wsp), rule, eol, }
+		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(wsp), firstOf { char('='), str("<-")}, zeroOrMore(wsp), rule, eol, }
 		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
@@ -41,7 +41,7 @@ internal class PegGrammar : Rules {
 		rules["firstOf"]		= sequence { expression, oneOrMore(wsp), char('/'), oneOrMore(wsp), expression, zeroOrMore(sequence { oneOrMore(wsp), char('/'), oneOrMore(wsp), expression, }), }
 
 		rules["expression"]		= sequence { optional(predicate), type, optional(multiplicity), }
-		rules["type"]			= firstOf { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, fail, }
+		rules["type"]			= firstOf  { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, fail, }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
@@ -52,7 +52,7 @@ internal class PegGrammar : Rules {
 		return rules.validate
 	}
 	
-	private NamedRules toRuleDefs(PegMatch? match) {
+	internal NamedRules toRuleDefs(PegMatch? match) {
 		if (match == null)
 			throw ParseErr("Could not match PEG")
 		if (match.name != "grammar")
@@ -114,10 +114,10 @@ internal class PegGrammar : Rules {
 
 		switch (exName) {
 			case "rule"		: exRule = fromRule(exType.match.match, allRules)
-			case "ruleName"	: exRule = fromRuleName(match.matched, allRules)
-			case "literal"	: exRule = StrRule.fromStr(match.matched)
-			case "chars"	: exRule = CharRule.fromStr(match.matched)
-			case "macro"	: exRule = fromMacro(match.matched)
+			case "ruleName"	: exRule = fromRuleName(exType.matched, allRules)
+			case "literal"	: exRule = StrRule.fromStr(exType.matched)
+			case "chars"	: exRule = CharRule.fromStr(exType.matched)
+			case "macro"	: exRule = fromMacro(exType.matched)
 			case "dot"		: exRule = Rules.anyChar
 			default			: throw UnsupportedErr("Unknown expression: ${exName}")
 		}
@@ -180,14 +180,11 @@ internal class PegGrammar : Rules {
 		str.replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
 	}
 	
-	Rule parseRule(Str pattern) {
+	Rule parsePattern(Str pattern) {
 		toRule(Peg(pattern, rules["rule"]).match, null)
 	}
 	
-	Rule parseGrammar(Str grammar, Str? rootRuleName) {
-		ruleDefs := toRuleDefs(Peg(grammar, rules["grammar"]).match)
-		
- 		echo(ruleDefs.definition)
-		return rootRuleName == null ? ruleDefs.rules.first : ruleDefs[rootRuleName]
+	Rule[] parseGrammar(Str grammar) {
+		toRuleDefs(Peg(grammar, rules["grammar"]).match).rules
 	}
 }

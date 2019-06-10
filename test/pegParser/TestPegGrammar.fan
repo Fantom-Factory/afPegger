@@ -81,56 +81,44 @@ class TestPegGrammar : Test {
 	}
 	
 	Void testGrammar() {
-		verifyLine("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
+		verifyDefs("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
 
 		// diff symbols
+		verifyDefs("a  = [bc] [de]", "a <- [bc] [de]")
+		verifyDefs("a <- [bc] [de]", "a <- [bc] [de]")
 		
 		// multi-defs
+		verifyDefs("a <- [bc] [de]\nb <- [bc] [de]", "a <- [bc] [de]\nb <- [bc] [de]")
 		
 		// empty lines
-		verifyLine("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
+		verifyDefs(" \n\n  \n  a  = [bc] [de] \n\n  \n  ", "a <- [bc] [de]")
+		
+		// comments
+		verifyDefs(" \n\n  \n  a  = [bc] [de] \n\n  \n  ", "a <- [bc] [de]")
 	}
 	
 	
-//	Void testEmptyLine() {
-//		Peg#.pod.log.level = LogLevel.debug
-//		
-//		res:= parsePeg("   ")
-//		res = parsePeg("\n   ")
-//		res = parsePeg("   \n   ")
-//		res = parsePeg("   \n   \n")
-//	}
-//
-//	Void testAnyChar() {
-//		rulesTxt :=
-//"""ruleDef			= ruleDefName WSP* ":" WSP* rule (NL / EOS)
-//   ruleDefName		= [a-z]i [a-z0-9]i*
-//   
-//   rule			= firstOf / sequence / FAIL
-//   sequence		= expression (WSP+ expression)*
-//   firstOf			= expression WSP+ "/" WSP+ expression (WSP+ "/" WSP+ expression)*
-//   
-//   expression		= predicate? ("(" rule ")" / ruleName / literal / chars / dot) multiplicity?
-//   predicate		= "!" / "&"
-//   multiplicity	= "*" / "+" / "?"
-//   ruleName		= [a-z]i [a-z0-9]i*
-//   literal			= ("\"" (("\" [\\"fnrt]) / [^"])+ "\"") / ("'" (("\" [\\'fnrt]) / [^'])+ "'")
-//   chars			= "[" "^"? (("\" [\\"fnrt]) / ([a-zA-Z0-9] "-" [a-zA-Z0-9]) / [a-zA-Z0-9])+ "]" "i"?
-//   dot				= "."
-//   
-//   
-//   WSP				= [ \t]
-//   """
-//		
-//		res := parsePeg(rulesTxt)
-//	}
+	Void testPegCanParseItself() {
+//		Peg.debugOn
+
+		defsIn  := PegGrammar().rules.rules.join("\n") { it.definition }
+		defsOut := Peg.parseGrammar(defsIn).join("\n") { it.definition }
+
+		echo
+		PegGrammar().rules.definition { echo(it) }
+		echo
+		echo(defsOut)
+		
+		verifyEq(defsIn, defsOut)
+	}
 	
 	private Void verifyRule(Str in, Str out := in) {
-		verifyEq(out, Peg.parseRule(in).expression)
+		verifyEq(out, Peg.parsePattern(in).expression)
 	}
 	
-	private Void verifyLine(Str in, Str out := in) {
-		verifyEq(out, Peg.parseGrammar(in, null).definition)
+	private Void verifyDefs(Str in, Str out := in) {
+		defs := PegGrammar().toRuleDefs(Peg(in,  PegGrammar().rules["grammar"]).match).definition.trim
+		verifyEq(out, defs)
 	}
 	
 //	private PegMatch? parseRule(Str in) {
