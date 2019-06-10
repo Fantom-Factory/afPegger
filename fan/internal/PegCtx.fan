@@ -99,6 +99,12 @@ internal class PegCtx {
 		return rootResult.match(in)
 	}
 
+	PegParseErr parseErr(Str errMsg) {
+		lineNum := 0; in.chars.eachRange(0..<cur.min(in.size)) { if (it == '\n') lineNum++ }
+		srcCode := SrcCodeSnippet(`PEG`, in)
+		return PegParseErr(srcCode, lineNum + 1, errMsg)
+	}
+	
 	private Void _log(Result result, Str msg) {
 		if (result.rule.debug) {
 			depth := resultStack.size

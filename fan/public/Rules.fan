@@ -163,8 +163,7 @@ mixin Rules {
 	** 
 	**   [\n]
 	static Rule newLineChar(Bool not := false) {
-		// use fromStr() so we get the mimic class 
-		CharRule.fromStr("[" + (not ? "^" : "") + "\\n]")
+		char('\n', not)
 	}
 
 	// ---- Repetition rules ----------------------------------------------------------------------

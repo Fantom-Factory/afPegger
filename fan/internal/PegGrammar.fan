@@ -22,32 +22,36 @@ internal class PegGrammar : Rules {
 		chars					:= rules["chars"]
 		macro					:= rules["macro"]
 		dot						:= rules["dot"]
-		eos						:= eos			{ it.debug = false; it.useInResult = false }
-		wsp						:= spaceChar	{ it.debug = false; it.useInResult = false }
-		eol						:= eol			{ it.debug = false; it.useInResult = false }
-		fail					:= err("FAIL")
+		sp						:= rules["sp"]
+		eos						:= eos { it.debug = false; it.useInResult = false }
+		eol						:= eol { it.debug = false; it.useInResult = false }
+		fail					:= err ("FAIL")
+
+//		eos						= eos { it.useInResult = false }
+//		eol						= eol { it.useInResult = false }
 
 		rules["grammar"]		= oneOrMore(sequence { onlyIfNot(eos), line } )
 		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
-		rules["emptyLine"]		= sequence { zeroOrMore(wsp), eol, }
-		rules["commentLine"]	= sequence { zeroOrMore(wsp), firstOf { char('#'), str("//"), }, zeroOrMore(wsp), comment, eol, }
+		rules["emptyLine"]		= sequence { zeroOrMore(sp), eol, }
+		rules["commentLine"]	= sequence { zeroOrMore(sp), firstOf { char('#'), str("//"), }, zeroOrMore(sp), comment, eol, }
 		rules["comment"]		= zeroOrMore(newLineChar(true))
 
-		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(wsp), firstOf { char('='), str("<-")}, zeroOrMore(wsp), rule, eol, }
+		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(sp), firstOf { char('='), str("<-")}, zeroOrMore(sp), rule, zeroOrMore(sp), eol, }
 		rules["ruleName"]		= sequence { charIn('a'..'z'), zeroOrMore(alphaNumChar), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
-		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(wsp), expression, }), }
-		rules["firstOf"]		= sequence { expression, oneOrMore(wsp), char('/'), oneOrMore(wsp), expression, zeroOrMore(sequence { oneOrMore(wsp), char('/'), oneOrMore(wsp), expression, }), }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, }), }
+		rules["firstOf"]		= sequence { expression, zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, zeroOrMore(sequence { zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, }), }
 
 		rules["expression"]		= sequence { optional(predicate), type, optional(multiplicity), }
-		rules["type"]			= firstOf  { sequence { char('('), rule, char(')'), }, ruleName, literal, chars, macro, dot, fail, }
+		rules["type"]			= firstOf  { sequence { char('('), zeroOrMore(sp), rule, zeroOrMore(sp), char(')'), }, ruleName, literal, chars, macro, dot, fail, }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= sequence { char('"'), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"'), }), char('"'), optional(char('i')), }
 		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }
 		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), optional(sequence { char('('), zeroOrMore(charNotOf(")\n".chars)), char(')'), }), }
 		rules["dot"]			= char('.')
+		rules["sp"]				= spaceChar	{ it.debug = false; it.useInResult = false }
 		
 		return rules.validate
 	}

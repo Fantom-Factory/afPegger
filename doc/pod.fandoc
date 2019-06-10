@@ -1,6 +1,6 @@
 Overview
 ********
-For when Regular Expressions just aren't enough!
+Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!
 
 Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf` implementation.
 It lets you create text parsers by building up a tree of simple matching [rules]`Rules`.

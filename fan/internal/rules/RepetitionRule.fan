@@ -23,7 +23,8 @@ internal class RepetitionRule : Rule {
 		maxOkay := (max == null) || (count <= max)
 		passed	:= minOkay && maxOkay
 		
-		ctx.log("Rule was successfully processed $count times")
+		if (count > 0)
+			ctx.log((rule.name ?: "Rule") + " was successfully processed $count times")
 		
 		return passed
 	}

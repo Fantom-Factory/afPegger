@@ -67,6 +67,11 @@ class Match {
 		doDump(buf, Bool[,])
 		return buf.toStr
 	}
+
+	// FIXME
+//	Void walk(|Match| start, |Match| end) {
+//		
+//	}
 	
 	// chars from `https://atom.io/packages/ascii-tree`
 	private Void doDump(StrBuf buf, Bool[] indent) {

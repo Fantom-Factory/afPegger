@@ -1,10 +1,10 @@
 
 @Js
-internal class EolRule : Rule {
+internal class EosRule : Rule {
 
 	override Bool doProcess(PegCtx ctx) {
-		ctx.eos || ctx.readChar == '\n'
+		ctx.eos
 	}
 	
-	override Str expression() { "\\eol" } 
+	override Str expression() { "\\eos" } 
 }
