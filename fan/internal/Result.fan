@@ -47,7 +47,7 @@ internal class Result {
 	}
 	
 	Match? findMatch(Str name, Str in) {
-		matches(in).find { it.name == name }
+		matches(in).find { it.name == name || it.rule.label == name}
 	}
 	
 	Match match(Result? parent, Str in) {
@@ -63,11 +63,11 @@ internal class Result {
 	}
 	
 	private Bool hasNamedRules() {
-		(rule.name != null && rule.useInResult)|| (resultList != null && resultList.any { it.hasNamedRules })
+		((rule.name != null || rule.label != null) && rule.useInResult)|| (resultList != null && resultList.any { it.hasNamedRules })
 	}
 	
 	private Obj findNamedMatches(Result? parent, Str in) {
-		if (rule.name != null && rule.useInResult)
+		if ((rule.name != null || rule.label != null) && rule.useInResult)
 			return match(parent, in)
 		if (resultList == null)
 			return Match#.emptyList
@@ -76,7 +76,7 @@ internal class Result {
 	
 	@NoDoc
 	override Str toStr() {
-		rule.name
+		[rule.label, rule.name].exclude { it == null }.join(":").trimToNull ?: "???:???"
 	}
 }
 

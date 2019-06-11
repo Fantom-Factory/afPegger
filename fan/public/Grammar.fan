@@ -47,7 +47,7 @@ class Grammar {
 	@Operator
 	Rule get(Str name) {
 		if (!_proxies.containsKey(name))
-			_proxies[name] = ProxyRule(this, name) { it.name = name  }
+			_proxies[name] = ProxyGrammarRule(this, name) { it.name = name }
 		return _proxies[name]
 	}
 	
@@ -81,30 +81,46 @@ class Grammar {
 		return this
 	}
 	
-	internal Rule getForReal(Str name) {
-		_rules[name] ?: throw ArgNotFoundErr("Rule not defined in grammar: $name", _rules.keys)
+	internal Rule? getForReal(Str name, Bool checked) {
+		_rules[name] ?: (checked ? throw ArgNotFoundErr("Rule not defined in grammar: $name", _rules.keys) : null)
 	}
 	
 	override Str toStr() { definition }
 }
 
 @Js
-internal class ProxyRule : Rule {
-	private Grammar 	rules
-	private Rule?		ruleForReal
-	private const Str	nameForReal
+internal abstract class ProxyRule : Rule {
+	private Str?	_name
+	private Str?	_label
+	private Bool?	_debug
+	private Bool?	_useInResult
+	private Func?	_action
+	
+	override Str? name {
+		get { rule?.name ?: _name}
+		set { if (rule == null) _name = it; else rule.name = it }
+	}
 
-	new make(Grammar rules, Str? nameForReal) {
-		// let the actual name be whatever, just don't change who we point to!
-		this.nameForReal	= nameForReal
-		this.rules			= rules
+	override Str? label {
+		get { rule?.label ?: _label}
+		set { if (rule == null) _label = it; else rule.label = it }
+	}
+	
+	override Bool debug {
+		get { rule?.debug ?: _debug }
+		set { if (rule == null) _debug = it; else rule.debug = it }
+	}
+
+	override Bool useInResult {
+		get { rule?.useInResult ?: _useInResult }
+		set { if (rule == null) _useInResult = it; else rule.useInResult = it }
 	}
 	
 	override |Str|?	action {
-		get { rule.action }
-		set { rule.action = it }
+		get { rule?.action ?: _action }
+		set { if (rule == null) _action = it; else rule.action = it }
 	}
-	
+
 	override Bool doProcess(PegCtx ctx) {
 		rule.doProcess(ctx)
 	}
@@ -117,22 +133,36 @@ internal class ProxyRule : Rule {
 		rule.toStr
 	}
 	
-	internal Rule rule() {
-		if (ruleForReal == null) {
-			ruleForReal = rules.getForReal(nameForReal)
+	abstract Rule? rule()
+	
+	Void onRule(Rule rule) {
+		if (_name		 != null)	rule.name		 = _name
+		if (_label		 != null)	rule.label		 = _label
+		if (_debug		 != null)	rule.debug		 = _debug
+		if (_useInResult != null)	rule.useInResult = _useInResult
+		if (_action		 != null)	rule.action		 = _action
+	}
+}
 
-			if (ruleForReal.name == null)
-				ruleForReal.name = name
+@Js
+internal class ProxyGrammarRule : ProxyRule {
+	private Grammar 	rules
+	private Rule?		realRule
+	private const Str	realName
 
-			// TODO this class WILL cause problems in the future
-			// either NPEs from setting action, or bool values being lost
-			
-			// we should route action and these bools properly
-			// keep a note of any set values, and set them here 
-			debug		= ruleForReal.debug
-			useInResult	= ruleForReal.useInResult
+	new make(Grammar rules, Str? realName) {
+		// let the actual name be whatever, just don't change who we point to!
+		this.realName	= realName
+		this.rules		= rules
+	}
+	
+	override Rule? rule() {
+		if (realRule == null) {
+			realRule = rules.getForReal(realName, false)
+			if (realRule != null)
+				onRule(rule)
 		}
-		return ruleForReal
+		return realRule
 	}
 }
 

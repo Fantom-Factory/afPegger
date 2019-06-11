@@ -157,8 +157,12 @@ internal class PegGrammar : Rules {
 				default		: throw UnsupportedErr("Unknown predicate: ${pred}")
 			}
 		
-		if (label != null && exRule.name == null)
-			exRule.name = label
+		if (label != null) {
+			if (exRule.label != null)
+//				exRule = ProxyLabelRule(exRule)
+				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
+			exRule.label = label
+		}
 
 		return exRule
 	}
@@ -206,3 +210,18 @@ internal class PegGrammar : Rules {
 		str.replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
 	}
 }
+
+//@Js
+//internal class ProxyLabelRule : ProxyRule {
+//	private Rule	realRule
+//
+//	override Str? label
+//	
+//	new make(Rule realRule) {
+//		this.realRule	= realRule
+//	}
+//	
+//	override Rule? rule() {
+//		realRule
+//	}
+//}

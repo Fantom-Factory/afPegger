@@ -24,7 +24,7 @@ abstract class Rule {
 
 	** The name of this rule. Only rules with names appear in debug output.
 	** Should be legal Fantom identifier (think variable names!).
-	Str? name {
+	virtual Str? name {
 		set {
 			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' })
 				throw ArgErr("Name must be a valid Fantom identifier: $it")
@@ -32,11 +32,20 @@ abstract class Rule {
 		}
 	}
 	
+	** A label for this rule.
+	virtual Str? label {
+		set {
+			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' })
+				throw ArgErr("Label must be a valid Fantom identifier: $it")
+			&label = it
+		}
+	}
+	
 	** Disable debugging of this rule if it gets to noisy.
-	Bool debug			:= true
+	virtual Bool debug			:= true
 
 	** Not all rules are useful in the parsed AST. 
-	Bool useInResult	:= true
+	virtual Bool useInResult	:= true
 	
 	** Action to be performed upon successful completion of this rule.
 	virtual |Str matched|?	action
@@ -82,9 +91,10 @@ abstract class Rule {
 	
 	@NoDoc
 	internal Str _dis(Bool inner := false) {
-		inner && name == null && (this is SequenceRule || this is FirstOfRule)
+		dis := inner && name == null && (this is SequenceRule || this is FirstOfRule)
 			? "(" + expression + ")"
 			: (name ?: expression)
+		return label != null ? "${label}:${dis}" : dis
 	}
 
 	@NoDoc

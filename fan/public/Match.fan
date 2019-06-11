@@ -13,12 +13,18 @@ class Match {
 		this.in		= in
 	}
 
-	** Returns the associated rule name
+	** Returns the associated rule name.
 	Str? name() {
-		rule.name
+		rule.label ?: rule.name
+//		rule.name
 	}
 
-	** Returns the first match with the given rule name.
+//	** Returns the associated rule label, or name if there is no label.
+//	Str? label() {
+//		rule.label ?: rule.name
+//	}
+
+	** Returns the first match with the given rule name (or label).
 	@Operator
 	Match? getMatch(Str name) {
 		result.findMatch(name, in)
@@ -82,6 +88,7 @@ class Match {
 	
 	// chars from `https://atom.io/packages/ascii-tree`
 	private Void doDump(StrBuf buf, Bool[] indent) {
+		name := [rule.label, rule.name].exclude { it == null }.join(":").trimToNull ?: "???:???"
 		buf.add(name ?: rule.expression)
 		matches := matches
 
