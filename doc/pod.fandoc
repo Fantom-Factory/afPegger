@@ -276,7 +276,7 @@ Create a 'walk()' method that recursively calls a given function every time it s
 pre>
 Void walk(Match match, |Match, Str startOrEnd| fn) {
     fn?.call(match, "start")
-    m.matches.each { walk(it, fn) }
+    match.matches.each { walk(it, fn) }
     fn?.call(match, "end")
 }
 <pre
