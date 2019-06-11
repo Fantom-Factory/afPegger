@@ -47,7 +47,7 @@ class Grammar {
 	@Operator
 	Rule get(Str name) {
 		if (!_proxies.containsKey(name))
-			_proxies[name] = ProxyRule(this, name)
+			_proxies[name] = ProxyRule(this, name) { it.name = name  }
 		return _proxies[name]
 	}
 	
@@ -65,6 +65,7 @@ class Grammar {
 	
 	** Pretty prints the grammar definition.
 	Str definition() {
+		validate
 		max := (Int) _rules.keys.reduce(0) |Int max, name| { max.max(name.size) }
 		buf := StrBuf()
 		_rules.each |rule| {
@@ -73,7 +74,8 @@ class Grammar {
 		return buf.toStr		
 	}
 	
-	internal This validate() {
+	** Validates that all named rules have been defined. 
+	This validate() {
 		_proxies.vals.each { it.rule }
 		// no need to warn of un-used rules - it may be irritating
 		return this
@@ -90,10 +92,12 @@ class Grammar {
 internal class ProxyRule : Rule {
 	private Grammar 	rules
 	private Rule?		ruleForReal
+	private const Str	nameForReal
 
-	new make(Grammar rules, Str name) {
-		this.name		= name
-		this.rules		= rules
+	new make(Grammar rules, Str? nameForReal) {
+		// let the actual name be whatever, just don't change who we point to!
+		this.nameForReal	= nameForReal
+		this.rules			= rules
 	}
 	
 	override |Str|?	action {
@@ -115,12 +119,16 @@ internal class ProxyRule : Rule {
 	
 	internal Rule rule() {
 		if (ruleForReal == null) {
-			ruleForReal = rules.getForReal(name)
+			ruleForReal = rules.getForReal(nameForReal)
+
 			if (ruleForReal.name == null)
 				ruleForReal.name = name
-			else
-				name = ruleForReal.name
-			action		= ruleForReal.action
+
+			// TODO this class WILL cause problems in the future
+			// either NPEs from setting action, or bool values being lost
+			
+			// we should route action and these bools properly
+			// keep a note of any set values, and set them here 
 			debug		= ruleForReal.debug
 			useInResult	= ruleForReal.useInResult
 		}

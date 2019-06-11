@@ -68,6 +68,13 @@ abstract class Rule {
 		return this
 	}
 	
+	** Matches this rule against the given string.
+	** 
+	** See `Peg.match`
+	Match match(Str str) {
+		Peg(str, this).match
+	}
+	
 	@Operator @NoDoc
 	virtual This add(Rule rule) {
 		throw Err("${typeof.qname} does not support add()")
