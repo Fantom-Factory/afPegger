@@ -3,99 +3,99 @@
 internal class TestRepetitionRule : Test, Rules {
 
 	Void testOptional() {
-		parser	:= Parser(optional(alphaChar))
-		verify     (parser.match("X") != null)
-		verifyEq   (parser.match("X"), "X")
+		parser	:= optional(alphaChar)
+		verify     (parser.match("X")?.matched != null)
+		verifyEq   (parser.match("X")?.matched, "X")
 
-		verify     (parser.match("1") != null)
-		verifyEq   (parser.match("1"), "")
+		verify     (parser.match("1")?.matched != null)
+		verifyEq   (parser.match("1")?.matched, "")
 
-		verify     (parser.match("") != null)
-		verifyEq   (parser.match(""), "")
+		verify     (parser.match("")?.matched != null)
+		verifyEq   (parser.match("")?.matched, "")
 
-		verify     (parser.match("XX") != null)
-		verifyEq   (parser.match("XX"), "X")
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "X")
 	}
 
 	Void testZeroOrMore() {
-		parser	:= Parser(zeroOrMore(alphaChar))
-		verify     (parser.match("X") != null)
-		verifyEq   (parser.match("X"), "X")
+		parser	:= zeroOrMore(alphaChar)
+		verify     (parser.match("X")?.matched != null)
+		verifyEq   (parser.match("X")?.matched, "X")
 
-		verify     (parser.match("1") != null)
-		verifyEq   (parser.match("1"), "")
+		verify     (parser.match("1")?.matched != null)
+		verifyEq   (parser.match("1")?.matched, "")
 
-		verify     (parser.match("") != null)
-		verifyEq   (parser.match(""), "")
+		verify     (parser.match("")?.matched != null)
+		verifyEq   (parser.match("")?.matched, "")
 
-		verify     (parser.match("XX") != null)
-		verifyEq   (parser.match("XX"), "XX")
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "XX")
 
-		verify     (parser.match("XXXX") != null)
-		verifyEq   (parser.match("XXXX"), "XXXX")
+		verify     (parser.match("XXXX")?.matched != null)
+		verifyEq   (parser.match("XXXX")?.matched, "XXXX")
 	}
 
 	Void testOneOrMore() {
-		parser	:= Parser(oneOrMore(alphaChar))
-		verify     (parser.match("X") != null)
-		verifyEq   (parser.match("X"), "X")
+		parser	:= oneOrMore(alphaChar)
+		verify     (parser.match("X")?.matched != null)
+		verifyEq   (parser.match("X")?.matched, "X")
 
-		verifyFalse(parser.match("1") != null)
+		verifyFalse(parser.match("1")?.matched != null)
 
-		verifyFalse(parser.match("") != null)
+		verifyFalse(parser.match("")?.matched != null)
 
-		verify     (parser.match("XX") != null)
-		verifyEq   (parser.match("XX"), "XX")
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "XX")
 
-		verify     (parser.match("XXXX") != null)
-		verifyEq   (parser.match("XXXX"), "XXXX")
+		verify     (parser.match("XXXX")?.matched != null)
+		verifyEq   (parser.match("XXXX")?.matched, "XXXX")
 	}
 
 	Void testAtLeast() {
-		parser	:= Parser(atLeast(2, alphaChar))
-		verifyFalse(parser.match("X") != null)
+		parser	:= atLeast(2, alphaChar)
+		verifyFalse(parser.match("X")?.matched != null)
 
-		verifyFalse(parser.match("1") != null)
+		verifyFalse(parser.match("1")?.matched != null)
 
-		verifyFalse(parser.match("") != null)
+		verifyFalse(parser.match("")?.matched != null)
 
-		verify     (parser.match("XX") != null)
-		verifyEq   (parser.match("XX"), "XX")
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "XX")
 
-		verify     (parser.match("XXXX") != null)
-		verifyEq   (parser.match("XXXX"), "XXXX")
+		verify     (parser.match("XXXX")?.matched != null)
+		verifyEq   (parser.match("XXXX")?.matched, "XXXX")
 	}
 
 	Void testAtMost() {
-		parser	:= Parser(atMost(2, alphaChar))
-		verify     (parser.match("X") != null)
-		verifyEq   (parser.match("X"), "X")
+		parser	:= atMost(2, alphaChar)
+		verify     (parser.match("X")?.matched != null)
+		verifyEq   (parser.match("X")?.matched, "X")
 
-		verify     (parser.match("1") != null)
-		verifyEq   (parser.match("1"), "")
+		verify     (parser.match("1")?.matched != null)
+		verifyEq   (parser.match("1")?.matched, "")
 
-		verify     (parser.match("") != null)
-		verifyEq   (parser.match(""), "")
+		verify     (parser.match("")?.matched != null)
+		verifyEq   (parser.match("")?.matched, "")
 
-		verify     (parser.match("XX") != null)
-		verifyEq   (parser.match("XX"), "XX")
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "XX")
 
-		verify     (parser.match("XXXX") != null)
-		verifyEq   (parser.match("XXXX"), "XX")
+		verify     (parser.match("XXXX")?.matched != null)
+		verifyEq   (parser.match("XXXX")?.matched, "XX")
 	}
 	
 	Void testNTimes() {
-		parser	:= Parser(nTimes(2, alphaChar))
-		verifyFalse(parser.match("X") != null)
+		parser	:= nTimes(2, alphaChar)
+		verifyFalse(parser.match("X")?.matched != null)
 
-		verifyFalse(parser.match("1") != null)
+		verifyFalse(parser.match("1")?.matched != null)
 
-		verifyFalse(parser.match("") != null)
+		verifyFalse(parser.match("")?.matched != null)
 
-		verify     (parser.match("XX") != null)
-		verifyEq   (parser.match("XX"), "XX")
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "XX")
 
-		verify     (parser.match("XXXX") != null)
-		verifyEq   (parser.match("XXXX"), "XX")
+		verify     (parser.match("XXXX")?.matched != null)
+		verifyEq   (parser.match("XXXX")?.matched, "XX")
 	}
 }

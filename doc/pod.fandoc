@@ -187,10 +187,11 @@ type         <- ("(" sp* rule sp* ")") / ruleName / literal / chars / macro / do
 predicate    <- "!" / "&"
 multiplicity <- "*" / "+" / "?"
 literal      <- singleQuote / doubleQuote
-singleQuote  <- "'" (("\\" .) / [^'])+ "'" "i"?
-doubleQuote  <- "\"" (("\\" .) / [^"])+ "\"" "i"?
-chars        <- "[" (("\\" .) / [^\]])+ "]" "i"?
+singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
 macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+unicode      <- "\\" "u" [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9]
 dot          <- "."
 sp           <- [ \t]
 <pre

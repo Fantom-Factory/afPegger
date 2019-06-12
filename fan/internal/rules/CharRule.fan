@@ -61,6 +61,13 @@ internal class CharRule : Rule {
 
 		try {
 			chars  := Int[,]
+
+			unicode := |->Int| {
+				hex := cClass[2..<6]
+				cClass = cClass[4..-1]
+				return Int.fromStr(hex, 16)
+			}
+			
 			ranges := Range[,]
 			while (cClass.size > 0) {
 				if (cClass[0] == '\\') {
@@ -71,6 +78,7 @@ internal class CharRule : Rule {
 					if (cClass[1] == 't')	chars.add('\t'); else
 					if (cClass[1] == '-')	chars.add( '-'); else
 					if (cClass[1] == '^')	chars.add( '^'); else
+					if (cClass[1] == 'u')	chars.add(unicode()); else
 						chars.add(cClass[1])
 					cClass = cClass[2..-1]
 				} else {

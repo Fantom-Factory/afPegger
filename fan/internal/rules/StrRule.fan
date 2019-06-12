@@ -1,9 +1,10 @@
 
 @Js
 internal class StrRule : Rule {
-	private		Str				str
-	private		Bool			ignoreCase
-	
+	private static const Regex	unicodeRegex	:= "(?:[^\\\\]|^)(\\\\u[0-9a-fA-F]{4})".toRegex
+	private				 Str	str
+	private				 Bool	ignoreCase
+
 	new make(Str str, Bool ignoreCase) {
 		if (str.isEmpty) throw ArgErr("String rules must match non-empty strings")
 		this.str	 	= str
@@ -19,8 +20,19 @@ internal class StrRule : Rule {
 			throw ParseErr("Invalid str class: $str")
 		sClass = sClass[1..<-1]
 
+		// de-escape unicode
+		hasUnicode := true
+		while (hasUnicode) {
+			matcher := unicodeRegex.matcher(sClass)
+			if (hasUnicode = matcher.find) {
+				hex := sClass[matcher.start(1)+2..<matcher.end(1)]
+				chr := Int.fromStr(hex, 16).toChar
+				sClass = StrBuf(sClass.size).add(sClass).replaceRange(matcher.start(1)..<matcher.end(1), chr).toStr
+			}
+		}
+
 		// de-escape chars
-		sClass = sClass.replace("\\'", "'").replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
+		sClass = sClass.replace("\\\\", "\\").replace("\\'", "'").replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f")
 
 		return StrRule(sClass, ignore)
 	}

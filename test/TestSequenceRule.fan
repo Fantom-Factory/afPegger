@@ -3,20 +3,20 @@
 internal class TestSequenceRule : Test, Rules {
 	
 	Void testSequence() {
-		parser	:= Parser(sequence([numChar, alphaChar, whitespaceChar]))
-		verify     (parser.match("1a ") != null)
-		verifyEq   (parser.match("1a "), "1a ")
+		parser	:= sequence([numChar, alphaChar, whitespaceChar])
+		verify     (parser.match("1a ")?.matched != null)
+		verifyEq   (parser.match("1a ")?.matched, "1a ")
 		
-		verifyFalse(parser.match("1aa") != null)
-		verifyFalse(parser.match("1a" ) != null)
-		verifyFalse(parser.match("1"  ) != null)
-		verifyFalse(parser.match(""   ) != null)
+		verifyFalse(parser.match("1aa")?.matched != null)
+		verifyFalse(parser.match("1a" )?.matched != null)
+		verifyFalse(parser.match("1"  )?.matched != null)
+		verifyFalse(parser.match(""   )?.matched != null)
 
-		verifyFalse(parser.match("X1 ") != null)
-		verifyFalse(parser.match("19 ") != null)
-		verifyFalse(parser.match("1aX") != null)
+		verifyFalse(parser.match("X1 ")?.matched != null)
+		verifyFalse(parser.match("19 ")?.matched != null)
+		verifyFalse(parser.match("1aX")?.matched != null)
 
-		verify     (parser.match("1a X") != null)
-		verifyEq   (parser.match("1a X"), "1a ")
+		verify     (parser.match("1a X")?.matched != null)
+		verifyEq   (parser.match("1a X")?.matched, "1a ")
 	}
 }

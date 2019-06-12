@@ -80,7 +80,7 @@ abstract class Rule {
 	** Matches this rule against the given string.
 	** 
 	** See `Peg.match`
-	Match match(Str str) {
+	Match? match(Str str) {
 		Peg(str, this).match
 	}
 	

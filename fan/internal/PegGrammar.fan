@@ -24,6 +24,7 @@ internal class PegGrammar : Rules {
 		doubleQuote				:= rules["doubleQuote"] { it.useInResult = false }
 		chars					:= rules["chars"]
 		macro					:= rules["macro"]
+		unicode					:= rules["unicode"]
 		dot						:= rules["dot"]
 		sp						:= rules["sp"]
 		eos						:= eos { it.debug = false; it.useInResult = false }
@@ -49,10 +50,11 @@ internal class PegGrammar : Rules {
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }
-		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }
-		rules["doubleQuote"]	= sequence { char('"' ), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot('"' ), }), char('"' ), optional(char('i')), }
-		rules["chars"]			= sequence { char('['), oneOrMore(firstOf { sequence { char('\\'), anyChar, }, charNot(']'), }), char(']'), optional(char('i')), }
+		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }	// if you escape something, then it MUST be followed by another char
+		rules["doubleQuote"]	= sequence { char('"' ), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('"' ), }), char('"' ), optional(char('i')), }
+		rules["chars"]			= sequence { char('[' ), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot(']' ), }), char(']' ), optional(char('i')), }
 		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), optional(sequence { char('('), zeroOrMore(charNotOf(")\n".chars)), char(')'), }), }
+		rules["unicode"]		= sequence { char('\\'), char('u'), hexChar, hexChar, hexChar, hexChar, }
 		rules["dot"]			= char('.')
 		rules["sp"]				= spaceChar	{ it.debug = false; it.useInResult = false }
 		
