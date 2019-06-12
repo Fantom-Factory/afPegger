@@ -3,60 +3,68 @@
 internal class TestStrRules : Test, Rules {
 
 	Void testStr() {
-		parser	:= Parser(str("ever"))
-		verify     (parser.match("ever".in) != null)
-		verifyEq   (parser.match("ever".in), "ever")
+		parser		:= str("ever")
+		verify     (parser.match("ever")?.toStr != null)
+		verifyEq   (parser.match("ever")?.toStr, "ever")
 
-		verifyFalse(parser.match("".in) != null)
-		verifyFalse(parser.match("wot".in) != null)
-		verifyFalse(parser.match("neverever".in) != null)
-
-		// test rollbacks
-		p1	:= Parser(str("wot"))
-		p2	:= Parser(str("ever"))
-		in	:= "woteverwotever".in
-		
-		verify     (p1.match(in) != null)
-		verifyFalse(p1.match(in) != null)
-		verify     (p2.match(in) != null)
-		verifyFalse(p2.match(in) != null)
-		verify     (p1.match(in) != null)
-		verifyFalse(p1.match(in) != null)
-		verify     (p2.match(in) != null)
-		verifyFalse(p2.match(in) != null)
+		verifyFalse(parser.match(""         ) != null)
+		verifyFalse(parser.match("wot"      ) != null)
+		verifyFalse(parser.match("neverever") != null)
 	}
 
 	Void testStrNot() {
-		parser	:= Parser(strNot("ever"))
-		verifyFalse(parser.match("ever".in) != null)
+		parser		:= strNot("ever")
 
-		verifyFalse(parser.match("".in) != null)
+		verifyNull	(parser.match("ever"))
+		verifyNull	(parser.match(""))
 
-		verify     (parser.match("wot".in) != null)
-		verifyEq   (parser.match("wot".in), "wot")
-
-		verify     (parser.match("wotever".in) != null)
-		verifyEq   (parser.match("wotever".in), "wot")
-
-		// test rollbacks
-		p1	:= Parser(strNot("wot"))
-		p2	:= Parser(strNot("ever"))
-		in	:= "wotever".in
-		verifyFalse(p1.match(in) != null)
-		verify     (p2.match(in) != null)
-		verifyFalse(p2.match(in) != null)
-		verify     (p1.match(in) != null)
+		verify		(parser.match("wot")?.toStr != null)
+		verifyEq	(parser.match("wot")?.toStr, "wot")
 		
+		verify		(parser.match("wotever")?.toStr != null)
+		verifyEq	(parser.match("wotever")?.toStr, "wot")
+
+		verify		(parser.match("wotever2")?.toStr != null)
+		verifyEq	(parser.match("wotever2")?.toStr, "wot")
+
 		// test internals
-		verifyEq   (parser.match("1ever".in), "1")
-		verifyEq   (parser.match("12ever".in), "12")
-		verifyEq   (parser.match("123ever".in), "123")
-		verifyEq   (parser.match("1234ever".in), "1234")
-		verifyEq   (parser.match("12345ever".in), "12345")
-		verifyEq   (parser.match("123456ever".in), "123456")
-		verifyEq   (parser.match("1234567ever".in), "1234567")
-		verifyEq   (parser.match("12345678ever".in), "12345678")
-		verifyEq   (parser.match("123456789ever".in), "123456789")
-		verifyEq   (parser.match("1234567890ever".in), "1234567890")
+		verifyEq   (parser.match("1ever")?.matched, "1")
+		verifyEq   (parser.match("12ever")?.matched, "12")
+		verifyEq   (parser.match("123ever")?.matched, "123")
+		verifyEq   (parser.match("1234ever")?.matched, "1234")
+		verifyEq   (parser.match("12345ever")?.matched, "12345")
+		verifyEq   (parser.match("123456ever")?.matched, "123456")
+		verifyEq   (parser.match("1234567ever")?.matched, "1234567")
+		verifyEq   (parser.match("12345678ever")?.matched, "12345678")
+		verifyEq   (parser.match("123456789ever")?.matched, "123456789")
+		verifyEq   (parser.match("1234567890ever")?.matched, "1234567890")
+	}
+	
+	Void testUnicode() {
+		rule := StrRule.fromStr("\"--\\u003D--\"")
+		verifyEq(rule.expression, ("\"--=--\""))
+		verifyEq(rule.match("--\u003D--").matched, "--=--")
+		verifyEq(rule.match("--=--").matched, "--=--")
+		
+		rule = Peg.parseRule("\"--\\u003D--\"")
+		verifyEq(rule.expression, ("\"--=--\""))
+		verifyEq(rule.match("--\u003D--").matched, "--=--")
+		verifyEq(rule.match("--=--").matched, "--=--")
+
+		// test escaping the escape
+		rule = StrRule.fromStr("\"--\\\\u003D--\"")
+		verifyEq(rule.expression, ("\"--\\\\u003D--\""))
+		verifyEq(rule.match("--\u003D--"), null)
+		verifyEq(rule.match("--=--"), null)
+		verifyEq(rule.match("--\\u003D--").matched, "--\\u003D--")
+
+		rule = Peg.parseRule("'--\\\\u003D--'")
+		verifyEq(rule.expression, ("\"--\\\\u003D--\""))
+		verifyEq(rule.match("--\u003D--"), null)
+		verifyEq(rule.match("--=--"), null)
+		verifyEq(rule.match("--\\u003D--").matched, "--\\u003D--")
+
+		rule = Peg.parseRule("'\\uFEFF--'")	// dodgy start of string test
+		verifyEq(rule.match("\uFEFF--")?.matched?.size, 3)
 	}
 }

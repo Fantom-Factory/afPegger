@@ -1,9 +1,10 @@
 Overview
 ********
-For when Regular Expressions just aren't enough!
+Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!
 
-Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf` implementation.
-It lets you create text parsers by building up a tree of simple matching [rules]`Rules`.
+Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf` implementation. It lets you create text parsers by building up a tree of simple matching [rules]`Rules`.
+
+Advanced parsing options let you *look ahead* with predicates and the returned tree of match results gives you plenty of options for transforming it into useful data.
 
 Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf` and [Parboiled]`https://github.com/sirthias/parboiled/wiki`.
 
@@ -13,15 +14,15 @@ Quick Start
 ***********
 pre>
 syntax: fantom
+using afPegger::Peg
 
-using afPegger
-
-class Example : Rules {
+class Example {
     Void main() {
-        nameRule   := oneOrMore(anyAlphaChar).withAction |Str match| { echo(match) }
-        parseRules := sequence([char('<'), nameRule, char('>')])
+        input := "<<<Hello Mum>>>"
+        rule  := "'<'+ name:[a-zA-Z ]+ '>'+"
+        match := Peg(input, rule).match
 
-        Parser(parseRules).parse("<HelloMum>".in)  // --> HelloMum
+        name  := match["name"]    // --> "Hello Mum"
     }
 }
 <pre
@@ -30,98 +31,169 @@ class Example : Rules {
 
 Usage
 *****
-When parsing text, 'Pegger' on it's own will not return anything useful. Instead it is up to you to assign useful actions to rules that get executed when it is successfully matched against text.
-
-The `Rules` mixin contains a lot of useful pre-written rules. But should you require more dynamic behaviour, you can always extend Pegger by implementing your own `Rule`.
-
-Pegger is stream based, meaning it will only consume as much of the input stream as it needs to verify that the next rule passes / fails.
+The quick start example saw a lot of crazy symbols... so woah, what just happened?
 
 
 
-Tree Rules
-**********
-When parsing text, it is often useful to build tree structures. For example, a calculator may build a tree of nested expressions.
+Rules
+=====
+Pegger attempts to match a 'rule' against a given string. In the example the string was '<<<Hello Mum>>>' and the rule was that mixed bag of crazy characters. Rules can be written in PEG notation (see mixed bag of crazy characters) or they can be created programmatically via Fantom code using the `Rules` mixin:
 
 pre>
-(2 + 2) * (5 - 2) + 3
+syntax: fantom
+// PEG Notation:
+// '<'+ ([a-zA-Z] / " ")+ '>'+
 
-calc::
-    calc::
-        number::2
-        op::+
-        number::2
-    op::*
-    calc::
-        number::5
-        op::-
-        number::2
-    op::+
-    number::3
+// Fantom code:
+rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
+
 <pre
 
-`TreeRules` extend the standard 'Rules' mixin to allow you to do just that.
+The Fantom code can be a lot simplier to read and understand, but is also a lot more verbose.
+
+Once you run a match, the result is a tree. Use 'Match.dump()' to see it:
 
 pre>
-using afPegger
+syntax: fantom
+rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
 
-class Calculator : TreeRules {
-    private Str:Func ops := [
-        "+" : |Float a, Float b -> Float| { a + b },
-        "-" : |Float a, Float b -> Float| { a - b },
-        "*" : |Float a, Float b -> Float| { a * b },
-        "%" : |Float a, Float b -> Float| { a / b }
-    ]
+input := "<<<Hello Mum>>>"
+match := Peg(input, rule).match
+match.dump
 
-    Float parse(Str text) {
-        parser := Parser(calculatorRules)
-        tree   := (TreeCtx) parser.parseAll(text.in, TreeCtx())
+// --> root : "<<<Hello Mum>>>"
 
-        echo(tree)
+<pre
 
-        tree.root.walk(null,
-            |TreeItem item| {
-                if (item.type == "calc") {
-                    op  := (Str?) null
-                    item.data = item.items.reduce(0f) |Float total, itm, i->Float| {
-                        if (itm.type == "op") {
-                            op = itm.matched
-                            return total
-                        }
-                        number := itm.type == "number" ? itm.matched.toFloat : itm.data
-                        return i == 0 ? number : ops[op](total, number)
-                    }
-                }
-            }
-        )
+Okay, so that's not much of a tree. To create a tree, we need to give parts of our rule a label, or a name:
 
-        return tree.root.items.first.data
-    }
-
-    Rule calculatorRules() {
-        rules               := NamedRules()
-        expression          := rules["expression"]
-        number              := rules["number"]
-        operator            := rules["operator"]
-        calc                := rules["calc"]
-
-        rules["number"]     = oneOrMore(anyNumChar).withAction(addAction("number"))
-        rules["operator"]   = anyCharOf("+-*%".chars).withAction(addAction("op"))
-        rules["expression"] = firstOf { number, sequence { char('('), calc, char(')'), }, }
-        rules["calc"]       = sequence { push("calc"), expression, oneOrMore(sequence { anySpaceChar, operator, anySpaceChar, expression, }), pop }
-
-        return calc
-    }
+pre>
+syntax: fantom
+rule := sequence {
+  oneOrMore(char('<')).withName("start"),
+  oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
+  oneOrMore(char('>')).withName("end"),
 }
 <pre
 
-Try it with:
+We can do the same in PEG notation by using a 'label:' prefix:
 
 pre>
-expression := "(2 + 2) * (5 - 2) + 3"
-Calculator().parse(expression)  // --> 15.0
+rule := "start:'<'+ name:[a-zA-Z ]+ end:'>'+"
+<pre
 
-expression = "(2 + (12 - 3)) * ((15 % 3) - 2 * 3) + 4"
-Calculator().parse(expression)  // --> 103.0
+'match.dump()' now gives:
+
+pre>
+root
+ ├─ start : "<<<"
+ ├─ name : "Hello Mum"
+ └─ end : ">>>"
+<pre
+
+Each part of the match may be retreived using the 'Match.get()' operator:
+
+pre>
+match["start"].toStr  // -> "<<<"
+match["name"].toStr   // -> "Hello Mum"
+match["end"].toStr    // -> ">>>"
+<pre
+
+
+
+Grammar
+=======
+The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which responsible matching everything:
+
+pre>
+root  <- start name end
+start <- '<'+
+name  <- [a-zA-Z ]+
+end   <- '>'+
+<pre
+
+Each definition must be placed on its own line, and may also be written in a more standard property file notation using '=':
+
+pre>
+syntax: props
+#  Hash comments are allowed in grammar
+// as are double slash comments
+
+root  = start name end
+start = '<'+
+name  = [a-zA-Z ]+
+end   = '>'+
+<pre
+
+When run, the same result is given:
+
+pre>
+syntax: fantom
+
+grammarStr := "..."
+grammar    := Peg.parseGrammar(grammarStr)
+rootRule   := grammar["root"]
+
+match      := Peg(input, rootRule).match
+match.dump
+<pre
+
+Once a grammar (or rule) has been parsed, it may be cached for future re-use.
+
+
+
+Macros
+******
+Pegger introduces macros for common or useful extensions. These may be used directly in your PEG expressions:
+
+pre>
+table:
+name        function
+----------  ---------------------------------
+\a          Matches any alpha char - [a-zA-Z]
+\d          Matches any digit - [0-9]
+\n          Matches new-line char - [\n]
+\s          Matches any whitespace char - [ \t\n]
+\w          Matches any word char - [a-zA-Z0-9_]
+\sp         Matches space or tab char - [ \t]
+\eol        Matches End-Of-Line - new-line char or EOS
+\eos        Matches End-Of-Stream - or End-Of-String
+\err(xxx)   Throws a parse error when processed
+\noop(xxx)  No-Operation, does nothing
+<pre
+
+
+
+PEG Grammar
+***********
+Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, Pegger *does* use itself to parse your PEG definitions!
+
+PEG grammar:
+
+pre>
+grammar      <- (!\eos line)+
+line         <- emptyLine / commentLine / ruleDef / \err(FAIL)
+emptyLine    <- sp* \eol
+commentLine  <- sp* ("#" / "//") sp* comment \eol
+comment      <- [^\n]*
+ruleDef      <- ruleName sp* ("=" / "<-") sp* rule sp* \eol
+ruleName     <- [a-zA-Z] [a-zA-Z0-9_\-]*
+rule         <- firstOf / sequence / \err(FAIL)
+sequence     <- expression (sp+ expression)*
+firstOf      <- expression sp* "/" sp* expression (sp* "/" sp* expression)*
+expression   <- predicate? (label ":")? type multiplicity?
+label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
+type         <- ("(" sp* rule sp* ")") / ruleName / literal / chars / macro / dot
+predicate    <- "!" / "&"
+multiplicity <- "*" / "+" / "?"
+literal      <- singleQuote / doubleQuote
+singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
+macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+unicode      <- "\\" "u" [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9]
+dot          <- "."
+sp           <- [ \t]
 <pre
 
 
@@ -131,88 +203,114 @@ Recursive / HTML Parsing
 A well known limitation of regular expressions is that they can not match nested patterns, such as HTML. (See [StackOverflow for explanation]`http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454`.)
 Pegger to the rescue!
 
-Below is an example that parses nested HTML tags into XML and throws a 'ParseErr' should an incorrect end tag be used. It uses the `NamedRules` helper class to reference rules to get around inherent problems with recursion.
+Because PEGs contain rules that may reference themselves in a circular fashion, it is possible to create recursive parsers.
+
+Below is an example that parses nested HTML tags. You can see the recursion from the 'element' definition which references itself:
 
 pre>
 syntax: fantom
+pegDefs := "element  = startTag (element / text)* endTag
+            startTag = '<'  name:[a-z]i+ '>'
+            endTag   = '</' name:[a-z]i+ '>'
+            text     = [^<]+"
+grammar := Peg.parseGrammar(pegDefs)
+element := grammar["grammar"]
 
-using xml
-using afPegger
+html := parseHtml("<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>")
 
-class Example {
-  Void main() {
-    Parser#.pod.log.level = LogLevel.debug
-    elem := TagParser().parseTags("<html><title>Pegger Example</title><body>Parsing is Easy!</body></html>")
+Peg(html, element).match.dump
 
-    echo(elem.writeToStr)  // -->
-                           // <html>
-                           //  <title>Pegger Example</title>
-                           //  <body>Parsing is Easy!</body>
-                           // </html>
+<pre
 
-    elem = TagParser().parseTags("<html><title>Pegger Example</oops></html>")
-                           // --> sys::ParseErr: End tag </oops> does not match start tag <title>
-  }
-}
+Which outputs the following result tree:
 
-class TagParser : Rules {
-  XElem?  root
-  XElem?  elem
+pre>
+element
+ ├─ startTag
+ │   └─ name : "html"
+ ├─ element
+ │   ├─ startTag
+ │   │   └─ name : "head"
+ │   ├─ element
+ │   │   ├─ startTag
+ │   │   │   └─ name : "title"
+ │   │   ├─ text : "Pegger Example"
+ │   │   └─ endTag
+ │   │       └─ name : "title"
+ │   └─ endTag
+ │       └─ name : "head"
+ ├─ element
+ │   ├─ startTag
+ │   │   └─ name : "body"
+ │   ├─ element
+ │   │   ├─ startTag
+ │   │   │   └─ name : "p"
+ │   │   ├─ text : "Parsing is Easy!"
+ │   │   └─ endTag
+ │   │       └─ name : "p"
+ │   └─ endTag
+ │       └─ name : "body"
+ └─ endTag
+     └─ name : "html"
+<pre
 
-  XElem parseTags(Str tags) {
-    Parser(rules).parse(tags.in)
-    return root
-  }
+Parsing has never been easier!
 
-  Rule rules() {
-    // use 'NamedRules' to define rules in any order and to avoid recursion
-    rules    := NamedRules()
-    element  := rules["element"]
-    startTag := rules["startTag"]
-    endTag   := rules["endTag"]
-    text     := rules["text"]
+*Note that only **Chuck Norris** can parse HTML with regular expressions.*
 
-    rules["element"]  = sequence([startTag, zeroOrMore(firstOf([element, text])), endTag])
-    rules["startTag"] = sequence([char('<'), oneOrMore(anyAlphaChar), char('>')]) .withAction { pushStartTag(it) }
-    rules["endTag"]   = sequence([str("</"), oneOrMore(anyAlphaChar), char('>')]) .withAction { pushEndTag(it) }
-    rules["text"]     = oneOrMore(anyCharNot('<'))                                .withAction { pushText(it) }
+Converting the match results into XML is left as an excerise for the user, but there are a couple of options open to you:
 
-    return element
-  }
 
-  Void pushStartTag(Str tagName) {
-    child := XElem(tagName[1..<-1])
-    if (root == null)
-      root = child
-    else
-      elem.add(child)
-    elem = child
-  }
 
-  Void pushEndTag(Str tagName) {
-    if (tagName[2..<-1] != elem.name)
-      throw ParseErr("End tag ${tagName} does not match start tag <${elem.name}>")
-    elem = elem.parent
-  }
+1. Looping
+==========
+This is usually the easiest way to convert your match results, but not always the cleanest.
 
-  Void pushText(Str text) {
-    elem.add(XText(text))
-  }
+It involves looping over the match results the same as you would with any other list, and recursively calling yourself to convert inner data.
+
+
+
+2. Walking
+==========
+Create a 'walk()' method that recursively calls a given function every time it steps into, or out of, a match:
+
+pre>
+Void walk(Match match, |Match, Str startOrEnd| fn) {
+    fn?.call(match, "start")
+    match.matches.each { walk(it, fn) }
+    fn?.call(match, "end")
 }
 <pre
 
-Note that only *Chuck Norris* can parse HTML with regular expressions.
+
+
+3. Rule Actions
+===============
+You can add action functions to rules. Functions are called when the rule is successfully matched.
+
+Note that action functions are only called once all matching has been completed. That way functions are not called when sequences are being explored, or before predicates are rolled back.
+
+pre>
+grammar["startTag"].withAction |tagName| { echo("startTag: $tagName") }
+grammar["text"    ].withAction |text|    { echo("text: $text") }
+grammar["endTag"  ].withAction |tagName| { echo("endTag: $tagName") }
+<pre
 
 
 
-Debug
-*****
+Debugging
+*********
 By enabling debug logging, 'Pegger' will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!)
 But note it will only emit debug information for rules with names.
 
 Enable debug logging with the line:
 
   syntax: fantom
+
+  Peg.debugOn
+
+  // or
+
   Log.get("afPegger").level = LogLevel.debug
 
 Which, for the above html parsing example, will generate the following:

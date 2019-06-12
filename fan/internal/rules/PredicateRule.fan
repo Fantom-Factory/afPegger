@@ -10,12 +10,16 @@ internal class PredicateRule : Rule {
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
+		start  := ctx.cur
 		passed := not ? !ctx.process(rule) : ctx.process(rule)
-		ctx.rollback("Rolling back predicate")
+		if (passed) {
+			ctx.log("Rolling back predicate")
+			ctx.rollbackTo(start)
+		}
 		return passed
 	}
 
 	override Str expression() {
-		(not ? "!" : "&") + wrapRuleName(rule) 
+		(not ? "!" : "&") + rule._dis(true)
 	}
 }

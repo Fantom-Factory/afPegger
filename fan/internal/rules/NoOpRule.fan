@@ -1,13 +1,15 @@
 
 @Js
 internal class NoOpRule : Rule {
-	private Bool pass
-	override Str expression
+	private Str		msg
 	
-	new make(Str exp, Bool pass) {
-		this.expression = exp
-		this.pass = pass
+	new make(Str msg) {
+		this.msg	= msg
 	}
 	
-	override Bool doProcess(PegCtx ctx) { pass }
+	override Bool doProcess(PegCtx ctx) { true }
+
+	override Str expression() {
+		"\\noop(${msg.toCode(null)})"
+	}
 }

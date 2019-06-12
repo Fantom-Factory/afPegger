@@ -4,8 +4,8 @@ class Build : BuildPod {
 
     new make() {
         podName = "afPegger"
-        summary = "For when Regular Expressions just aren't enough!"
-        version = Version("0.1.1")
+        summary = "Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!"
+        version = Version("0.2.0")
 
         meta = [
             "pod.dis"       : "Pegger",
@@ -15,10 +15,8 @@ class Build : BuildPod {
         ]
 
         depends = [
-            "sys 1.0",
-
             // ---- Core ------------------------
-            "afBeanUtils 1.0.8 - 1.0",  // for ArgNotFoundErr
+            "sys        1.0",
 
             // ---- Test ------------------------
             "xml        1.0",   // htmlParser

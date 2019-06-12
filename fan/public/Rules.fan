@@ -1,66 +1,68 @@
 
-** A collection of PEG rules, ready for use!
+** (Advanced) 
+** A collection of utility methods that return PEG rules.
+** 
+** Use when programmatically creating PEG grammar.
 @Js
 mixin Rules {
 	
-	** Matches if the of the stream (EOS) is reached. 
-	static Rule eos() {
-		EosRule()
-	}
+	// ---- Str rules -----------------------------------------------------------------------------
 	
 	** Matches the given string. 
 	** 
 	** Example PEG notation:
 	** 
 	**   "ChuckNorris"
-	static Rule str(Str string, Bool ignoreCase := true) {
-		StrRule(string, ignoreCase)	// TODO: validate the str is not empty
+	static Rule str(Str string, Bool ignoreCase := false) {
+		StrRule(string, ignoreCase)
 	}
-	
+
 	** Matches one or more characters up to (but not including) the given string.  
 	** 
 	** Example PEG notation:
 	** 
 	**   (!"ChuckNorris" .)+
-	static Rule strNot(Str string, Bool ignoreCase := true) {
-		StrNotRule(string, ignoreCase)	// TODO: validate the str is not empty
+	static Rule strNot(Str string, Bool ignoreCase := false) {
+		StrNotRule(string, ignoreCase)
 	}
-	
-//	TODO: glob Rule - maybe they *only* match until the end of the line? (so we can first read until EOL) 
-//	static Rule glob(Str regex) {
-//		RuleTodo()
-//	}
-//
-//	TODO: regex Rule
-//	static Rule regex(Str regex) {
-//		RuleTodo()
-//	}
-	
-	** Matches the given character.  
-	** 
-	** Example PEG notation:
-	** 
-	**   "C"
-	static Rule char(Int char) {
-		CharRule(char.toChar.toCode) |Int peek->Bool| { char == peek }
-	}
+
+	// ---- Char rules ----------------------------------------------------------------------------
 
 	** Matches any character.  
 	** 
 	** PEG notation:
 	** 
-	**   "."
+	**   .
 	static Rule anyChar() {
-		CharRule(".") |Int peek->Bool| { true }
+		AnyCharRule()
+	}
+
+	** Multi-purpose char class rule.  
+	** 
+	** Example PEG notation:
+	** 
+	**   [a-z_]i
+	static Rule charRule(Str charClass) {
+		CharRule.fromStr(charClass)
+	}
+
+	** Matches the given character.  
+	** 
+	** Example PEG notation:
+	** 
+	**   [C]
+	static Rule char(Int char, Bool not := false) {
+		not ? CharRule(char.toChar.toCode(null).replace("]", "\\]").replace("-", "\\-"), not) |Int peek->Bool| { char == peek }
+			: StrMimickCharRule(char, false)	// this looks better than char rule & parses faster than a str rule 
 	}
 
 	** Matches any character except the given one.  
 	** 
 	** Example PEG notation:
 	** 
-	**   !"C" .
-	static Rule anyCharNot(Int char) {
-		CharRule("!${char.toChar.toCode} .") |Int peek->Bool| { char != peek }
+	**   [^C]
+	static Rule charNot(Int ch) {
+		char(ch, true)
 	}
 
 	** Matches any character in the given list.  
@@ -68,17 +70,18 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   [ChukNoris]
-	static Rule anyCharOf(Int[] chars) {
-		CharRule("[${Str.fromChars(chars).toCode(null)}]") |Int peek->Bool| { chars.contains(peek) }
+	static Rule charOf(Int[] chars, Bool not := false) {
+		if (chars.isEmpty) throw ArgErr("Chars may not be empty")
+		return CharRule(Str.fromChars(chars).toCode(null), not) |Int peek->Bool| { chars.contains(peek) }
 	}
 	
 	** Matches any character *not* in the given list.  
 	** 
 	** Example PEG notation:
 	** 
-	**   ![ChukNoris] .
-	static Rule anyCharNotOf(Int[] chars) {
-		CharRule("![${Str.fromChars(chars).toCode(null)}] .") |Int peek->Bool| { !chars.contains(peek) }
+	**   [^ChukNoris]
+	static Rule charNotOf(Int[] chars) {
+		charOf(chars, true)
 	}
 
 	** Matches any character in the given range.  
@@ -86,17 +89,8 @@ mixin Rules {
 	** Example PEG notation:
 	** 
 	**   [C-N]
-	static Rule anyCharInRange(Range charRange) {
-		CharRule("[${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}]") |Int peek->Bool| { charRange.contains(peek) }
-	}
-
-	** Matches any character *not* in the given range. 
-	** 
-	** Example PEG notation:
-	** 
-	**   ![C-N] .
-	static Rule anyCharNotInRange(Range charRange) {
-		CharRule("![${charRange.min.toChar.toCode(null)}-${charRange.last.toChar.toCode(null)}] .") |Int peek->Bool| { !charRange.contains(peek) }
+	static Rule charIn(Range charRange, Bool not := false) {
+		CharRule(charRange.min.toChar + "-" + charRange.last.toChar, not) |Int peek->Bool| { charRange.contains(peek) }
 	}
 	
 	** Matches any alphabetical character. 
@@ -104,8 +98,8 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [a-zA-Z]
-	static Rule anyAlphaChar() {
-		CharRule("[a-zA-Z]") |Int peek->Bool| { peek.isAlpha }
+	static Rule alphaChar(Bool not := false) {
+		CharRule("a-zA-Z", not) |Int peek->Bool| { peek.isAlpha }
 	}
 
 	** Matches any alphabetical or numerical character. 
@@ -113,8 +107,8 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [a-zA-Z0-9]
-	static Rule anyAlphaNumChar() {
-		CharRule("[a-zA-Z0-9]") |Int peek->Bool| { peek.isAlphaNum }
+	static Rule alphaNumChar(Bool not := false) {
+		CharRule("a-zA-Z0-9", not) |Int peek->Bool| { peek.isAlphaNum }
 	}
 
 	** Matches any numerical character. 
@@ -122,8 +116,8 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [0-9]
-	static Rule anyNumChar() {
-		CharRule("[0-9]") |Int peek->Bool| { peek.isDigit }
+	static Rule numChar(Bool not := false) {
+		CharRule("0-9", not) |Int peek->Bool| { peek.isDigit }
 	}
 
 	** Matches any hexadecimal character. 
@@ -131,37 +125,48 @@ mixin Rules {
 	** PEG notation:
 	** 
 	**   [a-fA-F0-9]
-	static Rule anyHexChar() {
-		CharRule("[a-fA-F0-9]") |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
+	static Rule hexChar(Bool not := false) {
+		CharRule("a-fA-F0-9", not) |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
 	}
 	
-	** Matches any whitespace character. 
+	** Matches any whitespace character, including new lines.
 	** 
 	** PEG notation:
 	** 
-	**   [ \t\n\r\f]
-	static Rule anySpaceChar() {
-		CharRule("[ ]") |Int peek->Bool| { peek.isSpace }
+	**   [ \t\n]
+	static Rule whitespaceChar(Bool not := false) {
+		CharRule(" \t\n".toCode(null), not) |Int peek->Bool| { peek.isSpace }
 	}
-
 	
-	** Matches multiple whitespace characters. 
+	** Matches any space character (excluding new line chars). 
 	** 
 	** PEG notation:
 	** 
-	**   [ \t\n\r\f]+
-	static Rule anySpaceChars() {
-		oneOrMore(anySpaceChar)
+	**   [ \t]
+	static Rule spaceChar(Bool not := false) {
+		CharRule(" \t".toCode(null), not) |Int peek->Bool| { peek == ' ' || peek == '\t' }
+	}
+	
+	** Matches any word character, used as a Fantom identifier. 
+	** 
+	** PEG notation:
+	** 
+	**   [a-zA-Z0-9_]
+	static Rule wordChar(Bool not := false) {
+		CharRule("a-zA-Z0-9_".toCode(null), not) |Int peek->Bool| { peek.isAlphaNum || peek == '_' }
 	}
 
-	** Matches any *non* whitespace character. 
+	** Matches the new line character.
+	** This assumes all new lines have been normalised to '\n'. 
 	** 
 	** PEG notation:
 	** 
-	**   ![ \t\n\r\f]
-	static Rule anyNonSpaceChar() {
-		CharRule("![ ] .") |Int peek->Bool| { !peek.isSpace }
+	**   [\n]
+	static Rule newLineChar(Bool not := false) {
+		char('\n', not)
 	}
+
+	// ---- Repetition rules ----------------------------------------------------------------------
 
 	** Processes the given rule and returns success whether it passes or not. 
 	** 
@@ -189,16 +194,6 @@ mixin Rules {
 	**   (rule)+
 	static Rule oneOrMore(Rule rule) {
 		RepetitionRule(1, null, rule)
-	}
-	
-	** Processes the given rule and returns success if it succeeded.
-	** Convenience for 'nTimes(1, rule)'
-	** 
-	** Example PEG notation:
-	** 
-	**   ???
-	static Rule oneOf(Rule rule) {
-		RepetitionRule(1, 1, rule)
 	}
 	
 	** Processes the given rule repeatedly until it fails.
@@ -241,6 +236,8 @@ mixin Rules {
 		RepetitionRule(times.min, times.max, rule)
 	}
 
+	// ---- Expression rules ----------------------------------------------------------------------
+	
 	** Processes the given rules in order until.
 	** Returns success if they all succeeded.
 	** 
@@ -253,7 +250,7 @@ mixin Rules {
 	** When defining a 'sequence()' rule you may also use it-block syntax:
 	** 
 	**   sequence { rule1, rule2, rule3, }
-	static Rule sequence(Rule[] rules := [,]) {
+	static Rule sequence(Rule[] rules := Rule[,]) {
 		SequenceRule(rules)
 	}
 	
@@ -269,33 +266,12 @@ mixin Rules {
 	** When defining a 'firstOf()' rule you may also use it-block syntax:
 	** 
 	**   firstOf { rule1, rule2, rule3, }
-	static Rule firstOf(Rule[] rules := [,]) {
+	static Rule firstOf(Rule[] rules := Rule[,]) {
 		FirstOfRule(rules)
 	}
+
+	// ---- Predicate rules -----------------------------------------------------------------------
 	
-	** A placeholder. 
-	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
-	static Rule todo(Bool pass := false) {
-		NoOpRule("-TODO-", pass)
-	}
-
-	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
-	** Useful for inserting arbitrary actions in sequences:
-	** 
-	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
-	** 
-	** Example PEG notation:
-	** 
-	**   ???
-	static Rule doAction(|Str, Obj?|? action) {
-		NoOpRule("-Action-", true).withAction(action)
-	}
-
-	// TODO: conflicts with Test.fail() in tests!
-//	** The rule will always fail.
-//	static Rule fail(Str expression := "-Fail-") {
-//		NoOpRule(expression, false)
-//	}
 	
 	** Processes the given rule and return success if it succeeded.
 	** The rule is always rolled back so the characters may be subsequently re-read. 
@@ -315,5 +291,52 @@ mixin Rules {
 	**   !(rule)
 	static Rule onlyIfNot(Rule rule) {
 		PredicateRule(rule, true)
+	}
+
+	// ---- Macro rules ---------------------------------------------------------------------------
+
+	** Matches if the of the stream (EOS) is reached.
+	**  
+	** Example PEG notation:
+	** 
+	**   \eos
+	static Rule eos() {
+		EosRule()
+	}
+	
+	** Matches end of line (or the end of the stream).
+	**  
+	** Example PEG notation:
+	** 
+	**   \nl / \eos
+	static Rule eol() {
+		EolRule()
+	}
+	
+	** No operation - a placeholder. 
+	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
+	** 
+	** Example PEG notation:
+	** 
+	**   \\noop(TODO)
+	static Rule noop(Str msg := "TODO") {
+		NoOpRule(msg)
+	}
+
+	** This rule throws an error if processed. 
+	** 
+	** Example PEG notation:
+	** 
+	**   \\fail(FAIL)
+	static Rule err(Str msg := "FAIL") {
+		ErrRule(msg)
+	}
+
+	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
+	** Useful for inserting arbitrary actions in sequences:
+	** 
+	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
+	static Rule doAction(|Str|? action) {
+		NoOpRule("-Action-").withAction(action)
 	}
 }

@@ -3,30 +3,30 @@
 class TestPredicateRule : Test, Rules {
 
 	Void testOnlyIf() {
-		parser	:= Parser(onlyIf(anyAlphaChar))
-		verify     (parser.match("X".in) != null)
-		verifyEq   (parser.match("X".in), "")
+		parser	:= onlyIf(alphaChar)
+		verify     (parser.match("X")?.matched != null)
+		verifyEq   (parser.match("X")?.matched, "")
 
-		verifyFalse(parser.match("1".in) != null)
+		verifyFalse(parser.match("1")?.matched != null)
 
 		// test rollback
-		parser	= Parser(sequence([onlyIf(anyAlphaChar), anyChar]))
-		parser	= Parser(sequence { onlyIf(anyAlphaChar), anyChar, })
-		verify     (parser.match("XX".in) != null)
-		verifyEq   (parser.match("XX".in), "X")
+		parser	= sequence([onlyIf(alphaChar), anyChar])
+		parser	= sequence { onlyIf(alphaChar), anyChar, }
+		verify     (parser.match("XX")?.matched != null)
+		verifyEq   (parser.match("XX")?.matched, "X")
 	}
 
 	Void testOnlyIfNot() {
-		parser	:= Parser(onlyIfNot(anyAlphaChar))
-		verify     (parser.match("9".in) != null)
-		verifyEq   (parser.match("9".in), "")
+		parser	:= onlyIfNot(alphaChar)
+		verify     (parser.match("9")?.matched != null)
+		verifyEq   (parser.match("9")?.matched, "")
 
-		verifyFalse(parser.match("X".in) != null)
+		verifyFalse(parser.match("X")?.matched != null)
 
 		// test rollback
-		parser	= Parser(sequence([onlyIfNot(anyAlphaChar), anyChar]))
-		parser	= Parser(sequence { onlyIfNot(anyAlphaChar), anyChar, })
-		verify     (parser.match("99".in) != null)
-		verifyEq   (parser.match("99".in), "9")
+		parser	= sequence([onlyIfNot(alphaChar), anyChar])
+		parser	= sequence { onlyIfNot(alphaChar), anyChar, }
+		verify     (parser.match("99")?.matched != null)
+		verifyEq   (parser.match("99")?.matched, "9")
 	}
 }
