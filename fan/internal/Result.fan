@@ -47,7 +47,7 @@ internal class Result {
 	}
 	
 	Match? findMatch(Str name, Str in) {
-		matches(in).find { it.name == name || it.rule.label == name}
+		matches(in).find { it.name == name || it.rule.label == name }
 	}
 	
 	Match match(Result? parent, Str in) {

@@ -158,9 +158,9 @@ internal class PegGrammar : Rules {
 			}
 		
 		if (label != null) {
-			if (exRule.label != null)
-//				exRule = ProxyLabelRule(exRule)
-				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
+			exRule = ProxyLabelRule(exRule)
+//			if (exRule.label != null)
+//				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
 			exRule.label = label
 		}
 
@@ -211,17 +211,20 @@ internal class PegGrammar : Rules {
 	}
 }
 
-//@Js
-//internal class ProxyLabelRule : ProxyRule {
-//	private Rule	realRule
-//
-//	override Str? label
-//	
-//	new make(Rule realRule) {
-//		this.realRule	= realRule
-//	}
-//	
-//	override Rule? rule() {
-//		realRule
-//	}
-//}
+@Js
+internal class ProxyLabelRule : ProxyRule {
+	private Rule realRule
+	private Str? _label2
+	override Str? label {
+		get { _label2 }
+		set { _label2 = it }
+	}
+	
+	new make(Rule realRule) {
+		this.realRule	= realRule
+	}
+	
+	override Rule? rule(Bool checked := false) {
+		realRule
+	}
+}

@@ -76,7 +76,7 @@ class Grammar {
 	
 	** Validates that all named rules have been defined. 
 	This validate() {
-		_proxies.vals.each { it.rule }
+		_proxies.vals.each { it.rule(true) }
 		// no need to warn of un-used rules - it may be irritating
 		return this
 	}
@@ -133,7 +133,7 @@ internal abstract class ProxyRule : Rule {
 		rule.toStr
 	}
 	
-	abstract Rule? rule()
+	abstract Rule? rule(Bool checked := false)
 	
 	Void onRule(Rule rule) {
 		if (_name		 != null)	rule.name		 = _name
@@ -156,9 +156,9 @@ internal class ProxyGrammarRule : ProxyRule {
 		this.rules		= rules
 	}
 	
-	override Rule? rule() {
+	override Rule? rule(Bool checked := false) {
 		if (realRule == null) {
-			realRule = rules.getForReal(realName, false)
+			realRule = rules.getForReal(realName, checked)
 			if (realRule != null)
 				onRule(rule)
 		}
