@@ -5,11 +5,10 @@ class Build : BuildPod {
     new make() {
         podName = "afPegger"
         summary = "Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!"
-        version = Version("0.2.0")
+        version = Version("1.0.0")
 
         meta = [
             "pod.dis"       : "Pegger",
-            "repo.internal" : "true",
             "repo.tags"     : "system",
             "repo.public"   : "true"
         ]
