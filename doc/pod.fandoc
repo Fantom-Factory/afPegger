@@ -183,7 +183,7 @@ sequence     <- expression (sp+ expression)*
 firstOf      <- expression sp* "/" sp* expression (sp* "/" sp* expression)*
 expression   <- predicate? (label ":")? type multiplicity?
 label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type         <- ("(" sp* rule sp* ")") / ruleName / literal / chars / macro / dot / \err(FAIL)
+type         <- ("(" sp* rule sp* ")") / ruleName / literal / chars / macro / dot
 predicate    <- "!" / "&"
 multiplicity <- "*" / "+" / "?"
 literal      <- singleQuote / doubleQuote

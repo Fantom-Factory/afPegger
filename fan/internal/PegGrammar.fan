@@ -40,12 +40,12 @@ internal class PegGrammar : Rules {
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
-		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, /* TODO trailing whitespace fails here - see other fail()s */}), }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, }), }
 		rules["firstOf"]		= sequence { expression, zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, zeroOrMore(sequence { zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, }), }
 
 		rules["expression"]		= sequence { optional(predicate), optional(sequence { label, char(':') } ), type, optional(multiplicity), }
 		rules["label"]			= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
-		rules["type"]			= firstOf  { sequence { char('('), zeroOrMore(sp), rule, zeroOrMore(sp) /* TODO whitespace fails here - see other fail()s */, char(')'), }, ruleName, literal, chars, macro, dot, fail, }
+		rules["type"]			= firstOf  { sequence { char('('), zeroOrMore(sp), rule, zeroOrMore(sp), char(')'), }, ruleName, literal, chars, macro, dot, }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
 		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
 		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }

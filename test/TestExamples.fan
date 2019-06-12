@@ -21,12 +21,12 @@ class TestExamples : Test, Rules {
 
 		defs := "
 		         calc = ex (\\s* op \\s* ex)+
-		         ex   = num / ('(' calc ')')
+		         ex   = num / ('(' calc ')' )
 		         num  = [0-9]+
 		         op   = [+\\-*/]
 		         "
 		
-		defs2 := "expr = num:[0-9]+ / ( '(' calc ')')
+		defs2 := "expr = num:[0-9]+ / ( '(' calc ')' )
 		          calc = expr (\\s op:[+\\-*/] \\s expr)+"
 		
 		gram := Peg.parseGrammar(defs)
@@ -91,7 +91,7 @@ class TestExamples : Test, Rules {
 	XElem parseHtml(Str html) {
 		elem := null as XElem
 		defs := "element  = startTag (element / text)* endTag
-		         startTag = '<'  el:[a-z]i+ '>'
+		         startTag = '<'  el:[a-z]i+ '>' 
 		         endTag   = '</' [a-z]i+ '>'
 		         text     = [^<]+"
 		grammar := Peg.parseGrammar(defs)
