@@ -18,7 +18,7 @@ class Peg {
 	**   syntax: fantom 
 	**   Peg(str, Peg.parsePattern(pattern))
 	** 
-	** See `parseRule`
+	** See `Rule.parseRule`
 	new makePattern(Str str, Str pattern) {
 		this.rule	= Peg.parseRule(pattern)
 		this.pegCtx	= PegCtx(str, rule)

@@ -158,12 +158,12 @@ Pegger introduces macros for common or useful extensions. These may be used dire
 table:
 name        function
 ----------  ---------------------------------
-\a          Matches any alpha char - [a-zA-Z]
-\d          Matches any digit - [0-9]
-\n          Matches new-line char - [\n]
-\s          Matches any whitespace char - [ \t\n]
-\w          Matches any word char - [a-zA-Z0-9_]
-\sp         Matches space or tab char - [ \t]
+\a          Matches any alpha char - 'a-zA-Z'
+\d          Matches any digit - '0-9'
+\n          Matches new-line char - '\n'
+\s          Matches any whitespace char - ' \t\n'
+\w          Matches any word char - 'a-zA-Z0-9_'
+\sp         Matches space or tab char - ' \t'
 \eol        Matches End-Of-Line - new-line char or EOS
 \eos        Matches End-Of-Stream - or End-Of-String
 \err(xxx)   Throws a parse error when processed

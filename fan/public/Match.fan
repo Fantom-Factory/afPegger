@@ -19,20 +19,27 @@ class Match {
 //		rule.name
 	}
 
+	// Meh, it's too complicated distinguishing between the two in switch statements (see HTML parser)
+	// much easy to munge the two into "name" - users can always query the Rule if need be 
 //	** Returns the associated rule label, or name if there is no label.
 //	Str? label() {
 //		rule.label ?: rule.name
 //	}
 
-	** Returns the first match with the given rule name (or label).
+	** Returns the first sub-match with the given rule name (or label).
 	@Operator
 	Match? getMatch(Str name) {
 		result.findMatch(name, in)
 	}
+
+	** Returns the sub-match at the given index.
+	@Operator
+	Match? getMatchAt(Int index) {
+		matches[index]
+	}
 	
-	** Returns the first match.
-	@NoDoc	// I'm not sure I like this name - I may delete it...?
-	Match match() {
+	** Returns the first sub-match.
+	Match firstMatch() {
 		matches.first
 	}
 
@@ -62,6 +69,7 @@ class Match {
 	}
 	
 	** Dumps the matched tree to std-out.
+	** Useful for debugging.
 	This dump() {
 		echo(dumpToStr)
 		return this

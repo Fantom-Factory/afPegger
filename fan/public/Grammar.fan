@@ -85,6 +85,7 @@ class Grammar {
 		_rules[name] ?: (checked ? throw ArgNotFoundErr("Rule not defined in grammar: $name", _rules.keys) : null)
 	}
 	
+	@NoDoc
 	override Str toStr() { definition }
 }
 

@@ -82,8 +82,8 @@ internal class PegGrammar : Rules {
 		newGrammar := Grammar()
 		lines := match.matches
 		lines.each |line| {
-			if (line.match.name == "ruleDef") {
-				def  := line.match
+			if (line.firstMatch.name == "ruleDef") {
+				def  := line.firstMatch
 				name := def["ruleName"].matched
 				rule := toRule(def["rule"], newGrammar)
 				rule.name = name
@@ -99,7 +99,7 @@ internal class PegGrammar : Rules {
 		if (match.name != "rule")
 			throw UnsupportedErr("Unknown rule: ${match.name}")
 
-		return fromRule(match.match, newGrammar)
+		return fromRule(match.firstMatch, newGrammar)
 	}
 
 	private Rule fromRule(Match match, Grammar? newGrammar) {
@@ -107,7 +107,7 @@ internal class PegGrammar : Rules {
 		switch (match.name) {
 			case "sequence":
 				if (match.matches.size == 1)
-					rule = fromExpression(match.match, newGrammar)
+					rule = fromExpression(match.firstMatch, newGrammar)
 				else {
 					rules := match.matches.map { fromExpression(it, newGrammar) }
 					rule = Rules.sequence(rules)
@@ -131,11 +131,11 @@ internal class PegGrammar : Rules {
 		multi	:= match["multiplicity"]?.matched
 		pred	:= match["predicate"]?.matched
 		label	:= match["label"]?.matched
-		exName	:= exType.match.name
+		exName	:= exType.firstMatch.name
 		exRule	:= null as Rule
 
 		switch (exName) {
-			case "rule"		: exRule = fromRule(exType.match.match, newGrammar)
+			case "rule"		: exRule = fromRule(exType.firstMatch.firstMatch, newGrammar)
 			case "ruleName"	: exRule = fromRuleName(exType.matched, newGrammar)
 			case "literal"	: exRule = StrRule.fromStr(exType.matched)
 			case "chars"	: exRule = CharRule.fromStr(exType.matched)

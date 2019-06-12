@@ -1,3 +1,7 @@
+v1.0.0
+======
+ - New: Re-written in to a leaner, meaner, and way more expressive PEG parser!
+
 v0.1.2
 ======
  - New: Added 'checked' param to 'Parser.parse()' methods.
