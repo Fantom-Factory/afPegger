@@ -23,7 +23,7 @@ class Build : BuildPod {
         ]
 
         srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`, `test/htmlparser/`]
-        resDirs = [`doc/`]
+        resDirs = [`doc/`, `res/`]
 
         meta["afBuild.testPods"]    = "xml concurrent"
     }
