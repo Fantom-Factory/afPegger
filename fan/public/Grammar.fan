@@ -74,6 +74,13 @@ class Grammar {
 		return buf.toStr		
 	}
 	
+	** Dumps the definition to std-out.
+	@NoDoc
+	This dump() {
+		echo(definition)
+		return this
+	}
+	
 	** Validates that all named rules have been defined. 
 	This validate() {
 		_proxies.vals.each { it.rule(true) }

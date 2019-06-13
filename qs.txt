@@ -1,0 +1,29 @@
+
+PEG
+How to represent data ? 0xFF   do we limit to 8 bits?  How? Fantom is 16 bit chars, not 8-bit data
+
+How to represent CTRL chars 0-16 ?
+
+what of the char NOT op? [^wot] VChar not, or any char not?
+
+Is anyChar . any 16 bit num, or a 7bit vchar?
+
+How to set locales?
+\lower = unicode / locale lower?
+\upper = unicode / locale upper?
+
+
+
+multi-line --> comments in line
+
+macros vs core rules?
+
+"-" rule dev prefix to disable in results
+
+
+
+
+ALPHA
+UPPER
+LOWER
+DIGIT
