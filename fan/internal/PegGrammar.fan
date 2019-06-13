@@ -177,14 +177,16 @@ internal class PegGrammar : Rules {
 	
 	private Rule fromMacro(Str macro) {
 		switch (macro[1..-1]) {
-			case "a"		: return Rules.alphaChar
-			case "d"		: return Rules.numChar
-			case "n"		: return Rules.newLineChar
-			case "s"		: return Rules.whitespaceChar
-			case "w"		: return Rules.wordChar
-			case "sp"		: return Rules.spaceChar
 			case "eol"		: return Rules.eol
 			case "eos"		: return Rules.eos
+
+			// todo I don't even like these either!
+//			case "a"		: return Rules.alphaChar
+//			case "d"		: return Rules.numChar
+//			case "n"		: return Rules.newLineChar
+//			case "s"		: return Rules.whitespaceChar
+//			case "w"		: return Rules.wordChar
+//			case "sp"		: return Rules.spaceChar
 
 			// todo do I actually want all these macros?
 //			case "A"		: return Rules.alphaChar(true)

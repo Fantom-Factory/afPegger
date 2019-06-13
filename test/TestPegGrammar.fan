@@ -37,16 +37,24 @@ class TestPegGrammar : Test {
 	}
 
 	Void testMacro() {
-		verifyRule("\\d"		, "[0-9]")
+		verifyRule("\\eos"		, "\\eos")
+		verifyRule("\\eol"		, "\\eol")
+		verifyRule("\\err(FAIL)", "\\err(FAIL)")
+		verifyRule("\\noop(TODO)","\\noop(TODO)")
+		
+		// I don't like these, they're cryptic
+//		verifyRule("\\d"		, "[0-9]")
+//		verifyRule("\\s"		, "[ \\t\\n]")
+//		verifyRule("\\w"		, "[a-zA-Z0-9_]")
+//		verifyRule("\\a"		, "[a-zA-Z]")
+//		verifyRule("\\n"		, "\"\\n\"")
+//		verifyRule("\\sp"		, "[ \\t]")
+
+		// and these are just plain ugly!
 //		verifyRule("\\D"		, "[^0-9]")
-		verifyRule("\\s"		, "[ \\t\\n]")
 //		verifyRule("\\S"		, "[^ \\t\\n]")
-		verifyRule("\\w"		, "[a-zA-Z0-9_]")
 //		verifyRule("\\W"		, "[^a-zA-Z0-9_]")
-		verifyRule("\\a"		, "[a-zA-Z]")
 //		verifyRule("\\A"		, "[^a-zA-Z]")
-		verifyRule("\\n"		, "\"\\n\"")
-		verifyRule("\\sp"		, "[ \\t]")
 //		verifyRule("\\letter"	, "[a-zA-Z]")
 //		verifyRule("\\digit"	, "[0-9]")
 //		verifyRule("\\upper"	, "[A-Z]")
@@ -54,10 +62,7 @@ class TestPegGrammar : Test {
 //		verifyRule("\\white"	, "[ \\t\\n]")
 //		verifyRule("\\space"	, "[ \\t]")
 //		verifyRule("\\ident"	, "[a-zA-Z_] [a-zA-Z0-9_]*")
-		verifyRule("\\eos"		, "\\eos")
-		verifyRule("\\eol"		, "\\eol")
-		verifyRule("\\err(FAIL)", "\\err(FAIL)")
-		verifyRule("\\noop(TODO)","\\noop(TODO)")
+
 	}
 	
 	Void testMultiplicity() {
@@ -97,6 +102,15 @@ class TestPegGrammar : Test {
 		// comments
 		verifyDefs("// comment\n  # comment\na = [bc] [de]", "a <- [bc] [de]")
 		verifyDefs("// comment\n  # comment\na = [bc] [de]\n // comment", "a <- [bc] [de]")
+	}
+	
+	Void testComments() {
+		// in particular this tests comment lines in the middle of rules, and that rules can span multiple lines
+		
+		// multi-line ruledef - space post newline to distunguish it from a new rule def 
+		verifyDefs("a = b\n c\n d", "a = b c d")
+		
+		
 	}
 	
 	Void testPegCanParseItself() {
