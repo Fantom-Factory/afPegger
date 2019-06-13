@@ -17,6 +17,9 @@ class TestAbnf : Test {
 		parse("rulename = \"abc\"")
 		parse("rulename = \"aBc\"")
 		// will match "abc", "Abc", "aBc", "abC", "ABc", "aBC", "AbC", and "ABC".
+
+		parse("rulename = %i\"aBc\"")
+		parse("rulename = %s\"aBc\"")
 		
 		parse("DIGIT = %x30-39")
 		parse("char-line = %x0D.0A %x20-7E %x0D.0A")

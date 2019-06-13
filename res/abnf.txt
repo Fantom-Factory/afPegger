@@ -1,7 +1,8 @@
 
 ; ---- RFC 5234 - Augmented BNF for Syntax Specifications ----
 
-; ---- https://tools.ietf.org/html/rfc5234#section-4 ----
+; ---- https://tools.ietf.org/html/rfc5234#section-4   ----
+; ---- https://tools.ietf.org/html/rfc7405#section-2.2 ----
 
 ; ---- ABNF Definition of ABNF ----
 
@@ -40,9 +41,14 @@ group			= "(" *c-wsp alternation *c-wsp ")"
 
 option			= "[" *c-wsp alternation *c-wsp "]"
 
-char-val		= DQUOTE *(%x20-21 / %x23-7E) DQUOTE
-					; quoted string of SP and VCHAR
-					; without DQUOTE
+char-val		= insensitive-str / sensitive-str
+
+insensitive-str	= [ "%i" ] quoted-string
+
+sensitive-str	= "%s" quoted-string
+
+quoted-string	= DQUOTE *(%x20-21 / %x23-7E) DQUOTE
+					; quoted string of SP and VCHAR without DQUOTE
 
 num-val			= "%" (bin-val / dec-val / hex-val)
 

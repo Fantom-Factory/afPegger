@@ -31,7 +31,13 @@ group			= "(" c-wsp* alternation c-wsp* ")"
 
 option			= "[" c-wsp* alternation c-wsp* "]"
 
-char-val		= "\"" [ !#-~]* "\""
+char-val		= insensitive-str / sensitive-str
+
+insensitive-str	= "%i"? quoted-string
+
+sensitive-str	= "%s" quoted-string
+
+quoted-string	= "\"" [ !#-~]* "\""
 // SLY that's vchar NOT " !! - I could use [^"] but I want to limit to vchar
 // quoted string of SP and VCHAR without DQUOTE
 
