@@ -126,7 +126,7 @@ mixin Rules {
 	** 
 	**   [a-fA-F0-9]
 	static Rule hexChar(Bool not := false) {
-		CharRule("a-fA-F0-9", not) |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) }
+		CharRule("0-9A-F", not) |Int peek->Bool| { peek.isDigit || ('A'..'F').contains(peek) || ('a'..'f').contains(peek) } { it.ignoresCase = true }
 	}
 	
 	** Matches any whitespace character, including new lines.
@@ -308,9 +308,39 @@ mixin Rules {
 	**  
 	** Example PEG notation:
 	** 
-	**   \nl / \eos
+	**   "\n" / \eos
 	static Rule eol() {
 		EolRule()
+	}
+	
+	** Matches an uppercase character in the current locale.
+	** See `sys::Locale` for details.
+	**  
+	** Example PEG notation:
+	** 
+	**   \upper
+	static Rule upper() {
+		UpperRule()
+	}
+	
+	** Matches a lowercase character in the current locale.
+	** See `sys::Locale` for details.
+	**  
+	** Example PEG notation:
+	** 
+	**   \lower
+	static Rule lower() {
+		LowerRule()
+	}
+	
+	** D.
+	** See `sys::Locale` for details.
+	**  
+	** Example PEG notation:
+	** 
+	**   \lower / \upper
+	static Rule alpha() {
+		AlphaRule()
 	}
 	
 	** No operation - a placeholder. 
