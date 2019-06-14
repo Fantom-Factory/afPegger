@@ -39,6 +39,9 @@ class TestPegGrammar : Test {
 	Void testMacro() {
 		verifyRule("\\eos"		, "\\eos")
 		verifyRule("\\eol"		, "\\eol")
+		verifyRule("\\upper"	, "\\upper")
+		verifyRule("\\lower"	, "\\lower")
+		verifyRule("\\alpha"	, "\\alpha")
 		verifyRule("\\err(FAIL)", "\\err(FAIL)")
 		verifyRule("\\noop(TODO)","\\noop(TODO)")
 		
@@ -78,16 +81,16 @@ class TestPegGrammar : Test {
 	
 	Void testSequence() {
 		verifyRule(". . .")
-		verifyRule(". (\\d \\d) .", ". ([0-9] [0-9]) .")
+		verifyRule(". ([0-9] [0-9]) .", ". ([0-9] [0-9]) .")
 	}
 	
 	Void testFirstOf() {
 		verifyRule(". / . / .")
-		verifyRule(". / (\\d / \\d) / .", ". / ([0-9] / [0-9]) / .")
+		verifyRule(". / ([0-9] / [0-9]) / .", ". / ([0-9] / [0-9]) / .")
 	}
 	
 	Void testGrammar() {
-		verifyDefs("eol = \\n / \\eos", "eol <- \"\\n\" / \\eos")
+		verifyDefs("eol = [\\n] / \\eos", "eol <- \"\\n\" / \\eos")
 
 		// diff symbols
 		verifyDefs("a  = [bc] [de]", "a <- [bc] [de]")
@@ -97,20 +100,37 @@ class TestPegGrammar : Test {
 		verifyDefs("a <- [bc] [de]\nb <- [bc] [de]", "a <- [bc] [de]\nb <- [bc] [de]")
 		
 		// empty lines
-		verifyDefs("  \n\n  \na = [bc] [de]\n\n  \n  ", "a <- [bc] [de]")
+		verifyDefs("  \n\n  \na = [bc] [ef]\n\n  \n  ", "a <- [bc] [ef]")
 		
 		// comments
 		verifyDefs("// comment\n  # comment\na = [bc] [de]", "a <- [bc] [de]")
-		verifyDefs("// comment\n  # comment\na = [bc] [de]\n // comment", "a <- [bc] [de]")
+		
+		verifyDefs("// comment\n  # comment\na = [bc] [de] ",				"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de] #comment",		"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de] #comment\n",		"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de] #comment\n ",	"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de] #comment\n #e",	"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de]\n",				"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de]\n#comment",		"a <- [bc] [de]")
+		verifyDefs("// comment\n  # comment\na = [bc] [de]\n // comment",	"a <- [bc] [de]")
 	}
 	
 	Void testComments() {
 		// in particular this tests comment lines in the middle of rules, and that rules can span multiple lines
 		
-		// multi-line ruledef - space post newline to distunguish it from a new rule def 
-		verifyDefs("a = b\n c\n d", "a = b c d")
+		// multi-line ruledef - space post newline to distinguish it from a new rule def 
+		verifyDefs("a = [bc]\n [cd]\n [de]\n", "a <- [bc] [cd] [de]")
+
+		// test combinations of comments appearing in random place - this is by FAR the hardest part of PEG grammar!
 		
-		
+		verifyDefs("a = [bc]\n [cd] // comment1\n [de]\n", 				"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n  [de]\n", 			"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n   [de]\n", 			"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n//comment2\n [de]\n",	"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n//comment2\n  [de]\n",	"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n [de]\n",	"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n  [de]\n","a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n [de]\n",	"a <- [bc] [cd] [de]")		
 	}
 	
 	Void testPegCanParseItself() {
@@ -127,7 +147,11 @@ class TestPegGrammar : Test {
 	}
 	
 	private Void verifyDefs(Str in, Str out := in) {
-		defs := PegGrammar().parseGrammar(in).definition.trim
-		verifyEq(out, defs)
+		echo("----")
+		echo(in)
+		echo("----")
+		defs := PegGrammar().parseGrammar(in)
+		defs.dump
+		verifyEq(out, defs.definition.trim)
 	}
 }

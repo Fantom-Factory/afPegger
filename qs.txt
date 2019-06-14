@@ -1,4 +1,38 @@
 
+Answers
+*******
+
+[a-z] matches CHAR ranges, not DATA rages
+
+KILL most macros
+
+NO core rules - if liked / needed, they're easy to add yourself - as I have been doing!
+
+YES to multi-line expressions
+YES to eol comments
+
+new Macros
+\lower = unicode / locale lower
+\upper = unicode / locale upper
+
+. is ANY CHAR -> an easy way to say I don't care.
+
+"-" rule dev prefix to disable in results
+
+
+DATA use ABNF notation, it's got shorthand AND ranges
+ - NO - PEG matches CHARs not DATA, own grammar can use CharRule(Int) 
+
+
+
+Questions
+*********
+
+
+
+Dead Questions
+**************
+
 PEG
 How to represent data ? 0xFF   do we limit to 8 bits?  How? Fantom is 16 bit chars, not 8-bit data
 
@@ -6,7 +40,6 @@ How to represent CTRL chars 0-16 ?
 
 what of the char NOT op? [^wot] VChar not, or any char not?
 
-Is anyChar . any 16 bit num, or a 7bit vchar?
 
 How to set locales?
 \lower = unicode / locale lower?
@@ -21,9 +54,22 @@ macros vs core rules?
 "-" rule dev prefix to disable in results
 
 
+Is anyChar . any 16 bit num, or a 7bit vchar?
 
 
 ALPHA
 UPPER
 LOWER
 DIGIT
+
+
+\uXXXX		= java, fantom (and PEG)
+
+&#13;		= XML DEC char ref
+&#x0D;		= XML HEX char ref
+
+%xFF.FF		= ABNF hex
+
+
+[a-z]		is supposed to match CHAR ranges, not data rages
+

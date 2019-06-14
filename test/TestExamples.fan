@@ -20,14 +20,14 @@ class TestExamples : Test, Rules {
 		}
 
 		defs := "
-		         calc = ex (\\s* op \\s* ex)+
+		         calc = ex ([ ]* op [ ]* ex)+
 		         ex   = num / ('(' calc ')' )
 		         num  = [0-9]+
 		         op   = [+\\-*/]
 		         "
 		
 		defs2 := "expr = num:[0-9]+ / ( '(' calc ')' )
-		          calc = expr (\\s op:[+\\-*/] \\s expr)+"
+		          calc = expr ([ ] op:[+\\-*/] [ ] expr)+"
 		
 		gram := Peg.parseGrammar(defs)
 		res  := Peg("((2 + (12 - 3)) * (((15 / 3) - 2) * 3)) + 4", gram["calc"]).match

@@ -5,9 +5,9 @@ internal class PegGrammar : Rules {
 	static Grammar pegGrammar() {
 		rules					:= Grammar()
 		grammar					:= rules["grammar"]
-		line					:= rules["line"]
+//		line					:= rules["line"]
 		emptyLine				:= rules["emptyLine"]
-		commentLine				:= rules["commentLine"]
+//		commentLine				:= rules["commentLine"]
 		comment					:= rules["comment"]
 		ruleDef					:= rules["ruleDef"]
 		ruleName				:= rules["ruleName"]
@@ -17,38 +17,45 @@ internal class PegGrammar : Rules {
 		expression				:= rules["expression"]
 		label					:= rules["label"]
 		type					:= rules["type"]
+		group					:= rules["group"]
 		predicate				:= rules["predicate"]
 		multiplicity			:= rules["multiplicity"]
 		literal					:= rules["literal"]
-		singleQuote				:= rules["singleQuote"] { it.useInResult = false }
-		doubleQuote				:= rules["doubleQuote"] { it.useInResult = false }
+		singleQuote				:= rules["singleQuote"].excludeFromResults
+		doubleQuote				:= rules["doubleQuote"].excludeFromResults
 		chars					:= rules["chars"]
 		macro					:= rules["macro"]
 		unicode					:= rules["unicode"]
 		dot						:= rules["dot"]
-		sp						:= rules["sp"]
-		eos						:= eos { it.debug = false; it.useInResult = false }
-		eol						:= eol { it.debug = false; it.useInResult = false }
+//		sp						:= rules["sp"]
+		cwsp					:= rules["cwsp"]
+		cnl						:= rules["cnl"]
+		eos						:= eos.excludeFromResults.debugOff
+		eol						:= eol.excludeFromResults//.debugOff
 		fail					:= err ("FAIL")
+		sp						:= spaceChar							.excludeFromResults	//.debugOff
 
-		rules["grammar"]		= oneOrMore(sequence { onlyIfNot(eos), line } )
-		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
-		rules["emptyLine"]		= sequence { zeroOrMore(sp), eol, }
-		rules["commentLine"]	= sequence { zeroOrMore(sp), firstOf { char('#'), str("//"), }, zeroOrMore(sp), comment, eol, }
-		rules["comment"]		= zeroOrMore(newLineChar(true))
+//		rules["grammar"]		= sequence { zeroOrMore(emptyLine), oneOrMore(ruleDef), }
+		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { emptyLine, ruleDef, }, })
+//		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
+		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
+//		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol,  }, }
+//		rules["commentLine"]	= sequence { zeroOrMore(cwsp), firstOf { char('#'), str("//"), }, zeroOrMore(cwsp), comment, eol, }
+//		rules["comment"]		= zeroOrMore(newLineChar(true))
 
-		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(sp), firstOf { char('='), str("<-")}, zeroOrMore(sp), rule, zeroOrMore(sp), eol, }
+		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), eol, }
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
 
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
-		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(sp), expression, }), }
-		rules["firstOf"]		= sequence { expression, zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, zeroOrMore(sequence { zeroOrMore(sp), char('/'), zeroOrMore(sp), expression, }), }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(cwsp), expression, }), }
+		rules["firstOf"]		= sequence { expression, zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), expression, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), expression, }), }
 
 		rules["expression"]		= sequence { optional(predicate), optional(sequence { label, char(':') } ), type, optional(multiplicity), }
 		rules["label"]			= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
-		rules["type"]			= firstOf  { sequence { char('('), zeroOrMore(sp), rule, zeroOrMore(sp), char(')'), }, ruleName, literal, chars, macro, dot, }
+		rules["type"]			= firstOf  { group, ruleName, literal, chars, macro, dot, }
+		rules["group"]			= sequence { char('('), zeroOrMore(cwsp), rule, zeroOrMore(cwsp), char(')'), }.excludeFromResults
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
-		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
+		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }.debugOff
 		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }
 		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }	// if you escape something, then it MUST be followed by another char
 		rules["doubleQuote"]	= sequence { char('"' ), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('"' ), }), char('"' ), optional(char('i')), }
@@ -56,7 +63,10 @@ internal class PegGrammar : Rules {
 		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), optional(sequence { char('('), zeroOrMore(charNotOf(")\n".chars)), char(')'), }), }
 		rules["unicode"]		= sequence { char('\\'), char('u'), hexChar, hexChar, hexChar, hexChar, }
 		rules["dot"]			= char('.')
-		rules["sp"]				= spaceChar	{ it.debug = false; it.useInResult = false }
+		
+		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}	.excludeFromResults	//.debugOff
+		rules["cnl"]			= firstOf { eol, comment, }				.excludeFromResults	//.debugOff
+		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }.debugOff, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }).debugOff, eol, }//.debugOff
 		
 		return rules.validate
 	}
@@ -80,15 +90,16 @@ internal class PegGrammar : Rules {
 			throw UnsupportedErr("Unknown rule: ${match.name}")
 		
 		newGrammar := Grammar()
-		lines := match.matches
-		lines.each |line| {
-			if (line.firstMatch.name == "ruleDef") {
-				def  := line.firstMatch
-				name := def["ruleName"].matched
-				rule := toRule(def["rule"], newGrammar)
-				rule.name = name
-				newGrammar[name] = rule
-			}
+		match.matches.each |ruleDef| {
+			if (ruleDef.name == "emptyLine") 
+				return
+			if (ruleDef.name != "ruleDef") 
+				throw ParseErr("Not a ruleDef: ${ruleDef.name}")
+				
+			name := ruleDef["ruleName"].matched
+			rule := toRule(ruleDef["rule"], newGrammar)
+			rule.name = name
+			newGrammar[name] = rule
 		}
 		return newGrammar.validate
 	}
@@ -109,7 +120,9 @@ internal class PegGrammar : Rules {
 				if (match.matches.size == 1)
 					rule = fromExpression(match.firstMatch, newGrammar)
 				else {
-					rules := match.matches.map { fromExpression(it, newGrammar) }
+					rules := match.matches.findAll { it.name != "comment" }.map {
+						fromExpression(it, newGrammar)
+					}
 					rule = Rules.sequence(rules)
 				}
 
@@ -179,6 +192,9 @@ internal class PegGrammar : Rules {
 		switch (macro[1..-1]) {
 			case "eol"		: return Rules.eol
 			case "eos"		: return Rules.eos
+			case "upper"	: return Rules.upper
+			case "lower"	: return Rules.lower
+			case "alpha"	: return Rules.alpha
 
 			// todo I don't even like these either!
 //			case "a"		: return Rules.alphaChar
