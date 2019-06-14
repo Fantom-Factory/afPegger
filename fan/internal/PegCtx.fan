@@ -106,16 +106,23 @@ internal class PegCtx {
 	}
 	
 	private Void _log(Result result, Str msg) {
-		if (result.rule.debug) {
+		if (doLog) {
+//		if (result.rule.debug) {
 			depth := resultStack.size
 			if (!msg.startsWith("--> ") && !msg.startsWith("<-- "))
 				msg = "  > ${curRuleName} - ${msg}"
-			pad	:= "".justr(depth)
+			pad	:= Str.spaces(depth)
 			logger.debug("[${depth.toStr.justr(3)}]${pad}${msg}")
 		}
 	}
 	
+	private Bool doLog() {
+		resultStack.all { it.rule.debug  }
+	}
+	
 	private Str curRuleName() {
-		resultStack.eachrWhile { it.rule.name } ?: rootResult.rule.name
+		rule := resultStack.peek.rule
+		return (rule.name ?: rule.label) ?: rule.debugName
+//		resultStack.eachrWhile { it.rule.name } ?: rootResult.rule.name
 	}
 }

@@ -32,6 +32,10 @@ internal class StrMimickCharRule : Rule {
 	override Str expression() {
 		char.toChar.toCode + (ignoresCase ? "i" : "")
 	}
+	
+	override internal Str debugName() {
+		"charRule"
+	}
 }
 
 @Js
@@ -39,7 +43,7 @@ internal class CharRule : Rule {
 	private		const |Int->Bool|	func
 	private		const Bool			not
 	private		const Str			express
-	private			  Bool			ignoresCase
+	internal		  Bool			ignoresCase
 	
 	new make(Str expression, Bool not, |Int->Bool| func) {
 		this.func 	 = func

@@ -15,6 +15,7 @@ internal class RepetitionRule : Rule {
 		count	:= 0
 		pass	:= true
 		while (pass && (max == null || count != max)) {
+			ctx.log("Attempting x${count+1}")
 			pass = ctx.process(rule)
 			if (pass) count ++
 		}

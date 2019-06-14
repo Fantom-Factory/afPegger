@@ -26,7 +26,7 @@ abstract class Rule {
 	** Should be legal Fantom identifier (think variable names!).
 	virtual Str? name {
 		set {
-			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' })
+			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
 				throw ArgErr("Name must be a valid Fantom identifier: $it")
 			&name = it
 		}
@@ -76,6 +76,18 @@ abstract class Rule {
 		this.name = name
 		return this
 	}
+
+	** A helpful builder method for turning debug off.
+	This debugOff() {
+		this.debug = false
+		return this
+	}
+	
+	** A helpful builder method for removing this rule from tree results.
+	This excludeFromResults() {
+		this.useInResult = false
+		return this
+	}
 	
 	** Matches this rule against the given string.
 	** 
@@ -95,6 +107,11 @@ abstract class Rule {
 			? "(" + expression + ")"
 			: (name ?: expression)
 		return label != null ? "${label}:${dis}" : dis
+	}
+	
+	virtual internal Str debugName() {
+		name := typeof.name.decapitalize
+		return name.endsWith("Rule") ? name[0..<-4] : name
 	}
 
 	@NoDoc

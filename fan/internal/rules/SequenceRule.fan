@@ -8,7 +8,8 @@ internal class SequenceRule : Rule {
 	}
 	
 	override Bool doProcess(PegCtx ctx) {
-		rules.all |Rule rule->Bool| {
+		rules.all |Rule rule, i->Bool| {
+			ctx.log("Attempting sequence ${i + 1} of ${rules.size}")
 			pass := ctx.process(rule)
 			if (!pass && rules.size > 1)
 				ctx.log("Did not match ${rule}.")

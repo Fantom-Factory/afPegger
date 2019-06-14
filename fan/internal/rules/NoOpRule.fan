@@ -7,7 +7,10 @@ internal class NoOpRule : Rule {
 		this.msg	= msg
 	}
 	
-	override Bool doProcess(PegCtx ctx) { true }
+	override Bool doProcess(PegCtx ctx) {
+		echo("NoOp Rule: $msg")
+		return true
+	}
 
 	override Str expression() {
 		"\\noop(${msg.toCode(null)})"

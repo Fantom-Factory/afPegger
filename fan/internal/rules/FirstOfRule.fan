@@ -10,8 +10,9 @@ internal class FirstOfRule : Rule {
 	override Bool doProcess(PegCtx ctx) {
 		// todo - autofail - we can NEVER rollback further than the FIRST "firstOf", or the last choice in any subsequent "firstOf" - each point is a FAIL point with syntax detail
 		// not convinced this would give us any useful contextual feedback on a fail, much better if PEGs explicitly \err(FAIL)  
-		rules.any |Rule rule->Bool| {
-			ctx.process(rule)
+		rules.any |Rule rule, i->Bool| {
+			ctx.log("Attempting choice ${i + 1} of ${rules.size}")
+			return ctx.process(rule)
 		}		
 	}
 
