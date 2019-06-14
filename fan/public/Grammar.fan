@@ -66,10 +66,18 @@ class Grammar {
 	** Pretty prints the grammar definition.
 	Str definition() {
 		validate
-		max := (Int) _rules.keys.reduce(0) |Int max, name| { max.max(name.size) }
+		max := (Int) _rules.vals.reduce(0) |Int max, rule| {
+			max = max.max(rule.name.size)
+			if (!rule.useInResult)	max++
+			if (!rule.debug)		max++
+			return max
+		}
 		buf := StrBuf()
 		_rules.each |rule| {
-			buf.add(rule.name.justl(max)).add(" <- ").add(rule.expression).addChar('\n')
+			name := rule.name
+			if (!rule.useInResult)	name = "-" + name
+			if (!rule.debug)		name = name + "-"
+			buf.add(name.justl(max)).add(" <- ").add(rule.expression).addChar('\n')
 		}
 		return buf.toStr		
 	}
