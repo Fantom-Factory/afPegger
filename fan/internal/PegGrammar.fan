@@ -34,9 +34,12 @@ internal class PegGrammar : Rules {
 
 		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { emptyLine, ruleDef, fail, }, })
 
-		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), eol, }
+		rules["ruleDef"]		= sequence { optional(char('-')).withLabel("exclude"), ruleName, optional(char('-')).withLabel("debugOff"), zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), eol, }
+//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), optional(eol), }
+//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(sp), firstOf { eol, oneOrMore(emptyLine), }, }
+//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, firstOf { eos, oneOrMore(emptyLine), }, }
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
-		rules["rule"]			= firstOf  { _firstOf, fail, }
+		rules["rule"]			= firstOf  { _firstOf, err("FAIL-2"), }
 		rules["firstOf"]		= sequence { _sequence, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), _sequence, }), }
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { zeroOrMore(cwsp), expression, }), }
 
@@ -58,6 +61,9 @@ internal class PegGrammar : Rules {
 		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
 		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }), eol, }
 		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}
+//		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, onlyIf(char('#')), }, }, }
+//		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, eos, }, },}
+//		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}
 		rules["cnl"]			= firstOf { eol, comment, }
 		rules["sp"]				= spaceChar
 		
@@ -89,9 +95,13 @@ internal class PegGrammar : Rules {
 			if (ruleDef.name != "ruleDef") 
 				throw ParseErr("Not a ruleDef: ${ruleDef.name}")
 				
+			excl := ruleDef.contains("exclude")
 			name := ruleDef["ruleName"].matched
+			dOff := ruleDef.contains("debugOff")
 			rule := toRule(ruleDef["rule"], newGrammar)
 			rule.name = name
+			if (excl) rule.excludeFromResults
+			if (dOff) rule.debugOff
 			newGrammar[name] = rule
 		}
 		return newGrammar.validate

@@ -77,6 +77,12 @@ abstract class Rule {
 		return this
 	}
 
+	** A helpful builder method for setting the label.
+	This withLabel(Str label) {
+		this.label = label
+		return this
+	}
+
 	** A helpful builder method for turning debug off.
 	This debugOff() {
 		this.debug = false

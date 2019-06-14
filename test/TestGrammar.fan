@@ -8,12 +8,22 @@ class TestGrammar : Test, Rules {
 	
 	Void testSquashedRules() {
 		// LOOK! We can condense rules together!
-		verifyDefs("a = [bc]+![de]\"wot\"(.)*//naa",	"a <- [bc]+ ![de] \"wot\" .*")
+		verifyDefs("a = [bc]+![de]\"wot\"(.)*",	"a <- [bc]+ ![de] \"wot\" .*")
 	}
 	
 	Void testPrecedence() {
 		// LOOK! I add the brackets in for you!
 		verifyDefs("a = [bc] [de] / [ef] [fg]", "a <- ([bc] [de]) / ([ef] [fg])")
+	}
+	
+	Void testExclude() {
+		gram1 := PegGrammar().parseGrammar("a=(b / c)+\nb=[0-9]\nc=[a-z]")["a"]
+		mach1 := gram1.match("123abc123")
+		verifyNotNull(mach1["b"])
+		
+		gram2 := PegGrammar().parseGrammar("a=(b / c)+\n-b=[0-9]\nc=[a-z]")["a"]
+		mach2 := gram2.match("123abc123")
+		verifyNull(mach2["b"])
 	}
 	
 	private Void verifyDefs(Str in, Str out := in) {

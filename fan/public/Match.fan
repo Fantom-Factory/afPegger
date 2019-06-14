@@ -25,6 +25,11 @@ class Match {
 //		rule.label ?: rule.name
 //	}
 
+	** Returns 'true' if a there's a sub-match with the given rule name or label.
+	Bool contains(Str name) {
+		getMatch(name) != null
+	}
+	
 	** Returns the first sub-match with the given rule name (or label).
 	@Operator
 	Match? getMatch(Str name) {
