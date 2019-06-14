@@ -141,27 +141,113 @@ match.dump
 Once a grammar (or rule) has been parsed, it may be cached for future re-use.
 
 
+PEG Notation
+************
+Writing grammar files can be a lot easier to understand than the verbose programatic method. Here's your guide.
+
+Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, but where mentioned also provides support for 16-bit Unicode characters. Non-visible / non-printable characters are beyond the remit of Pegger; largely because Pegger uses strings as input!
+
+Rule definitions
+----
+A rule is defined with a name followed by '='. The more formal definition of '<-' may be used in place of '='.
+
+  ruleDef1  = rule
+  ruleDef2 <- rule
+
+Sequence
+----
+Ordered sequences of rules are expressed by separating them with a space.
+
+  ruleDef = rule1 rule2 rule3
+
+Choice / First of
+----
+When given a choices, Pegger will match the *first* rule that passes. **Beware:** order of choices *can* be important.
+
+  ruleDef = rule1 / rule2 / rule3
+
+Grouping
+--------
+Brackets may be used to group rules together to avoid ambiguity.
+
+  ruleDef = (rule1 rule2) / (rule3 rule4)
+
+Repetition
+----
+Rules may be specified to be matched by different amounts.
+
+  rule1?   // optional
+  rule1+   // one or more
+  rule1*   // zero or more
+
+Literal
+----
+Literal strings may be matched with either single or double quotes.
+
+  ruleDef1 = "literal 1"
+  ruleDef2 = 'literal 2'
+
+Use backslash to escape the usual '\t \n \f \r' characters and to escape quotes. Use an 'i' suffix to indicate the match should be case-insensitive.
+
+  ruleDef3 = "new\nline\n"i
+
+Character class
+----
+Individual characters, and ranges thereof, may be matched with a regex-esque character class.
+
+  ruleDef1 = [a]        // matches a
+  ruleDef2 = [abc]      // matches 'a', 'b', or 'c'
+  ruleDef3 = [a-z]      // matches any character in the range from 'a' to 'z' inclusive
+  ruleDef4 = [a-z]i     // as above, but case-insensitive
+  ruleDef5 = [0-9A-F]i  // matches any hex digit
+  ruleDef6 = [\n\] \t]  // backslash escapes
+
+The hat '^' character will match any character BUT the chosen ones.
+
+  ruleDef6 = [^0-9]     // match any char BUT not digits
+
+Any character
+----
+Use '.' to match *any* character.
+
+  ruleDef = . . .       // matches any 3 characters
+
+Predicates
+----
+Use the ampersand '&' to look ahead for a match, but NOT consume any characters.
+
+  ruleDef = "something " &"good" .
+
+Use exclamation '!' to look ahead for a negative match, but again, NOT consume any characters.
+
+  ruleDef = "something " !"bad" .
+
+Unicode
+----
+Use '\uXXXX' (hexadecimal) notation to match a 16-bit unicode character.
+May be used in string literals and character classes.
+
+  crlf = [\u000A] "\u000C"
 
 Macros
-******
-Pegger introduces macros for common or useful extensions. These may be used directly in your PEG expressions:
+----
+Pegger introduces macros for useful extensions. These may be used individually as rules.
 
 pre>
 table:
 name        function
 ----------  ---------------------------------
-\a          Matches any alpha char - 'a-zA-Z'
-\d          Matches any digit - '0-9'
-\n          Matches new-line char - '\n'
-\s          Matches any whitespace char - ' \t\n'
-\w          Matches any word char - 'a-zA-Z0-9_'
-\sp         Matches space or tab char - ' \t'
-\eol        Matches End-Of-Line - new-line char or EOS
-\eos        Matches End-Of-Stream - or End-Of-String
+\eos        Matches End-Of-Stream (or End-Of-String!?)
+\eol        Matches End-Of-Line - either a new-line char or EOS
+\lower      Matches a lowercase character in the current localeW
+\upper      Matches an uppercase character in the current locale
+\alpha      Matches a lowercase character in the current locale
 \err(xxx)   Throws a parse error when processed
-\noop(xxx)  No-Operation, does nothing
+\noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
 <pre
 
+
+results tree - trimming
 
 
 PEG Grammar
