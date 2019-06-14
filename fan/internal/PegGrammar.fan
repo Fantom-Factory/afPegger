@@ -5,10 +5,6 @@ internal class PegGrammar : Rules {
 	static Grammar pegGrammar() {
 		rules					:= Grammar()
 		grammar					:= rules["grammar"]
-//		line					:= rules["line"]
-		emptyLine				:= rules["emptyLine"]
-//		commentLine				:= rules["commentLine"]
-		comment					:= rules["comment"]
 		ruleDef					:= rules["ruleDef"]
 		ruleName				:= rules["ruleName"]
 		rule					:= rules["rule"]
@@ -17,7 +13,7 @@ internal class PegGrammar : Rules {
 		expression				:= rules["expression"]
 		label					:= rules["label"]
 		type					:= rules["type"]
-		group					:= rules["group"]
+		group					:= rules["group"]		.excludeFromResults
 		predicate				:= rules["predicate"]
 		multiplicity			:= rules["multiplicity"]
 		literal					:= rules["literal"]
@@ -27,25 +23,19 @@ internal class PegGrammar : Rules {
 		macro					:= rules["macro"]
 		unicode					:= rules["unicode"]
 		dot						:= rules["dot"]
-//		sp						:= rules["sp"]
-		cwsp					:= rules["cwsp"]
-		cnl						:= rules["cnl"]
-		eos						:= eos.excludeFromResults.debugOff
-		eol						:= eol.excludeFromResults//.debugOff
+		emptyLine				:= rules["emptyLine"]
+		comment					:= rules["comment"]		.debugOff
+		cwsp					:= rules["cwsp"]		.excludeFromResults.debugOff
+		cnl						:= rules["cnl"]			.excludeFromResults.debugOff
+		sp						:= rules["sp"]			.excludeFromResults.debugOff
+		eos						:= eos					.excludeFromResults.debugOff
+		eol						:= eol					.excludeFromResults.debugOff
 		fail					:= err ("FAIL")
-		sp						:= spaceChar							.excludeFromResults	//.debugOff
 
-//		rules["grammar"]		= sequence { zeroOrMore(emptyLine), oneOrMore(ruleDef), }
 		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { emptyLine, ruleDef, }, })
-//		rules["line"]			= firstOf  { emptyLine, commentLine, ruleDef, fail, }
-		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
-//		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol,  }, }
-//		rules["commentLine"]	= sequence { zeroOrMore(cwsp), firstOf { char('#'), str("//"), }, zeroOrMore(cwsp), comment, eol, }
-//		rules["comment"]		= zeroOrMore(newLineChar(true))
 
 		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), eol, }
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
-
 		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(cwsp), expression, }), }
 		rules["firstOf"]		= sequence { expression, zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), expression, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), expression, }), }
@@ -53,9 +43,10 @@ internal class PegGrammar : Rules {
 		rules["expression"]		= sequence { optional(predicate), optional(sequence { label, char(':') } ), type, optional(multiplicity), }
 		rules["label"]			= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
 		rules["type"]			= firstOf  { group, ruleName, literal, chars, macro, dot, }
-		rules["group"]			= sequence { char('('), zeroOrMore(cwsp), rule, zeroOrMore(cwsp), char(')'), }.excludeFromResults
+		rules["group"]			= sequence { char('('), zeroOrMore(cwsp), rule, zeroOrMore(cwsp), char(')'), }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
-		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }.debugOff
+		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
+
 		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }
 		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }	// if you escape something, then it MUST be followed by another char
 		rules["doubleQuote"]	= sequence { char('"' ), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('"' ), }), char('"' ), optional(char('i')), }
@@ -63,10 +54,12 @@ internal class PegGrammar : Rules {
 		rules["macro"]			= sequence { char('\\'), oneOrMore(alphaChar), optional(sequence { char('('), zeroOrMore(charNotOf(")\n".chars)), char(')'), }), }
 		rules["unicode"]		= sequence { char('\\'), char('u'), hexChar, hexChar, hexChar, hexChar, }
 		rules["dot"]			= char('.')
-		
-		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}	.excludeFromResults	//.debugOff
-		rules["cnl"]			= firstOf { eol, comment, }				.excludeFromResults	//.debugOff
-		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }.debugOff, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }).debugOff, eol, }//.debugOff
+
+		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
+		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }), eol, }
+		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}
+		rules["cnl"]			= firstOf { eol, comment, }
+		rules["sp"]				= spaceChar
 		
 		return rules.validate
 	}

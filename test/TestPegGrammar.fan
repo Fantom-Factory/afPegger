@@ -132,7 +132,7 @@ class TestPegGrammar : Test {
 		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n  [de]\n","a <- [bc] [cd] [de]")
 		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n [de]\n",	"a <- [bc] [cd] [de]")		
 	}
-	
+
 	Void testPegCanParseItself() {
 		echo
 		PegGrammar.pegGrammar.definition { echo(it) }
@@ -147,11 +147,7 @@ class TestPegGrammar : Test {
 	}
 	
 	private Void verifyDefs(Str in, Str out := in) {
-		echo("----")
-		echo(in)
-		echo("----")
 		defs := PegGrammar().parseGrammar(in)
-		defs.dump
 		verifyEq(out, defs.definition.trim)
 	}
 }
