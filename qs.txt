@@ -15,7 +15,7 @@ new Macros
 \lower = unicode / locale lower
 \upper = unicode / locale upper
 
-. is ANY CHAR -> an easy way to say I don't care.
+. is ANY 16-bit CHAR -> an easy way to say I don't care.
 
 "-" rule dev prefix to disable in results
 

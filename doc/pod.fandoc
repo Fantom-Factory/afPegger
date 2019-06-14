@@ -257,19 +257,16 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 PEG grammar:
 
 pre>
-grammar      <- (!\eos line)+
-line         <- emptyLine / commentLine / ruleDef / \err(FAIL)
-emptyLine    <- sp* \eol
-commentLine  <- sp* ("#" / "//") sp* comment \eol
-comment      <- [^\n]*
-ruleDef      <- ruleName sp* ("=" / "<-") sp* rule sp* \eol
+grammar      <- (!\eos (emptyLine / ruleDef / \err(FAIL)))+
+ruleDef      <- ruleName cwsp* ("=" / "<-") cwsp* rule cwsp* \eol
 ruleName     <- [a-zA-Z] [a-zA-Z0-9_\-]*
-rule         <- firstOf / sequence / \err(FAIL)
-sequence     <- expression (sp+ expression)*
-firstOf      <- expression sp* "/" sp* expression (sp* "/" sp* expression)*
+rule         <- firstOf / \err(FAIL)
+firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
+sequence     <- expression (cwsp* expression)*
 expression   <- predicate? (label ":")? type multiplicity?
 label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type         <- ("(" sp* rule sp* ")") / ruleName / literal / chars / macro / dot
+type         <- group / ruleName / literal / chars / macro / dot
+group        <- "(" cwsp* rule cwsp* ")"
 predicate    <- "!" / "&"
 multiplicity <- "*" / "+" / "?"
 literal      <- singleQuote / doubleQuote
@@ -277,8 +274,12 @@ singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
 doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
 chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
 macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-unicode      <- "\\" "u" [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9]
+unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
 dot          <- "."
+emptyLine    <- sp* (\eol / comment)
+comment      <- ("#" / "//") (!\eos [^\n])* \eol
+cwsp         <- sp / (!\eos cnl (sp / comment / \eos))
+cnl          <- \eol / comment
 sp           <- [ \t]
 <pre
 

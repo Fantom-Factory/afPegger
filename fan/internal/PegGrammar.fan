@@ -32,13 +32,13 @@ internal class PegGrammar : Rules {
 		eol						:= eol					.excludeFromResults.debugOff
 		fail					:= err ("FAIL")
 
-		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { emptyLine, ruleDef, }, })
+		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { emptyLine, ruleDef, fail, }, })
 
 		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), eol, }
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
-		rules["rule"]			= firstOf  { _firstOf, _sequence, fail, }
-		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { oneOrMore(cwsp), expression, }), }
-		rules["firstOf"]		= sequence { expression, zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), expression, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), expression, }), }
+		rules["rule"]			= firstOf  { _firstOf, fail, }
+		rules["firstOf"]		= sequence { _sequence, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), _sequence, }), }
+		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { zeroOrMore(cwsp), expression, }), }
 
 		rules["expression"]		= sequence { optional(predicate), optional(sequence { label, char(':') } ), type, optional(multiplicity), }
 		rules["label"]			= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
@@ -120,8 +120,8 @@ internal class PegGrammar : Rules {
 				}
 
 			case "firstOf":
-				rules := match.matches.map { fromExpression(it, newGrammar) }
-				rule = Rules.firstOf(rules)
+				rules := match.matches.map { fromRule(it, newGrammar) }
+				rule = rules.size == 1 ? rules.first : Rules.firstOf(rules)
 			
 			default:
 				throw UnsupportedErr("Unknown rule: ${match.name}")

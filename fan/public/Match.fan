@@ -16,7 +16,6 @@ class Match {
 	** Returns the associated rule name.
 	Str? name() {
 		rule.label ?: rule.name
-//		rule.name
 	}
 
 	// Meh, it's too complicated distinguishing between the two in switch statements (see HTML parser)
@@ -39,7 +38,7 @@ class Match {
 	}
 	
 	** Returns the first sub-match.
-	Match firstMatch() {
+	Match? firstMatch() {
 		matches.first
 	}
 
