@@ -76,6 +76,7 @@ internal class CharRule : Rule {
 			while (cClass.size > 0) {
 				if (cClass[0] == '\\') {
 					if (cClass[1] == '\\')	chars.add('\\'); else
+					if (cClass[1] == 'b')	chars.add('\b'); else
 					if (cClass[1] == 'f')	chars.add('\f'); else
 					if (cClass[1] == 'n')	chars.add('\n'); else
 					if (cClass[1] == 'r')	chars.add('\r'); else
@@ -83,6 +84,7 @@ internal class CharRule : Rule {
 					if (cClass[1] == '-')	chars.add( '-'); else
 					if (cClass[1] == '^')	chars.add( '^'); else
 					if (cClass[1] == 'u')	chars.add(unicode()); else
+						// may as well allow ALL chars to be escaped
 						chars.add(cClass[1])
 					cClass = cClass[2..-1]
 				} else {

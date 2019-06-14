@@ -31,8 +31,18 @@ internal class StrRule : Rule {
 			}
 		}
 
-		// de-escape chars
-		sClass = sClass.replace("\\\\", "\\").replace("\\'", "'").replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f")
+		// de-escape chars - do the same as Fantom - https://fantom.org/doc/docLang/Literals#int
+		sClass = sClass
+			.replace("\\\$", "\$")
+			.replace("\\b",  "\b")
+			.replace("\\f",  "\f")
+			.replace("\\n",  "\n")
+			.replace("\\r",  "\r")
+			.replace("\\t",  "\t")
+			.replace("\\\"", "\"")
+			.replace("\\'",  "'" )
+			.replace("\\`",  "`" )
+			.replace("\\\\", "\\")
 
 		return StrRule(sClass, ignore)
 	}
