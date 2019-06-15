@@ -28,6 +28,8 @@ DATA use ABNF notation, it's got shorthand AND ranges
 Questions
 *********
 
+Javascript - Immutable functions? Have method func pointers instead?
+
 
 
 Dead Questions

@@ -47,7 +47,7 @@ internal class StrRule : Rule {
 		return StrRule(sClass, ignore)
 	}
 
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		matched	:= true
 		chrIdx	:= 0
 		chrA	:= 0
@@ -80,7 +80,7 @@ internal class StrNotRule : Rule {
 		this.expression	= "(!${str.toCode} .)+"
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		keepGoing	:= true
 		start		:= ctx.currentPos
 		while (keepGoing) {
@@ -95,7 +95,7 @@ internal class StrNotRule : Rule {
 		return ctx.currentPos > start
 	}
 	
-	private Bool matchStr(ParseCtx ctx) {
+	private Bool matchStr(RuleCtx ctx) {
 		matched	:= true
 		chrIdx	:= 0
 		chrA	:= 0

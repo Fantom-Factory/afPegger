@@ -7,8 +7,9 @@ internal class NoOpRule : Rule {
 		this.msg	= msg
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		echo("NoOp Rule: $msg")
+		ctx.log("NO-OP: $msg")
 		return true
 	}
 

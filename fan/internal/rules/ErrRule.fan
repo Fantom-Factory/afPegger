@@ -7,7 +7,7 @@ internal class ErrRule : Rule {
 		this.msg	= msg
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		throw ctx.parseErr(msg)
 	}
 	

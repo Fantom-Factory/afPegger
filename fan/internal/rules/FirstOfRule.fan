@@ -7,7 +7,7 @@ internal class FirstOfRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		// todo - autofail - we can NEVER rollback further than the FIRST "firstOf", or the last choice in any subsequent "firstOf" - each point is a FAIL point with syntax detail
 		// not convinced this would give us any useful contextual feedback on a fail, much better if PEGs explicitly \err(FAIL)  
 		rules.any |Rule rule, i->Bool| {

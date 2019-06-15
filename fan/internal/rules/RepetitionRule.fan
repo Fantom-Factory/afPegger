@@ -11,7 +11,7 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		count	:= 0
 		pass	:= true
 		while (pass && (max == null || count != max)) {

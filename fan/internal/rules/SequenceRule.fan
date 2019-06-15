@@ -7,7 +7,7 @@ internal class SequenceRule : Rule {
 		this.rules	= rules
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		rules.all |Rule rule, i->Bool| {
 			ctx.log("Attempting sequence ${i + 1} of ${rules.size}")
 			pass := ctx.process(rule)

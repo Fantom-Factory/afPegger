@@ -1,7 +1,7 @@
 
 ** Handed to 'Rule' classes during the matching process. 
 @Js @NoDoc
-mixin ParseCtx {
+mixin RuleCtx {
 	
 	** Call to process a sub-rule. Returns 'true' if it matched successfully.
 	abstract Bool process(Rule rule)

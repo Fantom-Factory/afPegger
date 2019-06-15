@@ -45,7 +45,7 @@ abstract class Rule {
 
 	** Override to implement Rule logic.
 	@NoDoc
-	abstract Bool doProcess(ParseCtx ctx)
+	abstract Bool doProcess(RuleCtx ctx)
 	
 	** Returns the PEG expression for this rule. Example:
 	** 

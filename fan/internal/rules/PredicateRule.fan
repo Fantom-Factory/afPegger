@@ -9,7 +9,7 @@ internal class PredicateRule : Rule {
 		this.not	= not
 	}
 	
-	override Bool doProcess(ParseCtx ctx) {
+	override Bool doProcess(RuleCtx ctx) {
 		start  := ctx.currentPos
 		passed := not ? !ctx.process(rule) : ctx.process(rule)
 		if (passed) {

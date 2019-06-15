@@ -3,7 +3,7 @@
 ** 
 ** Only needed when you're implementing your own rules.
 @Js
-internal class PegCtx : ParseCtx {
+internal class PegCtx : RuleCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		Str				in
 	private		Rule			rootRule
