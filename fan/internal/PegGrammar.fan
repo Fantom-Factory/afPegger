@@ -23,8 +23,8 @@ internal class PegGrammar : Rules {
 		macro					:= rules["macro"]
 		unicode					:= rules["unicode"]
 		dot						:= rules["dot"]
-		commentLine				:= rules["commentLine"]
-		comment					:= rules["comment"]		.debugOff
+		commentLine				:= rules["commentLine"]	.excludeFromResults.debugOff
+		comment					:= rules["comment"]		.excludeFromResults.debugOff
 		cwsp					:= rules["cwsp"]		.excludeFromResults.debugOff
 		cnl						:= rules["cnl"]			.excludeFromResults.debugOff
 		sp						:= rules["sp"]			.excludeFromResults.debugOff
@@ -36,7 +36,7 @@ internal class PegGrammar : Rules {
 
 		rules["ruleDef"]		= sequence { optional(char('-')).withLabel("exclude"), ruleName, optional(char('-')).withLabel("debugOff"), zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, optional(commentLine), }
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(firstOf { sequence { char('-'), charRule("[a-zA-Z0-9_]"), }, charRule("[a-zA-Z0-9_]"), }), }
-		rules["rule"]			= firstOf  { _firstOf, err("FAIL-2"), }
+		rules["rule"]			= firstOf  { _firstOf, fail, }
 		rules["firstOf"]		= sequence { _sequence, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), _sequence, }), }
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { zeroOrMore(cwsp), expression, }), }
 
@@ -79,15 +79,11 @@ internal class PegGrammar : Rules {
 	private Grammar toGrammar(Match? match) {
 		if (match == null)
 			throw ParseErr("Could not match PEG")
-		if (match.name != "grammar")
-			throw UnsupportedErr("Unknown rule: ${match.name}")
+		assertName(match, "grammar")
 		
 		newGrammar := Grammar()
 		match.matches.each |ruleDef| {
-			if (ruleDef.name == "commentLine") 
-				return
-			if (ruleDef.name != "ruleDef") 
-				throw ParseErr("Not a ruleDef: ${ruleDef.name}")
+			assertName(ruleDef, "ruleDef")
 				
 			excl := ruleDef.contains("exclude")
 			name := ruleDef["ruleName"].matched
@@ -104,8 +100,7 @@ internal class PegGrammar : Rules {
 	private Rule toRule(Match? match, Grammar? newGrammar) {
 		if (match == null)
 			throw ParseErr("Could not match PEG")
-		if (match.name != "rule")
-			throw UnsupportedErr("Unknown rule: ${match.name}")
+		assertName(match, "rule")
 
 		return fromRule(match.firstMatch, newGrammar)
 	}
@@ -114,14 +109,8 @@ internal class PegGrammar : Rules {
 		rule := null as Rule
 		switch (match.name) {
 			case "sequence":
-				if (match.matches.size == 1)
-					rule = fromExpression(match.firstMatch, newGrammar)
-				else {
-					rules := match.matches.findAll { it.name != "comment" }.map {
-						fromExpression(it, newGrammar)
-					}
-					rule = rules.size == 1 ? rules.first : Rules.sequence(rules)
-				}
+				rules := match.matches.map { fromExpression(it, newGrammar) }
+				rule = rules.size == 1 ? rules.first : Rules.sequence(rules)
 
 			case "firstOf":
 				rules := match.matches.map { fromRule(it, newGrammar) }
@@ -134,8 +123,7 @@ internal class PegGrammar : Rules {
 	}
 	
 	private Rule fromExpression(Match match, Grammar? newGrammar) {
-		if (match.name != "expression")
-			throw ArgErr("Match should be 'expression', not '${match.name}'")
+		assertName(match, "expression")
 
 		exType	:= match["type"] as Match
 		multi	:= match["multiplicity"]?.matched
@@ -225,6 +213,11 @@ internal class PegGrammar : Rules {
 	
 	private Str deEscape(Str str) {
 		str.replace("\\\"", "\"").replace("\\t", "\t").replace("\\n", "\n").replace("\\r", "\r").replace("\\f", "\f").replace("\\\\", "\\")
+	}
+	
+	private Void assertName(Match m, Str name) {
+		if (m.name != name) 
+			throw ParseErr("Match should be '${name}', not '${m.name}'")
 	}
 }
 

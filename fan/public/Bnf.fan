@@ -16,7 +16,7 @@ class Bnf {
 	**      b <- \space+ [^abc]"
 	**   )
 	** 
-	static Grammar parseAbnf(Str grammar) {
+	static Grammar parseBnf(Str grammar) {
 		BnfGrammar().parseGrammar(grammar)
 	}
 	
@@ -26,4 +26,8 @@ class Bnf {
 	static Grammar bnfGrammar() {
 		BnfGrammar.bnfGrammar
 	}
+	
+//	static Str bnfToPeg(Str bnf) {
+//		parseBnf(grammar).definition
+//	}
 }

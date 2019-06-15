@@ -29,7 +29,7 @@
 @Js
 class Grammar {
 	private Str:Rule 		_rules		:= Str:Rule[:] { it.ordered = true } 
-	private Str:ProxyRule	_proxies	:= Str:ProxyRule[:] 
+	private Str:ProxyRule	_proxies	:= Str:ProxyRule[:] { it.ordered = true }
 	
 	** Parses grammar definitions, and returns the root rule (if given) or the first rule parsed.
 	** For example:
@@ -43,11 +43,20 @@ class Grammar {
 		PegGrammar().parseGrammar(grammar)
 	}
 	
-	** Returns a proxy to the named rule.
+	** Returns the first declared rule.
+	@NoDoc	// only really used / needed for automation / testing 
+	Rule firstRule() {
+		_rules[_rules.keys.first]
+	}
+	
+	** Returns the named rule, or creates a proxy if it doesn't exist.
 	@Operator
 	Rule get(Str name) {
-		if (!_proxies.containsKey(name))
-			_proxies[name] = ProxyGrammarRule(this, name) { it.name = name }
+		if (_rules.containsKey(name))
+			return _rules[name]
+		if (_proxies.containsKey(name))
+			return _proxies[name]
+		_proxies[name] = ProxyGrammarRule(this, name) { it.name = name }
 		return _proxies[name]
 	}
 	
@@ -79,7 +88,7 @@ class Grammar {
 			if (!rule.debug)		name = name + "-"
 			buf.add(name.justl(max)).add(" <- ").add(rule.expression).addChar('\n')
 		}
-		return buf.toStr		
+		return buf.toStr
 	}
 	
 	** Dumps the definition to std-out.
@@ -133,15 +142,15 @@ internal abstract class ProxyRule : Rule {
 	}
 
 	override Bool doProcess(RuleCtx ctx) {
-		rule.doProcess(ctx)
+		rule(true).doProcess(ctx)
 	}
 	
 	override Str expression() {
-		rule.expression
+		rule(true).expression
 	}
 	
 	override Str toStr() {
-		rule.toStr
+		rule(true).toStr
 	}
 	
 	abstract Rule? rule(Bool checked := false)
