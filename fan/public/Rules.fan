@@ -362,12 +362,4 @@ mixin Rules {
 	static Rule err(Str msg := "FAIL") {
 		ErrRule(msg)
 	}
-
-	** Essentially a no-op rule as it always returns 'true' - but processes the given action func when successful.
-	** Useful for inserting arbitrary actions in sequences:
-	** 
-	**   sequence { rule1, doAction { echo("Hello!") }, rule2, }
-	static Rule doAction(|Str|? action) {
-		NoOpRule("-Action-").withAction(action)
-	}
 }

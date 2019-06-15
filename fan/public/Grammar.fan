@@ -131,11 +131,6 @@ internal abstract class ProxyRule : Rule {
 		get { rule?.useInResult ?: _useInResult }
 		set { if (rule == null) _useInResult = it; else rule.useInResult = it }
 	}
-	
-	override |Str|?	action {
-		get { rule?.action ?: _action }
-		set { if (rule == null) _action = it; else rule.action = it }
-	}
 
 	override Bool doProcess(PegCtx ctx) {
 		rule.doProcess(ctx)
@@ -156,7 +151,6 @@ internal abstract class ProxyRule : Rule {
 		if (_label		 != null)	rule.label		 = _label
 		if (_debug		 != null)	rule.debug		 = _debug
 		if (_useInResult != null)	rule.useInResult = _useInResult
-		if (_action		 != null)	rule.action		 = _action
 	}
 }
 

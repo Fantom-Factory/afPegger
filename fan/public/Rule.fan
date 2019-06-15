@@ -46,9 +46,6 @@ abstract class Rule {
 
 	** Not all rules are useful in the parsed AST. 
 	virtual Bool useInResult	:= true
-	
-	** Action to be performed upon successful completion of this rule.
-	virtual |Str matched|?	action
 
 	** Override to implement Rule logic.
 	abstract internal Bool doProcess(PegCtx ctx)
@@ -68,12 +65,6 @@ abstract class Rule {
 		if (!debug)			ex = ex + "-"
 		echo(ex)
 		return "${ex} <- ${expression}"
-	}
-	
-	** A helpful builder method for setting the action.
-	This withAction(|Str|? action) {
-		this.action = action
-		return this
 	}
 
 	** A helpful builder method for setting the name.

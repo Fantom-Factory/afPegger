@@ -6,7 +6,7 @@ Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford
 
 Advanced parsing options let you *look ahead* with predicates and the returned tree of match results gives you plenty of options for transforming it into useful data.
 
-Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf` and [Parboiled]`https://github.com/sirthias/parboiled/wiki`.
+Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf`, [Parboiled]`https://github.com/sirthias/parboiled/wiki`, and [nim peg]`https://nim-lang.org/docs/pegs.html`.
 
 
 
@@ -94,6 +94,7 @@ root
 Each part of the match may be retreived using the 'Match.get()' operator:
 
 pre>
+syntax: fantom
 match["start"].toStr  // -> "<<<"
 match["name"].toStr   // -> "Hello Mum"
 match["end"].toStr    // -> ">>>"
@@ -106,20 +107,20 @@ Grammar
 The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which responsible matching everything:
 
 pre>
-root  <- start name end
-start <- '<'+
-name  <- [a-zA-Z ]+
-end   <- '>'+
+syntax: props
+root  = start name end
+start = '<'+
+name  = [a-zA-Z ]+
+end   = '>'+
 <pre
 
-Each definition must be placed on its own line, and may also be written in a more standard property file notation using '=':
+Definitions may span multiple lines but proceeding lines *must* contain leading whitespace to distinguish it from a new rule definition.
 
 pre>
 syntax: props
-#  Hash comments are allowed in grammar
-// as are double slash comments
-
-root  = start name end
+root  = start
+        name
+        end
 start = '<'+
 name  = [a-zA-Z ]+
 end   = '>'+
@@ -129,16 +130,34 @@ When run, the same result is given:
 
 pre>
 syntax: fantom
-
 grammarStr := "..."
 grammar    := Peg.parseGrammar(grammarStr)
 rootRule   := grammar["root"]
 
-match      := Peg(input, rootRule).match
-match.dump
+input      := "<<<Hello Mum>>>"
+match      := rootRule.match(input).dump
+
+// root
+//  ├─ start : "<<<"
+//  ├─ name : "Hello Mum"
+//  └─ end : ">>>"
 <pre
 
 Once a grammar (or rule) has been parsed, it may be cached for future re-use.
+
+Rules may be omitted from the result tree by prefixing the definitions with a '-':
+
+pre>
+syntax: props
+root   = start name end
+-start = '<'+
+name   = [a-zA-Z ]+
+-end   = '>'+
+
+// root
+//  └─ name : "Hello Mum"
+<pre
+
 
 
 PEG Notation
@@ -227,7 +246,7 @@ Unicode
 Use '\uXXXX' (hexadecimal) notation to match a 16-bit unicode character.
 May be used in string literals and character classes.
 
-  crlf = [\u000A] "\u000C"
+  crlf = [\u000D] "\u000A"
 
 Macros
 ----
@@ -246,8 +265,19 @@ name        function
 \noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
 <pre
 
+Comments
+----
+Hash '#' comments are allowed in grammar, as are double slash '//' comments.
 
-results tree - trimming
+  #  Hash comments are allowed in grammar
+  // as are double slash comments
+
+  a = .  // end-of-line comments also allowed
+
+  b = [cd]
+      // comments may also appear inbetween rules
+      [de]
+
 
 
 PEG Grammar
@@ -257,30 +287,30 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 PEG grammar:
 
 pre>
-grammar               <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
-ruleDef               <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
-ruleName              <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
-rule                  <- firstOf / \err(FAIL-2)
-firstOf               <- sequence (cwsp* "/" cwsp* sequence)*
-sequence              <- expression (cwsp* expression)*
-expression            <- predicate? (label ":")? type multiplicity?
-label                 <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type                  <- group / ruleName / literal / chars / macro / dot
--group                <- "(" cwsp* rule cwsp* ")"
-predicate             <- "!" / "&"
-multiplicity          <- "*" / "+" / "?"
-literal               <- singleQuote / doubleQuote
--singleQuote          <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
--doubleQuote          <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
-chars                 <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
-macro                 <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-unicode               <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
-dot                   <- "."
-commentLine           <- sp* (\eol / comment)
-comment-              <- ("#" / "//") (!\eos [^\n])* \eol
--cwsp-                <- sp / (!\eos cnl (sp / &("#" / "//")))
--cnl-                 <- \eol / comment
--sp-                  <- [ \t]
+grammar      <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
+ruleDef      <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
+ruleName     <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
+rule         <- firstOf / \err(FAIL-2)
+firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
+sequence     <- expression (cwsp* expression)*
+expression   <- predicate? (label ":")? type multiplicity?
+label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
+type         <- group / ruleName / literal / chars / macro / dot
+-group       <- "(" cwsp* rule cwsp* ")"
+predicate    <- "!" / "&"
+multiplicity <- "*" / "+" / "?"
+literal      <- singleQuote / doubleQuote
+-singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+-doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
+macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
+dot          <- "."
+commentLine  <- sp* (\eol / comment)
+comment-     <- ("#" / "//") (!\eos [^\n])* \eol
+-cwsp-       <- sp / (!\eos cnl (sp / &("#" / "//")))
+-cnl-        <- \eol / comment
+-sp-         <- [ \t]
 <pre
 
 
@@ -367,20 +397,6 @@ Void walk(Match match, |Match, Str startOrEnd| fn) {
     match.matches.each { walk(it, fn) }
     fn?.call(match, "end")
 }
-<pre
-
-
-
-3. Rule Actions
-===============
-You can add action functions to rules. Functions are called when the rule is successfully matched.
-
-Note that action functions are only called once all matching has been completed. That way functions are not called when sequences are being explored, or before predicates are rolled back.
-
-pre>
-grammar["startTag"].withAction |tagName| { echo("startTag: $tagName") }
-grammar["text"    ].withAction |text|    { echo("text: $text") }
-grammar["endTag"  ].withAction |tagName| { echo("endTag: $tagName") }
 <pre
 
 

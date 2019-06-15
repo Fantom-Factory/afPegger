@@ -29,9 +29,7 @@ internal class Result {
 	}
 
 	Void success(Str in) {
-		// I think we should call *ALL* passed rule actions, regardless of whether they consumed any chars
 		resultList?.each { it.success(in) }
-		rule.action?.call(matchedStr(in))
 	}
 
 	Str matchedStr(Str in) {
