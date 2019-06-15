@@ -20,10 +20,14 @@ class TestGrammar : Test, Rules {
 		gram1 := PegGrammar().parseGrammar("a=(b / c)+\nb=[0-9]\nc=[a-z]")["a"]
 		mach1 := gram1.match("123abc123")
 		verifyNotNull(mach1["b"])
-		
-		gram2 := PegGrammar().parseGrammar("a=(b / c)+\n-b=[0-9]\nc=[a-z]")["a"]
+
+		gram2 := PegGrammar().parseGrammar("-a=(b / c)+\nb=[0-9]\nc=[a-z]").dump["a"]
 		mach2 := gram2.match("123abc123")
-		verifyNull(mach2["b"])
+		verifyNotNull(mach2["b"])
+		
+		gram3 := PegGrammar().parseGrammar("a=(b / c)+\n-b=[0-9]\nc=[a-z]")["a"]
+		mach3 := gram3.match("123abc123")
+		verifyNull(mach3["b"])
 	}
 	
 	private Void verifyDefs(Str in, Str out := in) {

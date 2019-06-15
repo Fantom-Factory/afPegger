@@ -226,14 +226,15 @@ mixin Rules {
 		RepetitionRule(times, times, rule)
 	}
 
-	** Processes the given rule at most 'n' times.
-	** Returns success if it succeeded at least 'n' times.
+	** Processes the given rule between the given values (inclusive).
+	** If 'min' is 'null' it is taken to be 0.
+	** If 'max' is 'null' it is taken to be infinity.
 	** 
 	** Example PEG notation:
 	** 
 	**   ???
-	static Rule between(Range times, Rule rule) {
-		RepetitionRule(times.min, times.max, rule)
+	static Rule between(Int? min, Int? max, Rule rule) {
+		RepetitionRule(min, max, rule)
 	}
 
 	// ---- Expression rules ----------------------------------------------------------------------

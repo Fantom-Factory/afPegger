@@ -38,7 +38,7 @@ internal class PegGrammar : Rules {
 //		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), optional(eol), }
 //		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(sp), firstOf { eol, oneOrMore(emptyLine), }, }
 //		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, firstOf { eos, oneOrMore(emptyLine), }, }
-		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(charRule("[a-zA-Z0-9_\\-]")), }
+		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(firstOf { sequence { char('-'), charRule("[a-zA-Z0-9_]"), }, charRule("[a-zA-Z0-9_]"), }), }
 		rules["rule"]			= firstOf  { _firstOf, err("FAIL-2"), }
 		rules["firstOf"]		= sequence { _sequence, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), _sequence, }), }
 		rules["sequence"]		= sequence { expression, zeroOrMore(sequence { zeroOrMore(cwsp), expression, }), }
@@ -124,9 +124,10 @@ internal class PegGrammar : Rules {
 					rule = fromExpression(match.firstMatch, newGrammar)
 				else {
 					rules := match.matches.findAll { it.name != "comment" }.map {
+//					rules := match.matches.findAll { it.name != "comment" && it.name != "emptyLine" }.map {
 						fromExpression(it, newGrammar)
 					}
-					rule = Rules.sequence(rules)
+					rule = rules.size == 1 ? rules.first : Rules.sequence(rules)
 				}
 
 			case "firstOf":

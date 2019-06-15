@@ -187,7 +187,7 @@ Literal strings may be matched with either single or double quotes.
   ruleDef1 = "literal 1"
   ruleDef2 = 'literal 2'
 
-Use backslash to escape the usual '\t \n \f \r' characters and to escape quotes. Use an 'i' suffix to indicate the match should be case-insensitive.
+Use backslash to escape the usual '\b \f \n \r \t' characters and to escape quotes. Use an 'i' suffix to indicate the match should be case-insensitive.
 
   ruleDef3 = "new\nline\n"i
 
