@@ -3,7 +3,7 @@
 @Js
 internal class AnyCharRule : Rule {
 	override Str expression	:= "."	
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		ctx.readChar != 0
 	}
 }
@@ -19,7 +19,7 @@ internal class StrMimickCharRule : Rule {
 		this.ignoresCase = caseInsensitive
 	}
 
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		peek := ctx.readChar
 		pass := peek == char
 		if (!pass && ignoresCase) {
@@ -118,7 +118,7 @@ internal class CharRule : Rule {
 		} catch throw ParseErr("Invalid Char class: $charClass")
 	}
 	
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		if (ctx.eos) return false
 		res := func(ctx.readChar)
 		return not ? !res : res

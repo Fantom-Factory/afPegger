@@ -2,7 +2,7 @@
 @Js
 internal class EolRule : Rule {
 
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		ctx.eos || ctx.readChar == '\n'
 	}
 	

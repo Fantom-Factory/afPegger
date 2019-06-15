@@ -66,14 +66,14 @@ class Peg {
 	** Searches for the next match and returns the matched string (if any).
 	Str? search(Int? offset := null) {
 		if (offset != null)
-			pegCtx.rollbackTo(offset)
+			pegCtx.rollbackToPos(offset)
 
 		c := pegCtx.cur
 		m := null as Match
 		while (m == null && !pegCtx.eos) {
 			m = match
 			if (m == null)
-				pegCtx.rollbackTo(++c)
+				pegCtx.rollbackToPos(++c)
 		}
 		return m?.matched
 	}

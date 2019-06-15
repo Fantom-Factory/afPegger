@@ -7,7 +7,7 @@ internal class ErrRule : Rule {
 		this.msg	= msg
 	}
 	
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		throw ctx.parseErr(msg)
 	}
 	

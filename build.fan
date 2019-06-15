@@ -16,14 +16,9 @@ class Build : BuildPod {
         depends = [
             // ---- Core ------------------------
             "sys        1.0",
-
-            // ---- Test ------------------------
-            "concurrent 1.0"    // htmlParser
         ]
 
         srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`]
         resDirs = [`doc/`, `res/`]
-
-        meta["afBuild.testPods"]    = "xml concurrent"
     }
 }

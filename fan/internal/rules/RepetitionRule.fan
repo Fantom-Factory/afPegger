@@ -11,7 +11,7 @@ internal class RepetitionRule : Rule {
 		this.rule	= rule
 	}
 	
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		count	:= 0
 		pass	:= true
 		while (pass && (max == null || count != max)) {

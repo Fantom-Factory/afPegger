@@ -47,7 +47,7 @@ internal class StrRule : Rule {
 		return StrRule(sClass, ignore)
 	}
 
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		matched	:= true
 		chrIdx	:= 0
 		chrA	:= 0
@@ -80,22 +80,22 @@ internal class StrNotRule : Rule {
 		this.expression	= "(!${str.toCode} .)+"
 	}
 	
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		keepGoing	:= true
-		start		:= ctx.cur
+		start		:= ctx.currentPos
 		while (keepGoing) {
-			cur		:= ctx.cur
+			cur		:= ctx.currentPos
 			match	:= matchStr(ctx)
-			ctx.rollbackTo(cur)
+			ctx.rollbackToPos(cur)
 			
 			keepGoing = !match && !ctx.eos
 			if (keepGoing)
 				ctx.readChar
 		}
-		return ctx.cur > start
+		return ctx.currentPos > start
 	}
 	
-	private Bool matchStr(PegCtx ctx) {
+	private Bool matchStr(ParseCtx ctx) {
 		matched	:= true
 		chrIdx	:= 0
 		chrA	:= 0

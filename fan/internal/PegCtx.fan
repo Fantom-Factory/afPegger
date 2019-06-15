@@ -3,7 +3,7 @@
 ** 
 ** Only needed when you're implementing your own rules.
 @Js
-internal class PegCtx {
+internal class PegCtx : ParseCtx {
 	private static const Log	logger		:= PegCtx#.pod.log
 	private		Str				in
 	private		Rule			rootRule
@@ -26,8 +26,18 @@ internal class PegCtx {
 		return this
 	}
 	
+	** Returns the current position in the underlying input stream.
+	override Int currentPos() {
+		cur
+	}
+	
+	** Rolls back the underlying input stream to the given position. 
+	override Void rollbackToPos(Int newCur) {
+		cur = newCur
+	}
+	
 	** Call to process a sub-rule.
-	Bool process(Rule rule) {
+	override Bool process(Rule rule) {
 		result	:= resultStack.isEmpty ? rootResult : Result(rule, cur)
 		parent	:= resultStack.last		
 		resultStack.push(result)
@@ -72,34 +82,29 @@ internal class PegCtx {
 		}
 	}
 	
-	** Call to rollback the matching of any subrules. 
-	Void rollbackTo(Int newCur) {
-		cur = newCur
-	}
-
 	** Reads 1 character from the underlying input stream.
-	Int readChar() {
+	override Int readChar() {
 		in.getSafe(cur++)
 	}
 	
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
-	Void log(Str msg) {
+	override Void log(Str msg) {
 		if (logger.isDebug) {
 			result := resultStack.peek ?: rootResult
 			_log(result, msg)
 		}
 	}
 	
-	Bool eos() {
+	** Returns 'true' if end-of-stream is reached. 
+	override Bool eos() {
 		cur >= in.size
 	}
 
 	Match doSuccess() {
-		rootResult.success(in)
-		return rootResult.match(null, in)
+		rootResult.match(null, in)
 	}
 
-	PegParseErr parseErr(Str errMsg) {
+	override PegParseErr parseErr(Str errMsg) {
 		lineNum := 0; in.chars.eachRange(0..<cur.min(in.size)) { if (it == '\n') lineNum++ }
 		srcCode := SrcCodeSnippet(`PEG`, in)
 		return PegParseErr(srcCode, lineNum + 1, errMsg)
@@ -107,7 +112,6 @@ internal class PegCtx {
 	
 	private Void _log(Result result, Str msg) {
 		if (doLog) {
-//		if (result.rule.debug) {
 			depth := resultStack.size
 			if (!msg.startsWith("--> ") && !msg.startsWith("<-- "))
 				msg = "  > ${curRuleName} - ${msg}"
@@ -123,6 +127,33 @@ internal class PegCtx {
 	private Str curRuleName() {
 		rule := resultStack.peek.rule
 		return (rule.name ?: rule.label) ?: rule.debugName
-//		resultStack.eachrWhile { it.rule.name } ?: rootResult.rule.name
 	}
+}
+
+
+** Handed to 'Rule' classes during the matching process. 
+@Js
+mixin ParseCtx {
+	
+	** Call to process a sub-rule. Returns 'true' if it matched successfully.
+	abstract Bool process(Rule rule)
+	
+	** Consumes 1 character from the underlying input stream.
+	abstract Int readChar()
+
+	** Returns the current position in the underlying input stream.
+	abstract Int currentPos()
+	
+	** Rolls back the underlying input stream to the given position. 
+	abstract Void rollbackToPos(Int pos)
+
+	** Returns 'true' if end-of-stream is reached. 
+	abstract Bool eos()
+
+	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
+	abstract Void log(Str msg)
+
+	** Returns a PEG specific 'ParseErr' to be thrown.
+	abstract PegParseErr parseErr(Str errMsg)
+
 }

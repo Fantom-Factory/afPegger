@@ -132,7 +132,7 @@ internal abstract class ProxyRule : Rule {
 		set { if (rule == null) _useInResult = it; else rule.useInResult = it }
 	}
 
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		rule.doProcess(ctx)
 	}
 	

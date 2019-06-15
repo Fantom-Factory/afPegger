@@ -2,7 +2,7 @@
 @Js
 internal class EosRule : Rule {
 
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		ctx.eos
 	}
 	

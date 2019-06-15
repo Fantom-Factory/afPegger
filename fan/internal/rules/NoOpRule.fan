@@ -7,7 +7,7 @@ internal class NoOpRule : Rule {
 		this.msg	= msg
 	}
 	
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		echo("NoOp Rule: $msg")
 		return true
 	}

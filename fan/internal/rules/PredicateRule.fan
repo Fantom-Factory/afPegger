@@ -9,12 +9,12 @@ internal class PredicateRule : Rule {
 		this.not	= not
 	}
 	
-	override Bool doProcess(PegCtx ctx) {
-		start  := ctx.cur
+	override Bool doProcess(ParseCtx ctx) {
+		start  := ctx.currentPos
 		passed := not ? !ctx.process(rule) : ctx.process(rule)
 		if (passed) {
 			ctx.log("Rolling back predicate")
-			ctx.rollbackTo(start)
+			ctx.rollbackToPos(start)
 		}
 		return passed
 	}

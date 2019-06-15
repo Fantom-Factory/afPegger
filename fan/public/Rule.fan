@@ -2,15 +2,11 @@
 ** (Advanced)  
 ** Models a PEG Rule.
 ** 
-** Rules are commonly created by using methods from the `Rules` mixin, but may be parsed from patterns.
+** Rules are commonly created by using methods from the `Rules` mixin, but may be parsed from string patterns.
 ** 
-** `Rule` is not intended to be created or subclassed by the user. 
+** `Rule` *may* sub-classed to create your own custom rules. 
 @Js
 abstract class Rule {
-	
-	** Internal ctor.
-	** The 'abstract doProcess()' is internal, so it's not like anyone can write their own Rules.
-	internal new make() { }
 	
 	** Creates a rule by parsing the given pattern:
 	** 
@@ -35,20 +31,21 @@ abstract class Rule {
 	** A label for this rule.
 	virtual Str? label {
 		set {
-			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' })
+			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
 				throw ArgErr("Label must be a valid Fantom identifier: $it")
 			&label = it
 		}
 	}
 	
-	** Disable debugging of this rule if it gets to noisy.
+	** Disable debugging of this rule if it gets too noisy.
 	virtual Bool debug			:= true
 
 	** Not all rules are useful in the parsed AST. 
 	virtual Bool useInResult	:= true
 
 	** Override to implement Rule logic.
-	abstract internal Bool doProcess(PegCtx ctx)
+	@NoDoc
+	abstract Bool doProcess(ParseCtx ctx)
 	
 	** Returns the PEG expression for this rule. Example:
 	** 
@@ -63,7 +60,6 @@ abstract class Rule {
 		ex := name
 		if (!useInResult)	ex = "-" + ex
 		if (!debug)			ex = ex + "-"
-		echo(ex)
 		return "${ex} <- ${expression}"
 	}
 
@@ -111,6 +107,7 @@ abstract class Rule {
 		return label != null ? "${label}:${dis}" : dis
 	}
 	
+	@NoDoc
 	virtual internal Str debugName() {
 		name := typeof.name.decapitalize
 		return name.endsWith("Rule") ? name[0..<-4] : name

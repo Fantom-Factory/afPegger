@@ -25,11 +25,7 @@ internal class Result {
 	}
 	
 	Void rollback(PegCtx ctx) {
-		ctx.rollbackTo(strStart)
-	}
-
-	Void success(Str in) {
-		resultList?.each { it.success(in) }
+		ctx.rollbackToPos(strStart)
 	}
 
 	Str matchedStr(Str in) {

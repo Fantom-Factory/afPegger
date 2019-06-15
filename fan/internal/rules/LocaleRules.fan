@@ -1,7 +1,7 @@
 
 @Js
 internal class UpperRule : Rule {
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		ctx.readChar.isUpper
 	}
 	override Str expression() { "\\upper" } 
@@ -9,7 +9,7 @@ internal class UpperRule : Rule {
 
 @Js
 internal class LowerRule : Rule {
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		ctx.readChar.isLower
 	}
 	override Str expression() { "\\lower" } 
@@ -17,7 +17,7 @@ internal class LowerRule : Rule {
 
 @Js
 internal class AlphaRule : Rule {
-	override Bool doProcess(PegCtx ctx) {
+	override Bool doProcess(ParseCtx ctx) {
 		peek := ctx.readChar
 		return peek.isLower || peek.isUpper
 	}
