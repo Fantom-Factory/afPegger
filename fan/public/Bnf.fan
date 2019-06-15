@@ -1,11 +1,11 @@
 
 **
-** Augmented Backus-Naur Form (ABNF)
+** Parsers for Backus-Naur Form (BNF) and Augmented BNF.
 ** 
 ** See [RFC 5234]`https://tools.ietf.org/html/rfc5234`.
 ** 
 @Js
-class Abnf {
+class Bnf {
 	
 	** Parses a ABNF grammar definitions.
 	** For example:
@@ -17,13 +17,13 @@ class Abnf {
 	**   )
 	** 
 	static Grammar parseAbnf(Str grammar) {
-		AbnfGrammar().parseGrammar(grammar)
+		BnfGrammar().parseGrammar(grammar)
 	}
 	
 	** Returns the grammar uses to parse ABNF grammar.
 	** 
 	** It's not particularly useful, but it may be interesting to some.
-	static Grammar abnfGrammar() {
-		AbnfGrammar.abnfGrammar
+	static Grammar bnfGrammar() {
+		BnfGrammar.bnfGrammar
 	}
 }
