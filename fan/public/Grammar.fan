@@ -67,10 +67,10 @@ class Grammar {
 	Str definition() {
 		validate
 		max := (Int) _rules.vals.reduce(0) |Int max, rule| {
-			max = max.max(rule.name.size)
-			if (!rule.useInResult)	max++
-			if (!rule.debug)		max++
-			return max
+			nameSize := rule.name.size
+			if (!rule.useInResult)	nameSize++
+			if (!rule.debug)		nameSize++
+			return max.max(nameSize)
 		}
 		buf := StrBuf()
 		_rules.each |rule| {

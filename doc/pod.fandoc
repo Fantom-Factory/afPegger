@@ -257,30 +257,30 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 PEG grammar:
 
 pre>
-grammar      <- (!\eos (emptyLine / ruleDef / \err(FAIL)))+
-ruleDef      <- ruleName cwsp* ("=" / "<-") cwsp* rule cwsp* \eol
-ruleName     <- [a-zA-Z] [a-zA-Z0-9_\-]*
-rule         <- firstOf / \err(FAIL)
-firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
-sequence     <- expression (cwsp* expression)*
-expression   <- predicate? (label ":")? type multiplicity?
-label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type         <- group / ruleName / literal / chars / macro / dot
-group        <- "(" cwsp* rule cwsp* ")"
-predicate    <- "!" / "&"
-multiplicity <- "*" / "+" / "?"
-literal      <- singleQuote / doubleQuote
-singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
-doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
-chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
-macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
-dot          <- "."
-emptyLine    <- sp* (\eol / comment)
-comment      <- ("#" / "//") (!\eos [^\n])* \eol
-cwsp         <- sp / (!\eos cnl (sp / comment / \eos))
-cnl          <- \eol / comment
-sp           <- [ \t]
+grammar               <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
+ruleDef               <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
+ruleName              <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
+rule                  <- firstOf / \err(FAIL-2)
+firstOf               <- sequence (cwsp* "/" cwsp* sequence)*
+sequence              <- expression (cwsp* expression)*
+expression            <- predicate? (label ":")? type multiplicity?
+label                 <- [a-zA-Z] [a-zA-Z0-9_\-]*
+type                  <- group / ruleName / literal / chars / macro / dot
+-group                <- "(" cwsp* rule cwsp* ")"
+predicate             <- "!" / "&"
+multiplicity          <- "*" / "+" / "?"
+literal               <- singleQuote / doubleQuote
+-singleQuote          <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+-doubleQuote          <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+chars                 <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
+macro                 <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+unicode               <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
+dot                   <- "."
+commentLine           <- sp* (\eol / comment)
+comment-              <- ("#" / "//") (!\eos [^\n])* \eol
+-cwsp-                <- sp / (!\eos cnl (sp / &("#" / "//")))
+-cnl-                 <- \eol / comment
+-sp-                  <- [ \t]
 <pre
 
 

@@ -23,7 +23,7 @@ internal class PegGrammar : Rules {
 		macro					:= rules["macro"]
 		unicode					:= rules["unicode"]
 		dot						:= rules["dot"]
-		emptyLine				:= rules["emptyLine"]
+		commentLine				:= rules["commentLine"]
 		comment					:= rules["comment"]		.debugOff
 		cwsp					:= rules["cwsp"]		.excludeFromResults.debugOff
 		cnl						:= rules["cnl"]			.excludeFromResults.debugOff
@@ -32,12 +32,9 @@ internal class PegGrammar : Rules {
 		eol						:= eol					.excludeFromResults.debugOff
 		fail					:= err ("FAIL")
 
-		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { emptyLine, ruleDef, fail, }, })
+		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { commentLine, ruleDef, fail, }, })
 
-		rules["ruleDef"]		= sequence { optional(char('-')).withLabel("exclude"), ruleName, optional(char('-')).withLabel("debugOff"), zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), eol, }
-//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(cwsp), optional(eol), }
-//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, zeroOrMore(sp), firstOf { eol, oneOrMore(emptyLine), }, }
-//		rules["ruleDef"]		= sequence { ruleName, zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, firstOf { eos, oneOrMore(emptyLine), }, }
+		rules["ruleDef"]		= sequence { optional(char('-')).withLabel("exclude"), ruleName, optional(char('-')).withLabel("debugOff"), zeroOrMore(cwsp), firstOf { char('='), str("<-")}, zeroOrMore(cwsp), rule, optional(commentLine), }
 		rules["ruleName"]		= sequence { alphaChar, zeroOrMore(firstOf { sequence { char('-'), charRule("[a-zA-Z0-9_]"), }, charRule("[a-zA-Z0-9_]"), }), }
 		rules["rule"]			= firstOf  { _firstOf, err("FAIL-2"), }
 		rules["firstOf"]		= sequence { _sequence, zeroOrMore(sequence { zeroOrMore(cwsp), char('/'), zeroOrMore(cwsp), _sequence, }), }
@@ -58,12 +55,9 @@ internal class PegGrammar : Rules {
 		rules["unicode"]		= sequence { char('\\'), char('u'), hexChar, hexChar, hexChar, hexChar, }
 		rules["dot"]			= char('.')
 
-		rules["emptyLine"]		= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
+		rules["commentLine"]	= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
 		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }), eol, }
-		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}
-//		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, onlyIf(char('#')), }, }, }
-//		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, eos, }, },}
-//		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, comment, eos, }, },}
+		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, onlyIf(firstOf { char('#'), str("//"), }), } },}
 		rules["cnl"]			= firstOf { eol, comment, }
 		rules["sp"]				= spaceChar
 		
@@ -90,7 +84,7 @@ internal class PegGrammar : Rules {
 		
 		newGrammar := Grammar()
 		match.matches.each |ruleDef| {
-			if (ruleDef.name == "emptyLine") 
+			if (ruleDef.name == "commentLine") 
 				return
 			if (ruleDef.name != "ruleDef") 
 				throw ParseErr("Not a ruleDef: ${ruleDef.name}")
@@ -124,7 +118,6 @@ internal class PegGrammar : Rules {
 					rule = fromExpression(match.firstMatch, newGrammar)
 				else {
 					rules := match.matches.findAll { it.name != "comment" }.map {
-//					rules := match.matches.findAll { it.name != "comment" && it.name != "emptyLine" }.map {
 						fromExpression(it, newGrammar)
 					}
 					rule = rules.size == 1 ? rules.first : Rules.sequence(rules)

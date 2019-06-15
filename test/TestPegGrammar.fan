@@ -133,8 +133,6 @@ class TestPegGrammar : Test {
 		verifyDefs("a = [bc]\n [cd] // comment1\n [de]\n", 				"a <- [bc] [cd] [de]")
 		verifyDefs("a = [bc]\n [cd] // comment1\n  [de]\n", 			"a <- [bc] [cd] [de]")
 		verifyDefs("a = [bc]\n [cd] // comment1\n   [de]\n", 			"a <- [bc] [cd] [de]")
-		verifyDefs("a = [bc]\n [cd] // comment1\n//comment2\n [de]\n",	"a <- [bc] [cd] [de]")
-		verifyDefs("a = [bc]\n [cd] // comment1\n//comment2\n  [de]\n",	"a <- [bc] [cd] [de]")
 		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n [de]\n",	"a <- [bc] [cd] [de]")
 		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n  [de]\n","a <- [bc] [cd] [de]")
 		verifyDefs("a = [bc]\n [cd] // comment1\n //comment2\n [de]\n",	"a <- [bc] [cd] [de]")
@@ -144,6 +142,12 @@ class TestPegGrammar : Test {
 		verifyDefs("a = [bc]\n # comm1\nb = [cd]",			"a <- [bc]\nb <- [cd]")
 		verifyDefs("a = [bc]\n # comm1\n\nb = [cd]",		"a <- [bc]\nb <- [cd]")
 		verifyDefs("a = [bc]\n # comm1\n#comm2\nb = [cd]",	"a <- [bc]\nb <- [cd]")
+
+		// comments mid-rule NEED to be prefixed with space, given how complicated parsing comments are,
+		// I'm happy with this, esp given how rare mid-rule comments are!
+		// Okay, nevermind, I actually made it work!  :D
+		verifyDefs("a = [bc]\n [cd] // comment1\n//comment2\n [de]\n",	"a <- [bc] [cd] [de]")
+		verifyDefs("a = [bc]\n [cd] // comment1\n//comment2\n  [de]\n",	"a <- [bc] [cd] [de]")
 	}
 	
 	Void testEndOfLineComments() {
