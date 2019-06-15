@@ -33,7 +33,7 @@ internal class StrMimickCharRule : Rule {
 		char.toChar.toCode + (ignoresCase ? "i" : "")
 	}
 	
-	override internal Str debugName() {
+	override Str typeName() {
 		"charRule"
 	}
 }

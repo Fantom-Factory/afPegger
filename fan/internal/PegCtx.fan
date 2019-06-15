@@ -126,13 +126,13 @@ internal class PegCtx : ParseCtx {
 	
 	private Str curRuleName() {
 		rule := resultStack.peek.rule
-		return (rule.name ?: rule.label) ?: rule.debugName
+		return (rule.name ?: rule.label) ?: rule.typeName
 	}
 }
 
 
 ** Handed to 'Rule' classes during the matching process. 
-@Js
+@Js @NoDoc
 mixin ParseCtx {
 	
 	** Call to process a sub-rule. Returns 'true' if it matched successfully.

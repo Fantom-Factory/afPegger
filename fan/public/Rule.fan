@@ -94,6 +94,13 @@ abstract class Rule {
 		Peg(str, this).match
 	}
 	
+	@NoDoc
+	virtual Str typeName() {
+		// if converting doProcess() to processFn then THIS method will need to be converted to another field 
+		name := typeof.name.decapitalize
+		return name.endsWith("Rule") ? name[0..<-4] : name
+	}
+
 	@Operator @NoDoc
 	virtual This add(Rule rule) {
 		throw Err("${typeof.qname} does not support add()")
@@ -107,12 +114,6 @@ abstract class Rule {
 		return label != null ? "${label}:${dis}" : dis
 	}
 	
-	@NoDoc
-	virtual internal Str debugName() {
-		name := typeof.name.decapitalize
-		return name.endsWith("Rule") ? name[0..<-4] : name
-	}
-
 	@NoDoc
 	override Str toStr() { _dis }  
 }
