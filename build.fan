@@ -18,7 +18,7 @@ class Build : BuildPod {
             "sys        1.0",
         ]
 
-        srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`, `test/bnf/`]
-        resDirs = [`doc/`, `res/`]
+        srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`]
+        resDirs = [`doc/`]
     }
 }
