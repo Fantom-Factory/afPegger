@@ -5,7 +5,7 @@ class Build : BuildPod {
     new make() {
         podName = "afPegger"
         summary = "Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!"
-        version = Version("1.0.1")
+        version = Version("1.1.0")
 
         meta = [
             "pod.dis"       : "Pegger",
@@ -14,8 +14,8 @@ class Build : BuildPod {
         ]
 
         depends = [
-            // ---- Core ------------------------
-            "sys        1.0",
+            // ---- Core ----
+            "sys 1.0.70 - 1.0",
         ]
 
         srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`]

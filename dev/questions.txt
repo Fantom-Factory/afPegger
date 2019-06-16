@@ -30,6 +30,8 @@ Questions
 
 Javascript - Immutable functions? Have method func pointers instead?
 
+Have a const Rulelet (that contains the immutable fn) that gets passed to Rule?
+
 
 
 Dead Questions

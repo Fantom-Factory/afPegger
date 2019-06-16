@@ -1,7 +1,27 @@
+v1.1
+****
+v1.1.0
+======
+ - New: Rules may be spread across multiple lines.
+ - New: Rules may be excluded from results, and omitted from debug logging.
+ - New: Comments may be placed inside rules, inbetween rules, and after rules.
+ - New: Introduced operator precendence between 'firstOf' / 'sequence' rules.
+ - Chg: Logging is much cleaner and understandable.
+ - Chg: Removed action functions on Rules - they were too ambiguous - tree walking is far better.
+ - Chg: Added brief description of PEG notation to docs.
+ - Chg: Exposed Rule API so you may created your own Rule classes.
+
+
+v1.0
+****
 v1.0.0
 ======
  - New: Re-written in to a leaner, meaner, and way more expressive PEG parser!
 
+
+
+v0.1
+****
 v0.1.2
 ======
  - New: Added 'checked' param to 'Parser.parse()' methods.

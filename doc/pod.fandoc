@@ -6,7 +6,7 @@ Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford
 
 Advanced parsing options let you *look ahead* with predicates and the returned tree of match results gives you plenty of options for transforming it into useful data.
 
-Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf`, [Parboiled]`https://github.com/sirthias/parboiled/wiki`, and [nim peg]`https://nim-lang.org/docs/pegs.html`.
+Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf`, [Parboiled]`https://github.com/sirthias/parboiled/wiki`, and [nim pegs]`https://nim-lang.org/docs/pegs.html`.
 
 
 

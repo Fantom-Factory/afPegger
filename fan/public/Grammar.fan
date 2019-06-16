@@ -28,7 +28,7 @@
 ** It is not mandatory to use the 'Grammar' class to create rules and grammars, but it is usually easier.
 @Js
 class Grammar {
-	private Str:Rule 		_rules		:= Str:Rule[:] { it.ordered = true } 
+	private Str:Rule 		_rules		:= Str:Rule[:]      { it.ordered = true } 
 	private Str:ProxyRule	_proxies	:= Str:ProxyRule[:] { it.ordered = true }
 	
 	** Parses grammar definitions, and returns the root rule (if given) or the first rule parsed.

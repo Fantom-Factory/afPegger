@@ -28,7 +28,7 @@ class Peg {
 	
 	** Turns debug messaging on and off.
 	static Void debugOn(Bool debug := true) {
-		Peg#.pod.log.level = debug ? LogLevel.debug : LogLevel.info
+		Peg#.pod.log.level = (debug ? LogLevel.debug : LogLevel.info)
 	}
 	
 	** Parses a pattern in to simple rule.

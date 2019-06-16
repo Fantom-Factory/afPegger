@@ -1,6 +1,7 @@
 
+** (Advanced) 
 ** Handed to 'Rule' classes during the matching process. 
-@Js @NoDoc
+@Js
 mixin RuleCtx {
 	
 	** Call to process a sub-rule. Returns 'true' if it matched successfully.

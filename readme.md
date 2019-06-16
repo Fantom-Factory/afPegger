@@ -1,8 +1,8 @@
-# Pegger v1.0.0
+# Pegger v1.1.0
 ---
 
 [![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](http://fantom-lang.org/)
-[![pod: v1.0.0](http://img.shields.io/badge/pod-v1.0.0-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
+[![pod: v1.1.0](http://img.shields.io/badge/pod-v1.1.0-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
 [![Licence: ISC](http://img.shields.io/badge/licence-ISC-blue.svg)](https://choosealicense.com/licenses/isc/)
 
 ## Overview
@@ -13,7 +13,7 @@ Pegger is a [Parsing Expression Grammar (PEG)](http://pdos.csail.mit.edu/~baford
 
 Advanced parsing options let you *look ahead* with predicates and the returned tree of match results gives you plenty of options for transforming it into useful data.
 
-Pegger was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf) and [Parboiled](https://github.com/sirthias/parboiled/wiki).
+Pegger was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf), [Parboiled](https://github.com/sirthias/parboiled/wiki), and [nim pegs](https://nim-lang.org/docs/pegs.html).
 
 ## Install
 
@@ -27,7 +27,7 @@ Or install `Pegger` with [fanr](http://fantom.org/doc/docFanr/Tool.html#install)
 
 To use in a [Fantom](http://fantom-lang.org/) project, add a dependency to `build.fan`:
 
-    depends = ["sys 1.0", ..., "afPegger 1.0"]
+    depends = ["sys 1.0", ..., "afPegger 1.1"]
 
 ## Documentation
 
@@ -119,19 +119,18 @@ match["end"].toStr    // -> ">>>"
 The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which responsible matching everything:
 
 ```
-root  <- start name end
-start <- '<'+
-name  <- [a-zA-Z ]+
-end   <- '>'+
-```
-
-Each definition must be placed on its own line, and may also be written in a more standard property file notation using `=`:
-
-```
-#  Hash comments are allowed in grammar
-// as are double slash comments
-
 root  = start name end
+start = '<'+
+name  = [a-zA-Z ]+
+end   = '>'+
+```
+
+Definitions may span multiple lines but proceeding lines *must* contain leading whitespace to distinguish it from a new rule definition.
+
+```
+root  = start
+        name
+        end
 start = '<'+
 name  = [a-zA-Z ]+
 end   = '>'+
@@ -144,31 +143,145 @@ grammarStr := "..."
 grammar    := Peg.parseGrammar(grammarStr)
 rootRule   := grammar["root"]
 
-match      := Peg(input, rootRule).match
-match.dump
+input      := "<<<Hello Mum>>>"
+match      := rootRule.match(input).dump
+
+// root
+//  ├─ start : "<<<"
+//  ├─ name : "Hello Mum"
+//  └─ end : ">>>"
 ```
 
 Once a grammar (or rule) has been parsed, it may be cached for future re-use.
 
-## Macros
+Rules may be omitted from the result tree by prefixing the definitions with a `-`:
 
-Pegger introduces macros for common or useful extensions. These may be used directly in your PEG expressions:
+```
+root   = start name end
+-start = '<'+
+name   = [a-zA-Z ]+
+-end   = '>'+
+
+// root
+//  └─ name : "Hello Mum"
+```
+
+## PEG Notation
+
+Writing grammar files can be a lot easier to understand than the verbose programatic method. Here's your guide.
+
+Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, but where mentioned also provides support for 16-bit Unicode characters. Non-visible / non-printable characters are beyond the remit of Pegger; largely because Pegger uses strings as input!
+
+#### Rule definitions
+
+A rule is defined with a name followed by `=`. The more formal definition of `<-` may be used in place of `=`.
+
+    ruleDef1  = rule
+    ruleDef2 <- rule
+
+#### Sequence
+
+Ordered sequences of rules are expressed by separating them with a space.
+
+    ruleDef = rule1 rule2 rule3
+
+#### Choice / First of
+
+When given a choices, Pegger will match the *first* rule that passes. **Beware:** order of choices *can* be important.
+
+    ruleDef = rule1 / rule2 / rule3
+
+#### Grouping
+
+Brackets may be used to group rules together to avoid ambiguity.
+
+    ruleDef = (rule1 rule2) / (rule3 rule4)
+
+#### Repetition
+
+Rules may be specified to be matched by different amounts.
+
+    rule1?   // optional
+    rule1+   // one or more
+    rule1*   // zero or more
+
+#### Literal
+
+Literal strings may be matched with either single or double quotes.
+
+    ruleDef1 = "literal 1"
+    ruleDef2 = 'literal 2'
+
+Use backslash to escape the usual `\b \f \n \r \t` characters and to escape quotes. Use an `i` suffix to indicate the match should be case-insensitive.
+
+    ruleDef3 = "new\nline\n"i
+
+#### Character class
+
+Individual characters, and ranges thereof, may be matched with a regex-esque character class.
+
+    ruleDef1 = [a]        // matches a
+    ruleDef2 = [abc]      // matches 'a', 'b', or 'c'
+    ruleDef3 = [a-z]      // matches any character in the range from 'a' to 'z' inclusive
+    ruleDef4 = [a-z]i     // as above, but case-insensitive
+    ruleDef5 = [0-9A-F]i  // matches any hex digit
+    ruleDef6 = [\n\] \t]  // backslash escapes
+
+The hat `^` character will match any character BUT the chosen ones.
+
+    ruleDef6 = [^0-9]     // match any char BUT not digits
+
+#### Any character
+
+Use `.` to match *any* character.
+
+    ruleDef = . . .       // matches any 3 characters
+
+#### Predicates
+
+Use the ampersand `&` to look ahead for a match, but NOT consume any characters.
+
+    ruleDef = "something " &"good" .
+
+Use exclamation `!` to look ahead for a negative match, but again, NOT consume any characters.
+
+    ruleDef = "something " !"bad" .
+
+#### Unicode
+
+Use `\uXXXX` (hexadecimal) notation to match a 16-bit unicode character. May be used in string literals and character classes.
+
+    crlf = [\u000D] "\u000A"
+
+#### Macros
+
+Pegger introduces macros for useful extensions. These may be used individually as rules.
 
 ```
 table:
 name        function
 ----------  ---------------------------------
-\a          Matches any alpha char - 'a-zA-Z'
-\d          Matches any digit - '0-9'
-\n          Matches new-line char - '\n'
-\s          Matches any whitespace char - ' \t\n'
-\w          Matches any word char - 'a-zA-Z0-9_'
-\sp         Matches space or tab char - ' \t'
-\eol        Matches End-Of-Line - new-line char or EOS
-\eos        Matches End-Of-Stream - or End-Of-String
+\eos        Matches End-Of-Stream (or End-Of-String!?)
+\eol        Matches End-Of-Line - either a new-line char or EOS
+\lower      Matches a lowercase character in the current localeW
+\upper      Matches an uppercase character in the current locale
+\alpha      Matches a lowercase character in the current locale
 \err(xxx)   Throws a parse error when processed
-\noop(xxx)  No-Operation, does nothing
+\noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
 ```
+
+#### Comments
+
+Hash `#` comments are allowed in grammar, as are double slash `//` comments.
+
+    #  Hash comments are allowed in grammar
+    // as are double slash comments
+    
+    a = .  // end-of-line comments also allowed
+    
+    b = [cd]
+        // comments may also appear inbetween rules
+        [de]
 
 ## PEG Grammar
 
@@ -177,29 +290,30 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 PEG grammar:
 
 ```
-grammar      <- (!\eos line)+
-line         <- emptyLine / commentLine / ruleDef / \err(FAIL)
-emptyLine    <- sp* \eol
-commentLine  <- sp* ("#" / "//") sp* comment \eol
-comment      <- [^\n]*
-ruleDef      <- ruleName sp* ("=" / "<-") sp* rule sp* \eol
-ruleName     <- [a-zA-Z] [a-zA-Z0-9_\-]*
-rule         <- firstOf / sequence / \err(FAIL)
-sequence     <- expression (sp+ expression)*
-firstOf      <- expression sp* "/" sp* expression (sp* "/" sp* expression)*
+grammar      <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
+ruleDef      <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
+ruleName     <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
+rule         <- firstOf / \err(FAIL-2)
+firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
+sequence     <- expression (cwsp* expression)*
 expression   <- predicate? (label ":")? type multiplicity?
 label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type         <- ("(" sp* rule sp* ")") / ruleName / literal / chars / macro / dot
+type         <- group / ruleName / literal / chars / macro / dot
+-group       <- "(" cwsp* rule cwsp* ")"
 predicate    <- "!" / "&"
 multiplicity <- "*" / "+" / "?"
 literal      <- singleQuote / doubleQuote
-singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
-doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+-singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+-doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
 chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
 macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-unicode      <- "\\" "u" [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9] [a-fA-F0-9]
+unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
 dot          <- "."
-sp           <- [ \t]
+commentLine  <- sp* (\eol / comment)
+comment-     <- ("#" / "//") (!\eos [^\n])* \eol
+-cwsp-       <- sp / (!\eos cnl (sp / &("#" / "//")))
+-cnl-        <- \eol / comment
+-sp-         <- [ \t]
 ```
 
 ## Recursive / HTML Parsing
@@ -278,18 +392,6 @@ Void walk(Match match, |Match, Str startOrEnd| fn) {
     match.matches.each { walk(it, fn) }
     fn?.call(match, "end")
 }
-```
-
-### 3. Rule Actions
-
-You can add action functions to rules. Functions are called when the rule is successfully matched.
-
-Note that action functions are only called once all matching has been completed. That way functions are not called when sequences are being explored, or before predicates are rolled back.
-
-```
-grammar["startTag"].withAction |tagName| { echo("startTag: $tagName") }
-grammar["text"    ].withAction |text|    { echo("text: $text") }
-grammar["endTag"  ].withAction |tagName| { echo("endTag: $tagName") }
 ```
 
 ## Debugging
