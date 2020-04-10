@@ -104,7 +104,7 @@ match["end"].toStr    // -> ">>>"
 
 Grammar
 =======
-The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which responsible matching everything:
+The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which is responsible for matching everything:
 
 pre>
 syntax: props
@@ -172,6 +172,11 @@ A rule is defined with a name followed by '='. The more formal definition of '<-
 
   ruleDef1  = rule
   ruleDef2 <- rule
+
+**Advanced Note:** Prefixing a rule with '-' will remove it from the result tree.
+
+  -ruleDef1  = rule
+  -ruleDef2 <- rule
 
 Sequence
 ----
@@ -258,7 +263,7 @@ name        function
 ----------  ---------------------------------
 \eos        Matches End-Of-Stream (or End-Of-String!?)
 \eol        Matches End-Of-Line - either a new-line char or EOS
-\lower      Matches a lowercase character in the current localeW
+\lower      Matches a lowercase character in the current locale
 \upper      Matches an uppercase character in the current locale
 \alpha      Matches a lowercase character in the current locale
 \err(xxx)   Throws a parse error when processed

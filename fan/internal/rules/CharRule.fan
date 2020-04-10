@@ -76,6 +76,7 @@ internal class CharRule : Rule {
 			while (cClass.size > 0) {
 				if (cClass[0] == '\\') {
 					if (cClass[1] == '\\')	chars.add('\\'); else
+					if (cClass[1] == ']')	chars.add( ']'); else
 					if (cClass[1] == 'b')	chars.add('\b'); else
 					if (cClass[1] == 'f')	chars.add('\f'); else
 					if (cClass[1] == 'n')	chars.add('\n'); else
@@ -83,7 +84,8 @@ internal class CharRule : Rule {
 					if (cClass[1] == 't')	chars.add('\t'); else
 					if (cClass[1] == '-')	chars.add( '-'); else
 					if (cClass[1] == '^')	chars.add( '^'); else
-					if (cClass[1] == 'u')	chars.add(unicode()); else
+					if (cClass[1] == 'u')	chars.add(unicode());
+					else
 						// may as well allow ALL chars to be escaped
 						chars.add(cClass[1])
 					cClass = cClass[2..-1]
@@ -105,7 +107,7 @@ internal class CharRule : Rule {
 			if (ranges.isEmpty && chars.size == 1 && !not)
 				return StrMimickCharRule(chars.first, ignore)
 
-			express := ranges.join("") { it.start.toChar + "-" + it.end.toChar } + chars.join("") { it.toChar }.toCode(null).replace("]", "\\]").replace("-", "\\-") 
+			express := ranges.join("") { it.start.toChar + "-" + it.end.toChar }.toCode(null) + chars.join("") { it.toChar }.toCode(null).replace("]", "\\]").replace("-", "\\-") 
 			return CharRule(express, not) |Int peek->Bool| {
 				fn := chars.contains(peek) || ranges.any { it.contains(peek) }
 				if (!fn && ignore) {

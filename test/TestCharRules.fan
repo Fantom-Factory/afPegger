@@ -7,6 +7,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("a") != null)
 		verify		(parser.match(" ") != null)
 		verifyFalse	(parser.match( "") != null)
+		verifyEq	(parser.expression, ".")
 	}
 
 	Void testAnyCharOf() {
@@ -14,6 +15,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("a") != null)
 		verify		(parser.match("b") != null)
 		verifyFalse	(parser.match("c") != null)
+		verifyEq	(parser.expression, "[ab]")
 	}
 
 	Void testAnyCharNotOf() {
@@ -21,6 +23,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("a") != null)
 		verifyFalse	(parser.match("b") != null)
 		verify		(parser.match("c") != null)
+		verifyEq	(parser.expression, "[^ab]")
 	}
 
 	Void testAnyCharInRange() {
@@ -30,6 +33,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("c") != null)
 		verify		(parser.match("d") != null)
 		verifyFalse	(parser.match("e") != null)
+		verifyEq	(parser.expression, "[b-d]")
 	}
 
 	Void testAnyCharNotInRange() {
@@ -39,6 +43,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("c") != null)
 		verifyFalse	(parser.match("d") != null)
 		verify		(parser.match("e") != null)
+		verifyEq	(parser.expression, "[^b-d]")
 	}
 
 	Void testAnyAlphaChar() {
@@ -48,6 +53,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("1") != null)
 		verifyFalse	(parser.match("2") != null)
 		verifyFalse	(parser.match(" ") != null)
+		verifyEq	(parser.expression, "[a-zA-Z]")
 	}
 
 	Void testAnyNumChar() {
@@ -57,6 +63,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("1") != null)
 		verify		(parser.match("2") != null)
 		verifyFalse	(parser.match(" ") != null)
+		verifyEq	(parser.expression, "[0-9]")
 	}
 
 	Void testAnyAlphaNumChar() {
@@ -66,6 +73,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("1") != null)
 		verify		(parser.match("2") != null)
 		verifyFalse (parser.match(" ") != null)
+		verifyEq	(parser.expression, "[a-zA-Z0-9]")
 	}
 
 	Void testAnySpaceChar() {
@@ -75,6 +83,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse (parser.match("1") != null)
 		verifyFalse (parser.match("2") != null)
 		verify		(parser.match(" ") != null)
+		verifyEq	(parser.expression, "[ \\t\\n]")
 	}
 
 	Void testAnyNonSpaceChar() {
@@ -84,6 +93,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("1") != null)
 		verify		(parser.match("2") != null)
 		verifyFalse (parser.match(" ") != null)
+		verifyEq	(parser.expression, "[^ \\t\\n]")
 	}
 
 	Void testCharClass() {
@@ -92,32 +102,38 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("A") != null)
 		verifyFalse	(parser.match("b") != null)
 		verifyFalse	(parser.match("B") != null)
+		verifyEq	(parser.expression, "\"a\"")
 
-		parser		 = CharRule.fromStr("[a]i")
+		parser		= CharRule.fromStr("[a]i")
 		verify		(parser.match("a") != null)
 		verify		(parser.match("A") != null)
 		verifyFalse	(parser.match("b") != null)
 		verifyFalse	(parser.match("B") != null)
+		verifyEq	(parser.expression, "\"a\"i")
 
-		parser		 = CharRule.fromStr("[^a]i")
+		parser		= CharRule.fromStr("[^a]i")
 		verifyFalse	(parser.match("a") != null)
 		verifyFalse	(parser.match("A") != null)
 		verify		(parser.match("b") != null)
 		verify		(parser.match("B") != null)
+		verifyEq	(parser.expression, "[^a]i")
 
-		parser		 = CharRule.fromStr("[ ]")
+		parser		= CharRule.fromStr("[ ]")
 		verify		(parser.match(" ") != null)
 		verifyFalse	(parser.match("A") != null)
+		verifyEq	(parser.expression, "\" \"")
 
-		parser		 = CharRule.fromStr("[\n]")
+		parser		= CharRule.fromStr("[\n]")
 		verify		(parser.match("\n") != null)
 		verifyFalse	(parser.match("A") != null)
+		verifyEq	(parser.expression, "\"\\n\"")
 
-		parser		 = CharRule.fromStr("[^\n]")
+		parser		= CharRule.fromStr("[^\n]")
 		verifyFalse	(parser.match("\n") != null)
 		verify		(parser.match("A") != null)
+		verifyEq	(parser.expression, "[^\\n]")
 
-		parser		 = CharRule.fromStr("[b-d]")
+		parser		= CharRule.fromStr("[b-d]")
 		verifyFalse	(parser.match("a") != null)
 		verify		(parser.match("b") != null)
 		verify		(parser.match("c") != null)
@@ -128,8 +144,9 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("C") != null)
 		verifyFalse	(parser.match("D") != null)
 		verifyFalse	(parser.match("E") != null)
+		verifyEq	(parser.expression, "[b-d]")
 
-		parser		 = CharRule.fromStr("[b-d]i")
+		parser		= CharRule.fromStr("[b-d]i")
 		verifyFalse	(parser.match("a") != null)
 		verify		(parser.match("b") != null)
 		verify		(parser.match("c") != null)
@@ -140,8 +157,9 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("C") != null)
 		verify		(parser.match("D") != null)
 		verifyFalse	(parser.match("E") != null)
+		verifyEq	(parser.expression, "[b-d]i")
 
-		parser		 = CharRule.fromStr("[^b-d]i")
+		parser		= CharRule.fromStr("[^b-d]i")
 		verify		(parser.match("a") != null)
 		verifyFalse	(parser.match("b") != null)
 		verifyFalse	(parser.match("c") != null)
@@ -152,6 +170,7 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("C") != null)
 		verifyFalse	(parser.match("D") != null)
 		verify		(parser.match("E") != null)
+		verifyEq	(parser.expression, "[^b-d]i")
 
 		parser		= CharRule.fromStr("[\tb-dX-Z34]")
 		verify		(parser.match("\t") != null)
@@ -163,6 +182,36 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("A") != null)
 		verifyFalse	(parser.match(" ") != null)
 		verifyFalse	(parser.match("9") != null)
+		verifyEq	(parser.expression, "[b-dX-Z\\t34]")
+
+		// test escapes
+		parser		= CharRule.fromStr("[\\]]")
+		verify		(parser.match("]") != null)
+		verifyFalse	(parser.match("A") != null)
+		verifyEq	(parser.expression, "\"]\"")
+
+		parser		= CharRule.fromStr("[\\]-]")
+		verify		(parser.match("]") != null)
+		verify		(parser.match("-") != null)
+		verifyFalse	(parser.match("A") != null)
+		verifyEq	(parser.expression, "[\\]\\-]")
+
+		parser		= Peg.parseRule("[\\]-]")
+		verifyEq	(parser.expression, "[\\]\\-]")
+
+		parser		 = CharRule.fromStr("[^\\]]")
+		verifyFalse	(parser.match("]") != null)
+		verify		(parser.match("A") != null)
+		verifyEq	(parser.expression, "[^\\]]")
+
+		parser		 = CharRule.fromStr("[^\\]-]")
+		verifyFalse	(parser.match("]") != null)
+		verifyFalse	(parser.match("-") != null)
+		verify		(parser.match("A") != null)
+		verifyEq	(parser.expression, "[^\\]\\-]")
+		
+		parser		= CharRule.fromStr("[\n-a]")
+		verifyEq	(parser.expression, "[\\n-a]")
 	}
 	
 	Void testUnicode() {
@@ -171,11 +220,13 @@ internal class TestCharRules : Test, Rules {
 		verifyEq(rule.match("z")?.matched, "z")
 		verifyEq(rule.match("\u003D")?.matched, "=")
 		verifyEq(rule.match("=")?.matched, "=")
+		verifyEq(rule.expression, "[a=z]")
 		
 		rule = Peg.parseRule("[a\\u003Dz]")
 		verifyEq(rule.match("z")?.matched, "z")
 		verifyEq(rule.match("\u003D")?.matched, "=")
 		verifyEq(rule.match("=")?.matched, "=")
+		verifyEq(rule.expression, "[a=z]")
 
 		// test escaping the escape
 		rule = CharRule.fromStr("[a\\\\u003Dz]")
@@ -187,6 +238,7 @@ internal class TestCharRules : Test, Rules {
 		verifyEq(rule.match("\\")?.matched, "\\")
 		verifyEq(rule.match("D")?.matched, "D")
 		verifyEq(rule.match("A")?.matched, null)
+		verifyEq(rule.expression, "[a\\\\u003Dz]")
 		
 		rule = Peg.parseRule("[a\\\\u003Dz]")
 		verifyEq(rule.match("z")?.matched, "z")
@@ -196,5 +248,6 @@ internal class TestCharRules : Test, Rules {
 		verifyEq(rule.match("\\")?.matched, "\\")
 		verifyEq(rule.match("D")?.matched, "D")
 		verifyEq(rule.match("A")?.matched, null)
+		verifyEq(rule.expression, "[a\\\\u003Dz]")
 	}
 }
