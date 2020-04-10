@@ -1,5 +1,9 @@
 v1.1
 ****
+v1.1.2
+======
+ - Chg: Ensured rule expressions are properly escaped (more edge cases tested).
+
 v1.1.0
 ======
  - New: Rules may be spread across multiple lines.
