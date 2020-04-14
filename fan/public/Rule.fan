@@ -18,7 +18,9 @@ abstract class Rule {
 		PegGrammar().parseRule(pattern)
 	}
 
-	** The name of this rule. Only rules with names appear in debug output.
+	** The name of this rule.
+	** Only rules with names appear in debug output.
+	** 
 	** Should be legal Fantom identifier (think variable names!).
 	virtual Str? name {
 		set {
@@ -29,6 +31,9 @@ abstract class Rule {
 	}
 	
 	** A label for this rule.
+	** Only rules with labels appear in the output tree.
+	** 
+	** Should be legal Fantom identifier (think variable names!).
 	virtual Str? label {
 		set {
 			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
@@ -64,13 +69,16 @@ abstract class Rule {
 	}
 
 	** A helpful builder method for setting the name.
-	This withName(Str name) {
+	** 
+	** Only rules with names appear in debug output.
+	This withName(Str? name) {
 		this.name = name
 		return this
 	}
 
 	** A helpful builder method for setting the label.
-	This withLabel(Str label) {
+	** Only rules with labels appear in the output tree.
+	This withLabel(Str? label) {
 		this.label = label
 		return this
 	}

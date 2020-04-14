@@ -166,6 +166,7 @@ Writing grammar files can be a lot easier to understand than the verbose program
 
 Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, but where mentioned also provides support for 16-bit Unicode characters. Non-visible / non-printable characters are beyond the remit of Pegger; largely because Pegger uses strings as input!
 
+
 Rule definitions
 ----
 A rule is defined with a name followed by '='. The more formal definition of '<-' may be used in place of '='.
@@ -178,11 +179,20 @@ A rule is defined with a name followed by '='. The more formal definition of '<-
   -ruleDef1  = rule
   -ruleDef2 <- rule
 
+**Advanced Note:** Suffixing a rule with '-' will remove it from debug output.
+
+  ruleDef1-  = rule
+  ruleDef2- <- rule
+
+Rules may have both a '-' prefix and suffix: '-ruleDef- = rule'
+
+
 Sequence
 ----
 Ordered sequences of rules are expressed by separating them with a space.
 
   ruleDef = rule1 rule2 rule3
+
 
 Choice / First of
 ----
@@ -190,19 +200,25 @@ When given a choices, Pegger will match the *first* rule that passes. **Beware:*
 
   ruleDef = rule1 / rule2 / rule3
 
+
 Grouping
 --------
 Brackets may be used to group rules together to avoid ambiguity.
 
   ruleDef = (rule1 rule2) / (rule3 rule4)
 
+
 Repetition
 ----
 Rules may be specified to be matched by different amounts.
 
-  rule1?   // optional
-  rule1+   // one or more
-  rule1*   // zero or more
+  rule1?      // optional
+  rule1+      // one or more
+  rule1*      // zero or more
+  rule1{2,6}  // between 2 and 6 (inclusive)
+  rule1{,5}   // at most 5 - same as {0,5}
+  rule1{3,}   // at least 3
+
 
 Literal
 ----
@@ -214,6 +230,7 @@ Literal strings may be matched with either single or double quotes.
 Use backslash to escape the usual '\b \f \n \r \t' characters and to escape quotes. Use an 'i' suffix to indicate the match should be case-insensitive.
 
   ruleDef3 = "new\nline\n"i
+
 
 Character class
 ----
@@ -230,11 +247,13 @@ The hat '^' character will match any character BUT the chosen ones.
 
   ruleDef6 = [^0-9]     // match any char BUT not digits
 
+
 Any character
 ----
 Use '.' to match *any* character.
 
   ruleDef = . . .       // matches any 3 characters
+
 
 Predicates
 ----
@@ -246,12 +265,14 @@ Use exclamation '!' to look ahead for a negative match, but again, NOT consume a
 
   ruleDef = "something " !"bad" .
 
+
 Unicode
 ----
 Use '\uXXXX' (hexadecimal) notation to match a 16-bit unicode character.
 May be used in string literals and character classes.
 
   crlf = [\u000D] "\u000A"
+
 
 Macros
 ----
@@ -269,6 +290,7 @@ name        function
 \err(xxx)   Throws a parse error when processed
 \noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
 <pre
+
 
 Comments
 ----
@@ -303,7 +325,7 @@ label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
 type         <- group / ruleName / literal / chars / macro / dot
 -group       <- "(" cwsp* rule cwsp* ")"
 predicate    <- "!" / "&"
-multiplicity <- "*" / "+" / "?"
+multiplicity <- "*" / "+" / "?" / ("{" min:[0-9]* "," max:[0-9]* "}")
 literal      <- singleQuote / doubleQuote
 -singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
 -doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
@@ -446,4 +468,12 @@ pre>
 ...
 ...
 <pre
+
+
+
+Design notes
+************
+Pegger was purposefully designed to match **Unicode character data** (strings!), not binary data. Hence it lacks notation to match bytes and byte ranges as seen in some RFC documents.
+
+If needed, hexadecimal Unicode escape sequences ( '\uXXXX' ) may be used to represent 8-bit binary data.
 

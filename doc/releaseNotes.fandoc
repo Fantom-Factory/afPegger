@@ -1,7 +1,9 @@
 v1.1
 ****
+
 v1.1.2
 ======
+ - New: Added ranges to multiplicity expressions in PEG grammar - 'rule{2,6}'
  - Chg: Ensured rule expressions are properly escaped (more edge cases tested).
 
 v1.1.0
@@ -16,8 +18,10 @@ v1.1.0
  - Chg: Exposed Rule API so you may created your own Rule classes.
 
 
+
 v1.0
 ****
+
 v1.0.0
 ======
  - New: Re-written in to a leaner, meaner, and way more expressive PEG parser!
@@ -26,6 +30,7 @@ v1.0.0
 
 v0.1
 ****
+
 v0.1.2
 ======
  - New: Added 'checked' param to 'Parser.parse()' methods.

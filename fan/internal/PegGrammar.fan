@@ -45,7 +45,7 @@ internal class PegGrammar : Rules {
 		rules["type"]			= firstOf  { group, ruleName, literal, chars, macro, dot, }
 		rules["group"]			= sequence { char('('), zeroOrMore(cwsp), rule, zeroOrMore(cwsp), char(')'), }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
-		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), }
+		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), sequence { char('{'), zeroOrMore(numChar).withLabel("min"), char(','), zeroOrMore(numChar).withLabel("max"), char('}') }, }
 
 		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }
 		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }	// if you escape something, then it MUST be followed by another char
@@ -126,7 +126,7 @@ internal class PegGrammar : Rules {
 		assertName(match, "expression")
 
 		exType	:= match["type"] as Match
-		multi	:= match["multiplicity"]?.matched
+		multi	:= match["multiplicity"]
 		pred	:= match["predicate"]?.matched
 		label	:= match["label"]?.matched
 		exName	:= exType.firstMatch.name
@@ -143,20 +143,23 @@ internal class PegGrammar : Rules {
 		}
 		
 		if (multi != null)
-			switch (multi) {
+			switch (multi.matched) {
 				case "?"	: exRule = Rules.optional(exRule)
 				case "+"	: exRule = Rules.oneOrMore(exRule)
 				case "*"	: exRule = Rules.zeroOrMore(exRule)
-				default		: throw UnsupportedErr("Unknown multiplicity: ${multi}")
+				default		:
+					min	:= multi["min"]?.matched?.trimToNull?.toInt
+					max	:= multi["max"]?.matched?.trimToNull?.toInt
+					exRule = Rules.between(min, max, exRule)
 			}
-		
+
 		if (pred != null)
 			switch (pred) {
 				case "&"	: exRule = Rules.onlyIf(exRule)
 				case "!"	: exRule = Rules.onlyIfNot(exRule)
 				default		: throw UnsupportedErr("Unknown predicate: ${pred}")
 			}
-		
+
 		if (label != null) {
 			exRule = ProxyLabelRule(exRule)
 //			if (exRule.label != null)

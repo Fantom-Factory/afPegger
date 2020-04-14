@@ -201,7 +201,7 @@ mixin Rules {
 	** 
 	** Example PEG notation:
 	** 
-	**   ???
+	**   rule{3,}
 	static Rule atLeast(Int n, Rule rule) {
 		RepetitionRule(n, null, rule)
 	}
@@ -211,7 +211,7 @@ mixin Rules {
 	** 
 	** Example PEG notation:
 	** 
-	**   ???
+	**   rule{,5}
 	static Rule atMost(Int n, Rule rule) {
 		RepetitionRule(null, n, rule)
 	}
@@ -221,7 +221,7 @@ mixin Rules {
 	** 
 	** Example PEG notation:
 	** 
-	**   rule rule rule ... rule
+	**   rule{5,5}
 	static Rule nTimes(Int times, Rule rule) {
 		RepetitionRule(times, times, rule)
 	}
@@ -232,7 +232,7 @@ mixin Rules {
 	** 
 	** Example PEG notation:
 	** 
-	**   ???
+	**  rule{2,6} 
 	static Rule between(Int? min, Int? max, Rule rule) {
 		RepetitionRule(min, max, rule)
 	}

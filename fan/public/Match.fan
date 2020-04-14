@@ -13,7 +13,7 @@ class Match {
 		this.in		= in
 	}
 
-	** Returns the associated rule name.
+	** Returns the associated rule 'label' (or 'name' if 'label' is 'null').
 	Str? name() {
 		rule.label ?: rule.name
 	}
