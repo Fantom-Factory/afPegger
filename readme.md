@@ -1,8 +1,8 @@
-# Pegger v1.1.0
+# Pegger v1.1.2
 ---
 
-[![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](http://fantom-lang.org/)
-[![pod: v1.1.0](http://img.shields.io/badge/pod-v1.1.0-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
+[![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](https://fantom-lang.org/)
+[![pod: v1.1.2](http://img.shields.io/badge/pod-v1.1.2-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
 [![Licence: ISC](http://img.shields.io/badge/licence-ISC-blue.svg)](https://choosealicense.com/licenses/isc/)
 
 ## Overview
@@ -15,39 +15,38 @@ Advanced parsing options let you *look ahead* with predicates and the returned t
 
 Pegger was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf), [Parboiled](https://github.com/sirthias/parboiled/wiki), and [nim pegs](https://nim-lang.org/docs/pegs.html).
 
-## Install
+## <a name="Install"></a>Install
 
 Install `Pegger` with the Fantom Pod Manager ( [FPM](http://eggbox.fantomfactory.org/pods/afFpm) ):
 
     C:\> fpm install afPegger
 
-Or install `Pegger` with [fanr](http://fantom.org/doc/docFanr/Tool.html#install):
+Or install `Pegger` with [fanr](https://fantom.org/doc/docFanr/Tool.html#install):
 
     C:\> fanr install -r http://eggbox.fantomfactory.org/fanr/ afPegger
 
-To use in a [Fantom](http://fantom-lang.org/) project, add a dependency to `build.fan`:
+To use in a [Fantom](https://fantom-lang.org/) project, add a dependency to `build.fan`:
 
     depends = ["sys 1.0", ..., "afPegger 1.1"]
 
-## Documentation
+## <a name="documentation"></a>Documentation
 
 Full API & fandocs are available on the [Eggbox](http://eggbox.fantomfactory.org/pods/afPegger/) - the Fantom Pod Repository.
 
 ## Quick Start
 
-```
-using afPegger::Peg
-
-class Example {
-    Void main() {
-        input := "<<<Hello Mum>>>"
-        rule  := "'<'+ name:[a-zA-Z ]+ '>'+"
-        match := Peg(input, rule).match
-
-        name  := match["name"]    // --> "Hello Mum"
+    using afPegger::Peg
+    
+    class Example {
+        Void main() {
+            input := "<<<Hello Mum>>>"
+            rule  := "'<'+ name:[a-zA-Z ]+ '>'+"
+            match := Peg(input, rule).match
+    
+            name  := match["name"]    // --> "Hello Mum"
+        }
     }
-}
-```
+    
 
 ## Usage
 
@@ -57,114 +56,104 @@ The quick start example saw a lot of crazy symbols... so woah, what just happene
 
 Pegger attempts to match a `rule` against a given string. In the example the string was `<<<Hello Mum>>>` and the rule was that mixed bag of crazy characters. Rules can be written in PEG notation (see mixed bag of crazy characters) or they can be created programmatically via Fantom code using the [Rules](http://eggbox.fantomfactory.org/pods/afPegger/api/Rules) mixin:
 
-```
-// PEG Notation:
-// '<'+ ([a-zA-Z] / " ")+ '>'+
-
-// Fantom code:
-rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
-
-```
+    // PEG Notation:
+    // '<'+ ([a-zA-Z] / " ")+ '>'+
+    
+    // Fantom code:
+    rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
+    
+    
 
 The Fantom code can be a lot simplier to read and understand, but is also a lot more verbose.
 
 Once you run a match, the result is a tree. Use `Match.dump()` to see it:
 
-```
-rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
-
-input := "<<<Hello Mum>>>"
-match := Peg(input, rule).match
-match.dump
-
-// --> root : "<<<Hello Mum>>>"
-
-```
+    rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
+    
+    input := "<<<Hello Mum>>>"
+    match := Peg(input, rule).match
+    match.dump
+    
+    // --> root : "<<<Hello Mum>>>"
+    
+    
 
 Okay, so that's not much of a tree. To create a tree, we need to give parts of our rule a label, or a name:
 
-```
-rule := sequence {
-  oneOrMore(char('<')).withName("start"),
-  oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
-  oneOrMore(char('>')).withName("end"),
-}
-```
+    rule := sequence {
+      oneOrMore(char('<')).withName("start"),
+      oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
+      oneOrMore(char('>')).withName("end"),
+    }
+    
 
 We can do the same in PEG notation by using a `label:` prefix:
 
-```
-rule := "start:'<'+ name:[a-zA-Z ]+ end:'>'+"
-```
+    rule := "start:'<'+ name:[a-zA-Z ]+ end:'>'+"
+    
 
 `match.dump()` now gives:
 
-```
-root
- ├─ start : "<<<"
- ├─ name : "Hello Mum"
- └─ end : ">>>"
-```
+    root
+     ├─ start : "<<<"
+     ├─ name : "Hello Mum"
+     └─ end : ">>>"
+    
 
 Each part of the match may be retreived using the `Match.get()` operator:
 
-```
-match["start"].toStr  // -> "<<<"
-match["name"].toStr   // -> "Hello Mum"
-match["end"].toStr    // -> ">>>"
-```
+    match["start"].toStr  // -> "<<<"
+    match["name"].toStr   // -> "Hello Mum"
+    match["end"].toStr    // -> ">>>"
+    
 
 ### Grammar
 
-The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which responsible matching everything:
+The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which is responsible for matching everything:
 
-```
-root  = start name end
-start = '<'+
-name  = [a-zA-Z ]+
-end   = '>'+
-```
+    root  = start name end
+    start = '<'+
+    name  = [a-zA-Z ]+
+    end   = '>'+
+    
 
 Definitions may span multiple lines but proceeding lines *must* contain leading whitespace to distinguish it from a new rule definition.
 
-```
-root  = start
-        name
-        end
-start = '<'+
-name  = [a-zA-Z ]+
-end   = '>'+
-```
+    root  = start
+            name
+            end
+    start = '<'+
+    name  = [a-zA-Z ]+
+    end   = '>'+
+    
 
 When run, the same result is given:
 
-```
-grammarStr := "..."
-grammar    := Peg.parseGrammar(grammarStr)
-rootRule   := grammar["root"]
-
-input      := "<<<Hello Mum>>>"
-match      := rootRule.match(input).dump
-
-// root
-//  ├─ start : "<<<"
-//  ├─ name : "Hello Mum"
-//  └─ end : ">>>"
-```
+    grammarStr := "..."
+    grammar    := Peg.parseGrammar(grammarStr)
+    rootRule   := grammar["root"]
+    
+    input      := "<<<Hello Mum>>>"
+    match      := rootRule.match(input).dump
+    
+    // root
+    //  ├─ start : "<<<"
+    //  ├─ name : "Hello Mum"
+    //  └─ end : ">>>"
+    
 
 Once a grammar (or rule) has been parsed, it may be cached for future re-use.
 
 Rules may be omitted from the result tree by prefixing the definitions with a `-`:
 
-```
-root   = start name end
--start = '<'+
-name   = [a-zA-Z ]+
--end   = '>'+
-
-// root
-//  └─ name : "Hello Mum"
-```
+    root   = start name end
+    -start = '<'+
+    name   = [a-zA-Z ]+
+    -end   = '>'+
+    
+    // root
+    //  └─ name : "Hello Mum"
+    
 
 ## PEG Notation
 
@@ -178,6 +167,18 @@ A rule is defined with a name followed by `=`. The more formal definition of `<-
 
     ruleDef1  = rule
     ruleDef2 <- rule
+
+**Advanced Note:** Prefixing a rule with `-` will remove it from the result tree.
+
+    -ruleDef1  = rule
+    -ruleDef2 <- rule
+
+**Advanced Note:** Suffixing a rule with `-` will remove it from debug output.
+
+    ruleDef1-  = rule
+    ruleDef2- <- rule
+
+Rules may have both a `-` prefix and suffix: `-ruleDef- = rule`
 
 #### Sequence
 
@@ -201,9 +202,12 @@ Brackets may be used to group rules together to avoid ambiguity.
 
 Rules may be specified to be matched by different amounts.
 
-    rule1?   // optional
-    rule1+   // one or more
-    rule1*   // zero or more
+    rule1?      // optional
+    rule1+      // one or more
+    rule1*      // zero or more
+    rule1{2,6}  // between 2 and 6 (inclusive)
+    rule1{,5}   // at most 5 - same as {0,5}
+    rule1{3,}   // at least 3
 
 #### Literal
 
@@ -257,18 +261,17 @@ Use `\uXXXX` (hexadecimal) notation to match a 16-bit unicode character. May be 
 
 Pegger introduces macros for useful extensions. These may be used individually as rules.
 
-```
-table:
-name        function
-----------  ---------------------------------
-\eos        Matches End-Of-Stream (or End-Of-String!?)
-\eol        Matches End-Of-Line - either a new-line char or EOS
-\lower      Matches a lowercase character in the current localeW
-\upper      Matches an uppercase character in the current locale
-\alpha      Matches a lowercase character in the current locale
-\err(xxx)   Throws a parse error when processed
-\noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
-```
+    table:
+    name        function
+    ----------  ---------------------------------
+    \eos        Matches End-Of-Stream (or End-Of-String!?)
+    \eol        Matches End-Of-Line - either a new-line char or EOS
+    \lower      Matches a lowercase character in the current locale
+    \upper      Matches an uppercase character in the current locale
+    \alpha      Matches a lowercase character in the current locale
+    \err(xxx)   Throws a parse error when processed
+    \noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
+    
 
 #### Comments
 
@@ -289,32 +292,31 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 
 PEG grammar:
 
-```
-grammar      <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
-ruleDef      <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
-ruleName     <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
-rule         <- firstOf / \err(FAIL-2)
-firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
-sequence     <- expression (cwsp* expression)*
-expression   <- predicate? (label ":")? type multiplicity?
-label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type         <- group / ruleName / literal / chars / macro / dot
--group       <- "(" cwsp* rule cwsp* ")"
-predicate    <- "!" / "&"
-multiplicity <- "*" / "+" / "?"
-literal      <- singleQuote / doubleQuote
--singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
--doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
-chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
-macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
-dot          <- "."
-commentLine  <- sp* (\eol / comment)
-comment-     <- ("#" / "//") (!\eos [^\n])* \eol
--cwsp-       <- sp / (!\eos cnl (sp / &("#" / "//")))
--cnl-        <- \eol / comment
--sp-         <- [ \t]
-```
+    grammar      <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
+    ruleDef      <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
+    ruleName     <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
+    rule         <- firstOf / \err(FAIL-2)
+    firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
+    sequence     <- expression (cwsp* expression)*
+    expression   <- predicate? (label ":")? type multiplicity?
+    label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
+    type         <- group / ruleName / literal / chars / macro / dot
+    -group       <- "(" cwsp* rule cwsp* ")"
+    predicate    <- "!" / "&"
+    multiplicity <- "*" / "+" / "?" / ("{" min:[0-9]* "," max:[0-9]* "}")
+    literal      <- singleQuote / doubleQuote
+    -singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+    -doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+    chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
+    macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+    unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
+    dot          <- "."
+    commentLine  <- sp* (\eol / comment)
+    comment-     <- ("#" / "//") (!\eos [^\n])* \eol
+    -cwsp-       <- sp / (!\eos cnl (sp / &("#" / "//")))
+    -cnl-        <- \eol / comment
+    -sp-         <- [ \t]
+    
 
 ## Recursive / HTML Parsing
 
@@ -324,51 +326,49 @@ Because PEGs contain rules that may reference themselves in a circular fashion, 
 
 Below is an example that parses nested HTML tags. You can see the recursion from the `element` definition which references itself:
 
-```
-pegDefs := "element  = startTag (element / text)* endTag
-            startTag = '<'  name:[a-z]i+ '>'
-            endTag   = '</' name:[a-z]i+ '>'
-            text     = [^<]+"
-grammar := Peg.parseGrammar(pegDefs)
-element := grammar["grammar"]
-
-html := parseHtml("<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>")
-
-Peg(html, element).match.dump
-
-```
+    pegDefs := "element  = startTag (element / text)* endTag
+                startTag = '<'  name:[a-z]i+ '>'
+                endTag   = '</' name:[a-z]i+ '>'
+                text     = [^<]+"
+    grammar := Peg.parseGrammar(pegDefs)
+    element := grammar["grammar"]
+    
+    html := parseHtml("<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>")
+    
+    Peg(html, element).match.dump
+    
+    
 
 Which outputs the following result tree:
 
-```
-element
- ├─ startTag
- │   └─ name : "html"
- ├─ element
- │   ├─ startTag
- │   │   └─ name : "head"
- │   ├─ element
- │   │   ├─ startTag
- │   │   │   └─ name : "title"
- │   │   ├─ text : "Pegger Example"
- │   │   └─ endTag
- │   │       └─ name : "title"
- │   └─ endTag
- │       └─ name : "head"
- ├─ element
- │   ├─ startTag
- │   │   └─ name : "body"
- │   ├─ element
- │   │   ├─ startTag
- │   │   │   └─ name : "p"
- │   │   ├─ text : "Parsing is Easy!"
- │   │   └─ endTag
- │   │       └─ name : "p"
- │   └─ endTag
- │       └─ name : "body"
- └─ endTag
-     └─ name : "html"
-```
+    element
+     ├─ startTag
+     │   └─ name : "html"
+     ├─ element
+     │   ├─ startTag
+     │   │   └─ name : "head"
+     │   ├─ element
+     │   │   ├─ startTag
+     │   │   │   └─ name : "title"
+     │   │   ├─ text : "Pegger Example"
+     │   │   └─ endTag
+     │   │       └─ name : "title"
+     │   └─ endTag
+     │       └─ name : "head"
+     ├─ element
+     │   ├─ startTag
+     │   │   └─ name : "body"
+     │   ├─ element
+     │   │   ├─ startTag
+     │   │   │   └─ name : "p"
+     │   │   ├─ text : "Parsing is Easy!"
+     │   │   └─ endTag
+     │   │       └─ name : "p"
+     │   └─ endTag
+     │       └─ name : "body"
+     └─ endTag
+         └─ name : "html"
+    
 
 Parsing has never been easier!
 
@@ -386,13 +386,12 @@ It involves looping over the match results the same as you would with any other 
 
 Create a `walk()` method that recursively calls a given function every time it steps into, or out of, a match:
 
-```
-Void walk(Match match, |Match, Str startOrEnd| fn) {
-    fn?.call(match, "start")
-    match.matches.each { walk(it, fn) }
-    fn?.call(match, "end")
-}
-```
+    Void walk(Match match, |Match, Str startOrEnd| fn) {
+        fn?.call(match, "start")
+        match.matches.each { walk(it, fn) }
+        fn?.call(match, "end")
+    }
+    
 
 ## Debugging
 
@@ -408,27 +407,32 @@ Enable debug logging with the line:
 
 Which, for the above html parsing example, will generate the following:
 
-```
-[afPegger] [  1] --> element - Processing: startTag (element / text)* endTag with: <html><title>Pegger Ex...
-[afPegger] [  2]  --> startTag - Processing: "<" [a-zA-Z]+ ">" with: <html><title>Pegger Ex...
-[afPegger] [  2]    > startTag - Passed!
-[afPegger] [  2]    > startTag - Matched: "<html>"
-[afPegger] [  4]    --> element - Processing: startTag (element / text)* endTag with: <title>Pegger Example<...
-[afPegger] [  5]     --> startTag - Processing: "<" [a-zA-Z]+ ">" with: <title>Pegger Example<...
-[afPegger] [  5]       > startTag - Passed!
-[afPegger] [  5]       > startTag - Matched: "<title>"
-[afPegger] [  7]       --> element - Processing: startTag (element / text)* endTag with: Pegger Example</title>...
-[afPegger] [  8]        --> startTag - Processing: "<" [a-zA-Z]+ ">" with: Pegger Example</title>...
-[afPegger] [  8]          > startTag - Did not match "<".
-[afPegger] [  8]          > startTag - Failed. Rolling back.
-[afPegger] [  7]         > element - Did not match startTag.
-[afPegger] [  7]         > element - Failed. Rolling back.
-[afPegger] [  7]       --> text - Processing: (!"<" .)+ with: Pegger Example</title>...
-[afPegger] [  7]         > text - Rule was successfully processed 14 times
-[afPegger] [  7]         > text - Passed!
-[afPegger] [  7]         > text - Matched: "Pegger Example"
-...
-...
-...
-```
+    [afPegger] [  1] --> element - Processing: startTag (element / text)* endTag with: <html><title>Pegger Ex...
+    [afPegger] [  2]  --> startTag - Processing: "<" [a-zA-Z]+ ">" with: <html><title>Pegger Ex...
+    [afPegger] [  2]    > startTag - Passed!
+    [afPegger] [  2]    > startTag - Matched: "<html>"
+    [afPegger] [  4]    --> element - Processing: startTag (element / text)* endTag with: <title>Pegger Example<...
+    [afPegger] [  5]     --> startTag - Processing: "<" [a-zA-Z]+ ">" with: <title>Pegger Example<...
+    [afPegger] [  5]       > startTag - Passed!
+    [afPegger] [  5]       > startTag - Matched: "<title>"
+    [afPegger] [  7]       --> element - Processing: startTag (element / text)* endTag with: Pegger Example</title>...
+    [afPegger] [  8]        --> startTag - Processing: "<" [a-zA-Z]+ ">" with: Pegger Example</title>...
+    [afPegger] [  8]          > startTag - Did not match "<".
+    [afPegger] [  8]          > startTag - Failed. Rolling back.
+    [afPegger] [  7]         > element - Did not match startTag.
+    [afPegger] [  7]         > element - Failed. Rolling back.
+    [afPegger] [  7]       --> text - Processing: (!"<" .)+ with: Pegger Example</title>...
+    [afPegger] [  7]         > text - Rule was successfully processed 14 times
+    [afPegger] [  7]         > text - Passed!
+    [afPegger] [  7]         > text - Matched: "Pegger Example"
+    ...
+    ...
+    ...
+    
+
+## Design notes
+
+Pegger was purposefully designed to match **Unicode character data** (strings!), not binary data. Hence it lacks notation to match bytes and byte ranges as seen in some RFC documents.
+
+If needed, hexadecimal Unicode escape sequences ( `\uXXXX` ) may be used to represent 8-bit binary data.
 
