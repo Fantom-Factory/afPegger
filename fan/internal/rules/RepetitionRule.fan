@@ -14,7 +14,7 @@ internal class RepetitionRule : Rule {
 	override Bool doProcess(RuleCtx ctx) {
 		count	:= 0
 		pass	:= true
-		while (pass && (max == null || count != max)) {
+		while (pass && (max == null || count != max) && !ctx.eos) {
 			ctx.log("Attempting x${count+1}")
 			pass = ctx.process(rule)
 			if (pass) count ++
