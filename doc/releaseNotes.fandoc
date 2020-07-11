@@ -4,7 +4,7 @@ Bigger and badder enhancements.
 
 v1.1.4
 ======
- - Chg: 'RepetitionRule' now checks for '\eos'
+ - Chg: 'RepetitionRule' now checks for '\eos' to avoid getting stuck in an infinite loop (a common trap for new players).
 
 v1.1.2
 ======
