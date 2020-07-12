@@ -2,7 +2,7 @@
 ** This is its own rule class to override the expression
 @Js
 internal class AnyCharRule : Rule {
-	override Str expression	:= "."	
+	override Str _expression	:= "."	
 	override Bool doProcess(RuleCtx ctx) {
 		ctx.readChar != 0
 	}
@@ -29,7 +29,7 @@ internal class StrMimickCharRule : Rule {
 		return pass
 	}
 
-	override Str expression() {
+	override Str _expression() {
 		char.toChar.toCode + (ignoresCase ? "i" : "")
 	}
 	
@@ -126,7 +126,7 @@ internal class CharRule : Rule {
 		return not ? !res : res
 	}
 	
-	override Str expression() {
+	override Str _expression() {
 		"[" + (not ? "^" : "") + express + "]" + (ignoresCase ? "i" : "")
 	}
 }

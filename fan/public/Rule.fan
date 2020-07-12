@@ -62,10 +62,12 @@ abstract class Rule {
 	@NoDoc
 	abstract Bool doProcess(RuleCtx ctx)
 	
-	** Returns the PEG expression for this rule. Example:
+	** Returns the PEG expression for this rule (with any label definition). Example:
 	** 
-	**   [a-zA-Z0-9]
-	abstract Str expression()
+	**   label:[a-zA-Z0-9]
+	Str expression() {
+		_labelDis + _expression
+	}
 
 	** Returns the PEG definition for this rule. Example:
 	** 
@@ -143,11 +145,17 @@ abstract class Rule {
 		throw Err("${typeof.qname} does not support add()")
 	}
 	
+	** Returns the PEG expression for this rule. Example:
+	** 
+	**   [a-zA-Z0-9]
+	@NoDoc
+	abstract Str _expression()
+	
 	@NoDoc
 	internal Str _dis() {
 		dis := name == null && (this is SequenceRule || this is FirstOfRule)
-			? "(" + expression + ")"
-			: (name ?: expression)
+			? "(" + _expression + ")"
+			: (name ?: _expression)
 		return _labelDis + dis
 	}
 
@@ -157,5 +165,5 @@ abstract class Rule {
 	}
 	
 	@NoDoc
-	override Str toStr() { _labelDis + (name ?: expression) }
+	override Str toStr() { definition }
 }

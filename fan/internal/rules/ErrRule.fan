@@ -11,7 +11,7 @@ internal class ErrRule : Rule {
 		throw ctx.parseErr(msg)
 	}
 	
-	override Str expression() { "\\err(${msg.toCode(null)})" } 
+	override Str _expression() { "\\err(${msg.toCode(null)})" } 
 }
 
 ** *Stolen from afPlastic*. 

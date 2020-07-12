@@ -6,5 +6,5 @@ internal class EolRule : Rule {
 		ctx.eos || ctx.readChar == '\n'
 	}
 	
-	override Str expression() { "\\eol" } 
+	override Str _expression() { "\\eol" } 
 }

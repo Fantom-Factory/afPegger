@@ -19,7 +19,7 @@ internal class PredicateRule : Rule {
 		return passed
 	}
 
-	override Str expression() {
+	override Str _expression() {
 		(not ? "!" : "&") + rule._dis
 	}
 }

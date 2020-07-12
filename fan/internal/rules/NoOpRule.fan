@@ -11,7 +11,7 @@ internal class NoOpRule : Rule {
 		return pass
 	}
 
-	override Str expression() {
+	override Str _expression() {
 		"\\noop(${pass})"
 	}
 }

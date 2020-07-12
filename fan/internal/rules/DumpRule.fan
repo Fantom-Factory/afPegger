@@ -13,7 +13,7 @@ internal class DumpRule : Rule {
 		return true
 	}
 
-	override Str expression() {
+	override Str _expression() {
 		"\\dump(${msg.toCode(null)})"
 	}
 }

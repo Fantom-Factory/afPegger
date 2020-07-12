@@ -30,7 +30,7 @@ internal class RepetitionRule : Rule {
 		return passed
 	}
 
-	override Str expression() {
+	override Str _expression() {
 		innerDesc := rule._dis
 
 		if (min == 0 && max == 1)

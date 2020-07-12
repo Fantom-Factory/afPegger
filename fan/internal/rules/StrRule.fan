@@ -62,7 +62,7 @@ internal class StrRule : Rule {
 		return matched
 	}
 	
-	override Str expression() {
+	override Str _expression() {
 		str.toCode + (ignoreCase ? "i" : "")
 	}
 }
@@ -71,13 +71,13 @@ internal class StrRule : Rule {
 internal class StrNotRule : Rule {
 	private		Str		str
 	private		Bool	ignoreCase
-	override	Str		expression
+	override	Str		_expression
 	
 	new makeFromStrFunc(Str str, Bool ignoreCase) {
 		if (str.isEmpty) throw ArgErr("String rules must match non-empty strings")
 		this.str		= str
 		this.ignoreCase	= ignoreCase
-		this.expression	= "(!${str.toCode} .)+"
+		this._expression= "(!${str.toCode} .)+"
 	}
 	
 	override Bool doProcess(RuleCtx ctx) {

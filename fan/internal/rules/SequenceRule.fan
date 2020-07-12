@@ -22,7 +22,7 @@ internal class SequenceRule : Rule {
 		return this
 	}
 
-	override Str expression() {
+	override Str _expression() {
 		rules.join(" ") { it._dis }
 	}
 }
