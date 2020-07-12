@@ -144,8 +144,8 @@ abstract class Rule {
 	}
 	
 	@NoDoc
-	internal Str _dis(Bool inner := false) {
-		dis := inner && name == null && (this is SequenceRule || this is FirstOfRule)
+	internal Str _dis() {
+		dis := name == null && (this is SequenceRule || this is FirstOfRule)
 			? "(" + expression + ")"
 			: (name ?: expression)
 		return _labelDis + dis
@@ -157,5 +157,5 @@ abstract class Rule {
 	}
 	
 	@NoDoc
-	override Str toStr() { _dis(false) }  
+	override Str toStr() { _labelDis + (name ?: expression) }
 }

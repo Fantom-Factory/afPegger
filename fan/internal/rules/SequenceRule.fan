@@ -23,6 +23,6 @@ internal class SequenceRule : Rule {
 	}
 
 	override Str expression() {
-		rules.join(" ") { it._dis(true) }
+		rules.join(" ") { it._dis }
 	}
 }
