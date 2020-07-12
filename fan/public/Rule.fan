@@ -148,9 +148,14 @@ abstract class Rule {
 		dis := inner && name == null && (this is SequenceRule || this is FirstOfRule)
 			? "(" + expression + ")"
 			: (name ?: expression)
-		return label != null ? "${label}:${dis}" : dis
+		return _labelDis + dis
+	}
+
+	@NoDoc
+	internal Str _labelDis() {
+		label == null ? "" : label + ":"
 	}
 	
 	@NoDoc
-	override Str toStr() { _dis }  
+	override Str toStr() { _dis(false) }  
 }

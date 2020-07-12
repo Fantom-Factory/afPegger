@@ -236,7 +236,6 @@ internal class ProxyLabelRule : ProxyRule {
 	override Str? label {
 		get { _label2 }
 		set { _label2 = it }
-//		set { _label2 = it; echo("$realRule :: $it") }
 	}
 	
 	new make(Rule realRule) {

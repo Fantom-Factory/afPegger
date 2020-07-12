@@ -86,7 +86,7 @@ class Grammar {
 			name := rule.name
 			if (!rule.useInResult)	name = "-" + name
 			if (!rule.debug)		name = name + "-"
-			buf.add(name.justl(max)).add(" <- ").add(rule.expression).addChar('\n')
+			buf.add(name.justl(max)).add(" <- ").add(rule._labelDis).add(rule.expression).addChar('\n')
 		}
 		return buf.toStr
 	}
@@ -161,6 +161,11 @@ internal abstract class ProxyRule : Rule {
 		if (_debug		 != null)	rule.debug		 = _debug
 		if (_useInResult != null)	rule.useInResult = _useInResult
 	}
+	
+	Bool hasIdentityCrisis(Rule realRule) {
+		// names are allowed to be the same
+		realRule.name  != null && realRule.name != _name
+	}
 }
 
 @Js
@@ -168,7 +173,7 @@ internal class ProxyGrammarRule : ProxyRule {
 	private Grammar 	rules
 	private Rule?		realRule
 	private const Str	realName
-
+	
 	new make(Grammar rules, Str? realName) {
 		// let the actual name be whatever, just don't change who we point to!
 		this.realName	= realName
@@ -178,8 +183,13 @@ internal class ProxyGrammarRule : ProxyRule {
 	override Rule? rule(Bool checked := false) {
 		if (realRule == null) {
 			realRule = rules.getForReal(realName, checked)
-			if (realRule != null)
+			if (realRule != null) {
+				
+				if (hasIdentityCrisis(realRule))
+					realRule = SequenceRule([realRule])
+				
 				onRule(realRule)
+			}
 		}
 		return realRule
 	}
