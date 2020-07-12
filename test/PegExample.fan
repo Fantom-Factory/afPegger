@@ -29,4 +29,15 @@ class PegExample : Test, Rules {
 		verifyEq("dddd",	peg.search)
 		verifyEq("eeeee",	peg.search)
 	}
+	
+	Void testDocGrammarExample() {
+		grammar := Peg.parseGrammar("element  = startTag (element / text)* endTag
+		                             startTag = '<'  name:[a-z]i+ '>'
+		                             endTag   = '</' name:[a-z]i+ '>'
+		                             text     = [^<]+")
+		
+		html    := "<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>"
+		
+		grammar["element"].match(html).dump
+	}
 }

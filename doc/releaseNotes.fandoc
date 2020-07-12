@@ -4,7 +4,10 @@ Bigger and badder enhancements.
 
 v1.1.4
 ======
+ - New: New dump macro for debugging: '\dump(HELLO)'.
  - Chg: 'RepetitionRule' now checks for '\eos' to avoid getting stuck in an infinite loop (a common trap for new players).
+ - Chg: 'no-op' macro may pass or fail: '\noop(fail)'.
+ - Chg: Documentation tweaks.
 
 v1.1.2
 ======

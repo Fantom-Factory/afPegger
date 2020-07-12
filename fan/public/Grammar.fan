@@ -179,7 +179,7 @@ internal class ProxyGrammarRule : ProxyRule {
 		if (realRule == null) {
 			realRule = rules.getForReal(realName, checked)
 			if (realRule != null)
-				onRule(rule)
+				onRule(realRule)
 		}
 		return realRule
 	}

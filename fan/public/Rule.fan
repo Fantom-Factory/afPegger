@@ -18,12 +18,16 @@ abstract class Rule {
 		PegGrammar().parseRule(pattern)
 	}
 
-	** The name of this rule.
-	** Only rules with names appear in debug output.
+	** The name of this rule definition.
 	** 
-	** Should be legal Fantom identifier (think variable names!).
+	**   name <- foobar foobar
+	** 
+	** Only rules with names (or labels) appear in debug output and the output tree, unless explicitly disabled.
+	** 
+	** Should be a legal Fantom identifier (think variable names!).
 	virtual Str? name {
 		set {
+			// allow names to be programmatically re-set
 			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
 				throw ArgErr("Name must be a valid Fantom identifier: $it")
 			&name = it
@@ -31,11 +35,17 @@ abstract class Rule {
 	}
 	
 	** A label for this rule.
-	** Only rules with labels appear in the output tree.
 	** 
-	** Should be legal Fantom identifier (think variable names!).
+	**   someRule <- label:foobar foobar
+	** 
+	** Note the same rule definition may have multiple / different labels when used in different parts of PEG grammar.  
+	** 
+	** Only rules with labels (or names) appear in debug output and the output tree, unless explicitly disabled.
+	** 
+	** Should be a legal Fantom identifier (think variable names!).
 	virtual Str? label {
 		set {
+			// allow labels to be programmatically re-set
 			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
 				throw ArgErr("Label must be a valid Fantom identifier: $it")
 			&label = it
@@ -70,26 +80,45 @@ abstract class Rule {
 
 	** A helpful builder method for setting the name.
 	** 
-	** Only rules with names appear in debug output.
+	**   name <- foobar foobar
+	** 
+	** Only rules with names (or labels) appear in debug output and the output tree, unless explicitly disabled.
+	** 
+	** Should be a legal Fantom identifier (think variable names!).
 	This withName(Str? name) {
 		this.name = name
 		return this
 	}
 
 	** A helpful builder method for setting the label.
-	** Only rules with labels appear in the output tree.
+	** 
+	**   someRule <- label:foobar foobar
+	** 
+	** Note the same rule definition may have multiple / different labels when used in different parts of PEG grammar.  
+	** 
+	** Only rules with labels (or names) appear in debug output and the output tree.
+	** 
+	** Should be a legal Fantom identifier (think variable names!).
 	This withLabel(Str? label) {
 		this.label = label
 		return this
 	}
 
 	** A helpful builder method for turning debug off.
+	** 
+	** In PEG grammar, rules are excluded from debug by add a hyphen suffix to the declaration.
+	** 
+	**   noDebugRule-  = foobar foobar
 	This debugOff() {
 		this.debug = false
 		return this
 	}
 	
 	** A helpful builder method for removing this rule from tree results.
+	** 
+	** In PEG grammar, rules are excluded from results by add a hyphen prefix to the declaration.
+	** 
+	**   -excludedRule  = foobar foobar
 	This excludeFromResults() {
 		this.useInResult = false
 		return this

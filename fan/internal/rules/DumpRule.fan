@@ -1,5 +1,5 @@
 
-@Js @Deprecated
+@Js
 internal class DumpRule : Rule {
 	private Str		msg
 	
@@ -8,12 +8,12 @@ internal class DumpRule : Rule {
 	}
 	
 	override Bool doProcess(RuleCtx ctx) {
-		echo("Dump Rule: $msg")
+		echo("DUMP: $msg")
 		ctx.log("DUMP: $msg")
 		return true
 	}
 
 	override Str expression() {
-		"\\noop(${msg.toCode(null)})"
+		"\\dump(${msg.toCode(null)})"
 	}
 }
