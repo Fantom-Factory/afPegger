@@ -145,8 +145,8 @@ internal abstract class ProxyRule : Rule {
 		rule(true).doProcess(ctx)
 	}
 	
-	override Str expression() {
-		rule(true).expression
+	override Str _expression() {
+		rule(true)._expression
 	}
 	
 	override Str toStr() {
@@ -163,8 +163,15 @@ internal abstract class ProxyRule : Rule {
 	}
 	
 	Bool hasIdentityCrisis(Rule realRule) {
+		// labels should NOT be inherited
+		if (realRule.label != null)
+			return true
 		// names are allowed to be the same
-		realRule.name  != null && realRule.name != _name
+		if (realRule.name  != null && realRule.name != _name)
+			return true
+
+		// phew! we know who we are!
+		return false
 	}
 }
 
