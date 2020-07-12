@@ -239,6 +239,9 @@ internal class ProxyLabelRule : ProxyRule {
 	}
 	
 	new make(Rule realRule) {
+		// don't proxy a proxy - else we end up overwriting / mixing up rule names
+		if (realRule is ProxyRule)
+			realRule = SequenceRule([realRule])
 		this.realRule	= realRule
 	}
 	
