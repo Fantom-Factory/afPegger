@@ -1,19 +1,17 @@
 
 @Js
 internal class NoOpRule : Rule {
-	private Str		msg
+	private Bool	pass
 	
-	new make(Str msg) {
-		this.msg	= msg
+	new make(Bool pass) {
+		this.pass	= pass
 	}
 	
 	override Bool doProcess(RuleCtx ctx) {
-		echo("NoOp Rule: $msg")
-		ctx.log("NO-OP: $msg")
-		return true
+		return pass
 	}
 
 	override Str expression() {
-		"\\noop(${msg.toCode(null)})"
+		"\\noop(${pass})"
 	}
 }

@@ -208,8 +208,13 @@ internal class PegGrammar : Rules {
 
 		if (macro.startsWith("\\err(") && macro.endsWith(")"))
 			return Rules.err(deEscape(macro[5..<-1]))
-		if (macro.startsWith("\\noop(") && macro.endsWith(")"))
-			return Rules.noop(deEscape(macro[6..<-1]))
+		if (macro.startsWith("\\dump(") && macro.endsWith(")"))
+			return Rules.dump(deEscape(macro[6..<-1]))
+		if (macro.startsWith("\\noop(") && macro.endsWith(")")) {
+			text := deEscape(macro[6..<-1])
+			bool := Bool.fromStr(text, false) ?: throw UnsupportedErr("No-Op marco only accepts 'true' and 'false': ${text}")
+			return Rules.noop(bool)
+		}
 		
 		throw UnsupportedErr("Unknown macro: $macro")
 	}
@@ -231,6 +236,7 @@ internal class ProxyLabelRule : ProxyRule {
 	override Str? label {
 		get { _label2 }
 		set { _label2 = it }
+//		set { _label2 = it; echo("$realRule :: $it") }
 	}
 	
 	new make(Rule realRule) {

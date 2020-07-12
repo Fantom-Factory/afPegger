@@ -345,20 +345,40 @@ mixin Rules {
 	}
 	
 	** No operation - a placeholder. 
-	** The rule will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
+	** This rule consumes no input and will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
 	** 
 	** Example PEG notation:
 	** 
-	**   \\noop(TODO)
-	static Rule noop(Str msg := "TODO") {
-		NoOpRule(msg)
+	**   \noop(true)
+	static Rule noop(Bool pass := true) {
+		NoOpRule(pass)
 	}
+	
+	** Dump the message and parsing stacktrace to std-out. 
+	** Use to aid the debugging of PEG grammar.
+	** 
+	** Example PEG notation:
+	** 
+	**   \dump(TODO)
+	static Rule dump(Str? msg := null) {
+		DumpRule(msg)
+	}
+
+//	** Logs a message to PEG degbug. 
+//	** Use to place marker text in the reams of PEG debug output..
+//	** 
+//	** Example PEG notation:
+//	** 
+//	**   \log(TODO)
+//	static Rule log(Str? msg := null) {
+//		LogRule(msg)
+//	}
 
 	** This rule throws an error if processed. 
 	** 
 	** Example PEG notation:
 	** 
-	**   \\fail(FAIL)
+	**   \fail(FAIL)
 	static Rule err(Str msg := "FAIL") {
 		ErrRule(msg)
 	}
