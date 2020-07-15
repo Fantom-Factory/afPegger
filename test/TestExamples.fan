@@ -31,7 +31,7 @@ class TestExamples : Test, Rules {
 		gram := Peg.parseGrammar(defs)
 		res  := Peg("((2 + (12 - 3)) * (((15 / 3) - 2) * 3)) + 4", gram["calc"]).match
 		
-		res.dump
+//		res.dump
 		
 		ops := [
 			"+" : |Int a, Int b -> Int| { a + b },

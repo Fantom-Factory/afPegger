@@ -28,8 +28,9 @@ abstract class Rule {
 	virtual Str? name {
 		set {
 			// allow names to be programmatically re-set
-			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
-				throw ArgErr("Name must be a valid Fantom identifier: $it")
+			if (it != null)
+				if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
+					throw ArgErr("Name must be a valid Fantom identifier: $it")
 			&name = it
 		}
 	}
@@ -46,8 +47,9 @@ abstract class Rule {
 	virtual Str? label {
 		set {
 			// allow labels to be programmatically re-set
-			if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
-				throw ArgErr("Label must be a valid Fantom identifier: $it")
+			if (it != null)
+				if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
+					throw ArgErr("Label must be a valid Fantom identifier: $it")
 			&label = it
 		}
 	}

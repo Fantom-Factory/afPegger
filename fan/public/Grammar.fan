@@ -86,7 +86,7 @@ class Grammar {
 			name := rule.name
 			if (!rule.useInResult)	name = "-" + name
 			if (!rule.debug)		name = name + "-"
-			buf.add(name.justl(max)).add(" <- ").add(rule._labelDis).add(rule.expression).addChar('\n')
+			buf.add(name.justl(max)).add(" <- ").add(rule.expression).addChar('\n')
 		}
 		return buf.toStr
 	}
@@ -119,7 +119,6 @@ internal abstract class ProxyRule : Rule {
 	private Str?	_label
 	private Bool?	_debug
 	private Bool?	_useInResult
-	private Func?	_action
 	
 	override Str? name {
 		get { rule?.name ?: _name}

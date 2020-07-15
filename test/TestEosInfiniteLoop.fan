@@ -14,7 +14,7 @@ class TestEosInfiniteLoop : Test {
 			"root  = (line blank*)+
 			 line  = [a-z]+
 			 blank = [ \t]* ('\n' / \\eos)"
-		).firstRule.match(lines).dump
+		).firstRule.match(lines)
 		
 		match.contains("line")
 		match.contains("blank")
