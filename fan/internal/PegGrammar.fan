@@ -161,9 +161,10 @@ internal class PegGrammar : Rules {
 			}
 
 		if (label != null) {
-			exRule = ProxyLabelRule(exRule)
-//			if (exRule.label != null)
-//				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
+			// actually, using proxies, we can!
+			if (exRule.label != null)
+				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
+
 			exRule.label = label
 		}
 
@@ -229,23 +230,24 @@ internal class PegGrammar : Rules {
 	}
 }
 
-@Js
-internal class ProxyLabelRule : ProxyRule {
-	private Rule realRule
-	private Str? _label2
-	override Str? label {
-		get { _label2 }
-		set { _label2 = it }
-	}
-	
-	new make(Rule realRule) {
-		// don't proxy a proxy - else we end up overwriting / mixing up rule names
-		if (realRule is ProxyRule)
-			realRule = SequenceRule([realRule])
-		this.realRule	= realRule
-	}
-	
-	override Rule? rule(Bool checked := false) {
-		realRule
-	}
-}
+//@Js
+//internal class ProxyLabelRule : ProxyRule {
+//	private Rule realRule
+//
+//	private Str? _label2
+//	override Str? label {
+//		get { _label2 }
+//		set { _label2 = it }
+//	}
+//	
+//	new make(Rule realRule) {
+//		// we DON'T want to proxy a proxy - else we end up overwriting / mixing up rule names
+//		// but we DO want
+//		// See TestLabels
+//		if (realRule is ProxyRule)
+//			realRule = SequenceRule([realRule])
+//		this.realRule	= realRule
+//	}
+//	
+//	override Rule? rule(Bool checked := false) { realRule }
+//}
