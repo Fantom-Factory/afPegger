@@ -7,6 +7,7 @@ v1.1.4
  - New: New dump macro for debugging: '\dump(HELLO)'.
  - Chg: 'RepetitionRule' now checks for '\eos' to avoid getting stuck in an infinite loop (a common trap for new players).
  - Chg: 'no-op' macro may pass or fail: '\noop(fail)'.
+ - Chg: Reworked internals to better distinquish between grammar definitions and rules.
  - Chg: Documentation tweaks.
  - Bug: Identity crisis! Simple proxy rules could overwrite rule names and unwanted labels could be inherited.
 

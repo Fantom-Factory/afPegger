@@ -26,7 +26,10 @@ abstract class Rule {
 	** 
 	** Should be a legal Fantom identifier (think variable names!).
 	virtual Str? name {
-		set {
+		// internal set because only "Grammar definitions" should have names
+		// rules have labels, definitions have names.
+		// ideally we'd have a separate class for this
+		internal set {
 			// allow names to be programmatically re-set
 			if (it != null)
 				if (!it.chars.first.isAlpha || it.chars.any { !it.isAlphaNum && it != '_' && it != '-' })
@@ -80,18 +83,6 @@ abstract class Rule {
 		if (!useInResult)	ex = "-" + ex
 		if (!debug)			ex = ex + "-"
 		return "${ex} <- ${expression}"
-	}
-
-	** A helpful builder method for setting the name.
-	** 
-	**   name <- foobar foobar
-	** 
-	** Only rules with names (or labels) appear in debug output and the output tree, unless explicitly disabled.
-	** 
-	** Should be a legal Fantom identifier (think variable names!).
-	This withName(Str? name) {
-		this.name = name
-		return this
 	}
 
 	** A helpful builder method for setting the label.

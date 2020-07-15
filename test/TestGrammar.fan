@@ -21,7 +21,7 @@ class TestGrammar : Test, Rules {
 		mach1 := gram1.match("123abc123")
 		verifyNotNull(mach1["b"])
 
-		gram2 := PegGrammar().parseGrammar("-a=(b / c)+\nb=[0-9]\nc=[a-z]").dump["a"]
+		gram2 := PegGrammar().parseGrammar("-a=(b / c)+\nb=[0-9]\nc=[a-z]")["a"]
 		mach2 := gram2.match("123abc123")
 		verifyNotNull(mach2["b"])
 		

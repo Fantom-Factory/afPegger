@@ -89,7 +89,6 @@ internal class PegGrammar : Rules {
 			name := ruleDef["ruleName"].matched
 			dOff := ruleDef.contains("debugOff")
 			rule := toRule(ruleDef["rule"], newGrammar)
-			rule.name = name
 			if (excl) rule.excludeFromResults
 			if (dOff) rule.debugOff
 			newGrammar[name] = rule
@@ -160,8 +159,8 @@ internal class PegGrammar : Rules {
 				default		: throw UnsupportedErr("Unknown predicate: ${pred}")
 			}
 
-		if (label != null) {
-			// actually, using proxies, we can!
+		if (label != null) {			
+			// actually, using RuleRefs, we can! And this ParseErr never gets thrown!
 			if (exRule.label != null)
 				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
 
@@ -174,7 +173,9 @@ internal class PegGrammar : Rules {
 	private Rule fromRuleName(Str ruleName, Grammar? newGrammar) {
 		if (newGrammar == null)
 			throw ParseErr("Patterns may not contain custom Grammar")
-		return newGrammar[ruleName]
+		origRule := newGrammar[ruleName]
+		// return a "pointer" to the actual rule
+		return RuleRef(origRule)
 	}
 	
 	private Rule fromMacro(Str macro) {
@@ -230,24 +231,31 @@ internal class PegGrammar : Rules {
 	}
 }
 
-//@Js
-//internal class ProxyLabelRule : ProxyRule {
-//	private Rule realRule
-//
-//	private Str? _label2
-//	override Str? label {
-//		get { _label2 }
-//		set { _label2 = it }
-//	}
-//	
-//	new make(Rule realRule) {
-//		// we DON'T want to proxy a proxy - else we end up overwriting / mixing up rule names
-//		// but we DO want
-//		// See TestLabels
-//		if (realRule is ProxyRule)
-//			realRule = SequenceRule([realRule])
-//		this.realRule	= realRule
-//	}
-//	
-//	override Rule? rule(Bool checked := false) { realRule }
-//}
+@Js
+internal class RuleRef : Rule {
+	private Rule realRule
+
+	private Str? _name
+	override Str? name {
+		// this conditional delegation of "name" is complicated, but revolves around being a definition / top level rule or not
+		get { _name ?: realRule.name }
+		set { _name = it }
+	}
+
+	override Bool debug {
+		get { realRule.debug }
+		set { throw UnsupportedErr("RuleRefs (${name}) should NOT have their 'debug' set") }
+	}
+
+	override Bool useInResult {
+		get { realRule.useInResult }
+		set { throw UnsupportedErr("RuleRefs (${name}) should NOT have their 'useInResult' set") }
+	}
+	
+	new make(Rule realRule) {
+		this.realRule	= realRule
+	}
+	
+	override Bool doProcess(RuleCtx ctx)	{ realRule.doProcess(ctx) }
+	override Str _expression()				{ realRule.name }
+}

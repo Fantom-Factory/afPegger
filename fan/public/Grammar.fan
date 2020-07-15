@@ -63,6 +63,11 @@ class Grammar {
 	** Sets the real implementation / definition of the named rule.
 	@Operator
 	Rule set(Str name, Rule rule) {
+		if (rule.name != null && rule isnot RuleRef)
+			throw Err("Rule '${rule.name}' is already a definition")
+		if (rule.label != null && rule isnot RuleRef)
+			throw Err("Definitions can NOT have labels: ${name}:${rule.label}")
+		rule.name = name
 		_rules[name] = rule
 		return rule
 	}
@@ -127,7 +132,7 @@ internal abstract class ProxyRule : Rule {
 
 	override Str? label {
 		get { rule?.label ?: _label}
-		set { if (rule == null) _label = it; else rule.label = it }
+		set { throw Err("ProxyRules (${name}) should NOT have their label set: $it") }
 	}
 	
 	override Bool debug {
