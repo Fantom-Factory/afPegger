@@ -1,8 +1,8 @@
-# Pegger v1.1.2
+# Pegger v1.1.4
 ---
 
 [![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](https://fantom-lang.org/)
-[![pod: v1.1.2](http://img.shields.io/badge/pod-v1.1.2-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
+[![pod: v1.1.4](http://img.shields.io/badge/pod-v1.1.4-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
 [![Licence: ISC](http://img.shields.io/badge/licence-ISC-blue.svg)](https://choosealicense.com/licenses/isc/)
 
 ## Overview
@@ -60,15 +60,22 @@ Pegger attempts to match a `rule` against a given string. In the example the str
     // '<'+ ([a-zA-Z] / " ")+ '>'+
     
     // Fantom code:
-    rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
-    
+    rule := sequence {
+        oneOrMore(char('<')),
+        oneOrMore(firstOf { alphaChar, spaceChar }),
+        oneOrMore(char('>')),
+    }
     
 
 The Fantom code can be a lot simplier to read and understand, but is also a lot more verbose.
 
 Once you run a match, the result is a tree. Use `Match.dump()` to see it:
 
-    rule := sequence { oneOrMore(char('<')), oneOrMore(firstOf { alphaChar, spaceChar }), oneOrMore(char('>')), }
+    rule := sequence {
+        oneOrMore(char('<')),
+        oneOrMore(firstOf { alphaChar, spaceChar }),
+        oneOrMore(char('>')),
+    }
     
     input := "<<<Hello Mum>>>"
     match := Peg(input, rule).match
@@ -81,15 +88,16 @@ Once you run a match, the result is a tree. Use `Match.dump()` to see it:
 Okay, so that's not much of a tree. To create a tree, we need to give parts of our rule a label, or a name:
 
     rule := sequence {
-      oneOrMore(char('<')).withName("start"),
-      oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
-      oneOrMore(char('>')).withName("end"),
+        oneOrMore(char('<'))                       .withName("start"),
+        oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
+        oneOrMore(char('>'))                       .withName("end"),
     }
     
 
 We can do the same in PEG notation by using a `label:` prefix:
 
-    rule := "start:'<'+ name:[a-zA-Z ]+ end:'>'+"
+    // PEG Notation:
+    // start:'<'+ name:[a-zA-Z ]+ end:'>'+
     
 
 `match.dump()` now gives:
@@ -109,7 +117,7 @@ Each part of the match may be retreived using the `Match.get()` operator:
 
 ### Grammar
 
-The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are often created from a string. They need to define an overriding *root* rule which is responsible for matching everything:
+The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are usually created from a string. There should always be the one *top-level* or *root* rule which is responsible for matching everything:
 
     root  = start name end
     start = '<'+
@@ -131,10 +139,9 @@ When run, the same result is given:
 
     grammarStr := "..."
     grammar    := Peg.parseGrammar(grammarStr)
-    rootRule   := grammar["root"]
     
     input      := "<<<Hello Mum>>>"
-    match      := rootRule.match(input).dump
+    match      := grammar["root"].match(input).dump
     
     // root
     //  ├─ start : "<<<"
@@ -159,7 +166,7 @@ Rules may be omitted from the result tree by prefixing the definitions with a `-
 
 Writing grammar files can be a lot easier to understand than the verbose programatic method. Here's your guide.
 
-Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, but where mentioned also provides support for 16-bit Unicode characters. Non-visible / non-printable characters are beyond the remit of Pegger; largely because Pegger uses strings as input!
+Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, but where mentioned also provides support for 16-bit Unicode characters. Non-visible / non-printable characters are beyond the remit of Pegger; largely because Pegger uses strings as input! See [Design notes](#designNotes) for details.
 
 #### Rule definitions
 
@@ -194,7 +201,7 @@ When given a choices, Pegger will match the *first* rule that passes. **Beware:*
 
 #### Grouping
 
-Brackets may be used to group rules together to avoid ambiguity.
+Choice rules have a higher operator precedence than Sequence rules, but it is better to group rules with brackets to avoid ambiguity.
 
     ruleDef = (rule1 rule2) / (rule3 rule4)
 
@@ -216,7 +223,9 @@ Literal strings may be matched with either single or double quotes.
     ruleDef1 = "literal 1"
     ruleDef2 = 'literal 2'
 
-Use backslash to escape the usual `\b \f \n \r \t` characters and to escape quotes. Use an `i` suffix to indicate the match should be case-insensitive.
+Use backslash to escape the usual `\b \f \n \r \t` characters and to escape quotes. (Note that Fantom *normalises* all new line characters to just `\n`.)
+
+Use an `i` suffix to indicate the match should be case-insensitive.
 
     ruleDef3 = "new\nline\n"i
 
@@ -268,7 +277,7 @@ Pegger introduces macros for useful extensions. These may be used individually a
     \eol        Matches End-Of-Line - either a new-line char or EOS
     \lower      Matches a lowercase character in the current locale
     \upper      Matches an uppercase character in the current locale
-    \alpha      Matches a lowercase character in the current locale
+    \alpha      Matches a character in the current locale
     \err(xxx)   Throws a parse error when processed
     \noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
     
@@ -326,17 +335,15 @@ Because PEGs contain rules that may reference themselves in a circular fashion, 
 
 Below is an example that parses nested HTML tags. You can see the recursion from the `element` definition which references itself:
 
-    pegDefs := "element  = startTag (element / text)* endTag
-                startTag = '<'  name:[a-z]i+ '>'
-                endTag   = '</' name:[a-z]i+ '>'
-                text     = [^<]+"
-    grammar := Peg.parseGrammar(pegDefs)
-    element := grammar["grammar"]
+    grammar := Peg.parseGrammar("element  = startTag (element / text)* endTag
+                                 startTag = '<'  name:[a-z]i+ '>'
+                                 endTag   = '</' name:[a-z]i+ '>'
+                                 text     = [^<]+")
     
-    html := parseHtml("<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>")
+    html    := "<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>"
     
+    grammar["element"].match(html).dump
     Peg(html, element).match.dump
-    
     
 
 Which outputs the following result tree:
@@ -393,9 +400,15 @@ Create a `walk()` method that recursively calls a given function every time it s
     }
     
 
+## Custom Rules
+
+Custom rules may be created by subclassing the [Rule](http://eggbox.fantomfactory.org/pods/afPegger/api/Rule) class.
+
+There (currently) is no support for introducing custom rules in PEG grammar, so use of custom rules limits their use to inclusion in programmatic Fantom based grammars.
+
 ## Debugging
 
-By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for rules with names.
+By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for rules with names or labels.
 
 Enable debug logging with the line:
 
@@ -430,9 +443,9 @@ Which, for the above html parsing example, will generate the following:
     ...
     
 
-## Design notes
+## <a name="designNotes"></a>Design notes
 
-Pegger was purposefully designed to match **Unicode character data** (strings!), not binary data. Hence it lacks notation to match bytes and byte ranges as seen in some RFC documents.
+Pegger was purposefully designed to match strings or more specifically, **Unicode character data** (of variable byte length dependant on encoding) - **not binary data**. Hence it lacks notation to match bytes and byte ranges as seen in some RFC documents.
 
-If needed, hexadecimal Unicode escape sequences ( `\uXXXX` ) may be used to represent 8-bit binary data.
+If required, hexadecimal Unicode escape sequences ( `\uXXXX` ) may be used to represent 8-bit binary data.
 

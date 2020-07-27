@@ -210,8 +210,8 @@ internal class PegGrammar : Rules {
 
 		if (macro.startsWith("\\err(") && macro.endsWith(")"))
 			return Rules.err(deEscape(macro[5..<-1]))
-		if (macro.startsWith("\\dump(") && macro.endsWith(")"))
-			return Rules.dump(deEscape(macro[6..<-1]))
+//		if (macro.startsWith("\\dump(") && macro.endsWith(")"))
+//			return Rules.dump(deEscape(macro[6..<-1]))
 		if (macro.startsWith("\\noop(") && macro.endsWith(")")) {
 			text := deEscape(macro[6..<-1])
 			bool := Bool.fromStr(text, false) ?: throw UnsupportedErr("No-Op marco only accepts 'true' and 'false': ${text}")

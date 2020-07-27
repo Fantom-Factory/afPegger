@@ -1,0 +1,11 @@
+
+ - Sort out (and implement) \dump() semantics
+ 
+ - allow custom Peg rule classes to be defined / implemented in Grammar
+   Use :: to define qname classes, should still be able prefix with a label
+ 
+customRule1 <- acme::MyCustomRule / someRule / otherRule 
+customRule2 <- label:acme::MyCustomRule / someRule / otherRule 
+ 
+ - Add replace() to Peg - maybe create PegEx class!?
+ 

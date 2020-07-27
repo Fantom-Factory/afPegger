@@ -354,15 +354,15 @@ mixin Rules {
 		NoOpRule(pass)
 	}
 	
-	** Dump the message and parsing stacktrace to std-out. 
-	** Use to aid the debugging of PEG grammar.
-	** 
-	** Example PEG notation:
-	** 
-	**   \dump(TODO)
-	static Rule dump(Str? msg := null) {
-		DumpRule(msg)
-	}
+//	** Dump the message and parsing stacktrace to std-out. 
+//	** Use to aid the debugging of PEG grammar.
+//	** 
+//	** Example PEG notation:
+//	** 
+//	**   \dump(TODO)
+//	static Rule dump(Str? msg := null) {
+//		DumpRule(msg)
+//	}
 
 //	** Logs a message to PEG degbug. 
 //	** Use to place marker text in the reams of PEG debug output..

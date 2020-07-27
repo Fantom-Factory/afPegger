@@ -57,7 +57,7 @@ class TestPegGrammar : Test {
 		verifyRule("\\alpha"		, "\\alpha")
 		verifyRule("\\err(FAIL)"	, "\\err(FAIL)")
 		verifyRule("\\noop(false)"	, "\\noop(false)")
-		verifyRule("\\dump(HELLO)"	, "\\dump(HELLO)")
+//		verifyRule("\\dump(HELLO)"	, "\\dump(HELLO)")
 		
 		// I don't like these, they're cryptic
 //		verifyRule("\\d"		, "[0-9]")
