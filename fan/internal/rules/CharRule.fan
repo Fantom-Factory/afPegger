@@ -40,6 +40,7 @@ internal class StrMimickCharRule : Rule {
 
 @Js
 internal class CharRule : Rule {
+	// FIXME immutable funcs not allowed in JS!
 	private		const |Int->Bool|	func
 	private		const Bool			not
 	private		const Str			express

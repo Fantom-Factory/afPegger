@@ -1,4 +1,6 @@
 
+ - Make work in JS - see immutable Func in CharRule
+
  - Sort out (and implement) \dump() semantics
  
  - allow custom Peg rule classes to be defined / implemented in Grammar
