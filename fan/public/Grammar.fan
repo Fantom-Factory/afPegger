@@ -98,9 +98,15 @@ class Grammar {
 	
 	** Dumps the definition to std-out.
 	@NoDoc
-	This dump() {
-		echo(definition)
+	This dumpToOut(OutStream out := Env.cur.out) {
+		out.writeChars(definition)
 		return this
+	}
+	
+	** Dumps the definition.
+	@NoDoc
+	Str dump() {
+		definition
 	}
 	
 	** Validates that all named rules have been defined. 
