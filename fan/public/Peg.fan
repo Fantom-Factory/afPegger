@@ -54,7 +54,7 @@ class Peg {
 		PegGrammar().parseGrammar(grammar)
 	}
 	
-	** Returns the grammar PEG uses to parse PEG grammar.
+	** Returns the grammar PEG used to parse PEG grammar.
 	** 
 	** It's not particularly useful, but it may be interesting to some.
 	static Grammar pegGrammar() {
@@ -64,7 +64,7 @@ class Peg {
 	// ---- Instance methods ----
 
 	** Searches for the next match and returns the matched string (if any).
-	Str? search(Int? offset := null) {
+	Str? search(Str? label := null, Int? offset := null) {
 		if (offset != null)
 			pegCtx.rollbackToPos(offset)
 
@@ -75,6 +75,10 @@ class Peg {
 			if (m == null)
 				pegCtx.rollbackToPos(++c)
 		}
+		
+		if (m != null && label != null)
+			m = m.getMatch(label)
+
 		return m?.matched
 	}
 

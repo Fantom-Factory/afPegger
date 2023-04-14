@@ -40,4 +40,14 @@ class PegExample : Test, Rules {
 		
 		grammar["element"].match(html).dump
 	}
+	
+	Void testFilter() {
+		peg := Peg("foo bar \"meh wotever\" ", """ ('"' a:[^"]+ '"') / a:[^ ]+ """)
+		str := null as Str
+		val := Str[,]
+		while ((str = peg.search("a")) != null)
+			val.add(str)
+		
+		verifyEq(val, ["foo", "bar", "meh wotever"])
+	}
 }
