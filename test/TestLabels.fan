@@ -6,7 +6,7 @@ class TestLabels : Test, Rules {
 		g := PegGrammar().parseGrammar(
 			"a = c 
 			 c = ."
-		).dumpToOut
+		).dump
 		
 		verifyEq(g.rules[0].name, "a")	// a <- . (!!!)
 		verifyEq(g.rules[1].name, "c")	// a <- . (!!!)
@@ -20,7 +20,7 @@ class TestLabels : Test, Rules {
 			"a = lab1:c
 			 b = lab2:c 
 			 c = ."
-		).dumpToOut
+		).dump
 
 		verifyEq(g.rules[0].name, "a")	// b <- lab1:c (!!!)
 		verifyEq(g.rules[1].name, "b")	// b <- lab2:c
@@ -36,7 +36,7 @@ class TestLabels : Test, Rules {
 			"a = lab1:c b
 			 b = lab2:c 
 			 c = ."
-		).dumpToOut
+		).dump
 
 		verifyEq(g.rules[0].expression, "lab1:c b"	)	// a <- lab1:c lab2:b (!!!)
 		verifyEq(g.rules[1].expression, "lab2:c"	)	// b <- lab2:c
@@ -52,9 +52,9 @@ class TestLabels : Test, Rules {
 			"attributes      = attr:doubleQuoteAttr / attr:singleQuoteAttr
 			 doubleQuoteAttr = '--'
 			 singleQuoteAttr = '-'  "
-		).dumpToOut
+		).dump
 		
-		match := g.firstRule.match("--").dumpToOut.firstMatch
+		match := g.firstRule.match("--").dump.firstMatch
 
 		// these SHOULD be on the same rule 
 		verifyEq(match.rule.label,	"attr")

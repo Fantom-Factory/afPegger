@@ -6,6 +6,7 @@ v1.1.6 [#v1.1.6]
 ======
  - New: 'afPegger' is now packaged as a SkySpark extension.
  - Chg: 'Peg.search()' now takes an optional label.
+ - Chg: Changed the 'dump()' API to be more consistent with AFX.
 
 v1.1.4 [#v1.1.4]
 ======

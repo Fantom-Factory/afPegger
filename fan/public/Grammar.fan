@@ -98,14 +98,14 @@ class Grammar {
 	
 	** Dumps the definition to std-out.
 	@NoDoc
-	This dumpToOut(OutStream out := Env.cur.out) {
-		out.writeChars(definition)
+	This dump(OutStream out := Env.cur.out) {
+		out.printLine(debugStr)
 		return this
 	}
 	
-	** Dumps the definition.
+	** Returns the definition.
 	@NoDoc
-	Str dump() {
+	Str debugStr() {
 		definition
 	}
 	
@@ -121,7 +121,7 @@ class Grammar {
 	}
 	
 	@NoDoc
-	override Str toStr() { definition }
+	override Str toStr() { debugStr }
 }
 
 @Js

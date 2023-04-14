@@ -74,13 +74,13 @@ class Match {
 	
 	** Dumps the matched tree to std-out.
 	** Useful for debugging.
-	This dumpToOut(OutStream out := Env.cur.out) {
-		out.writeChars(dump)
+	This dump(OutStream out := Env.cur.out) {
+		out.printLine(debugStr)
 		return this
 	}
 
 	** Returns the matched tree as a string.
-	Str dump() {
+	Str debugStr() {
 		buf := StrBuf(in.size * 5)
 		doDump(buf, Bool[,])
 		return buf.toStr
