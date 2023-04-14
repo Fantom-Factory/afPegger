@@ -1,11 +1,11 @@
-# Pegger v1.1.4
+# Pegger v1.1.6
 ---
 
 [![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](https://fantom-lang.org/)
-[![pod: v1.1.4](http://img.shields.io/badge/pod-v1.1.4-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
+[![pod: v1.1.6](http://img.shields.io/badge/pod-v1.1.6-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
 [![Licence: ISC](http://img.shields.io/badge/licence-ISC-blue.svg)](https://choosealicense.com/licenses/isc/)
 
-## Overview
+## <a name="overview"></a>Overview
 
 Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!
 
@@ -33,7 +33,7 @@ To use in a [Fantom](https://fantom-lang.org/) project, add a dependency to `bui
 
 Full API & fandocs are available on the [Eggbox](http://eggbox.fantomfactory.org/pods/afPegger/) - the Fantom Pod Repository.
 
-## Quick Start
+## <a name="quickStart"></a>Quick Start
 
     using afPegger::Peg
     
@@ -48,11 +48,11 @@ Full API & fandocs are available on the [Eggbox](http://eggbox.fantomfactory.org
     }
     
 
-## Usage
+## <a name="usage"></a>Usage
 
 The quick start example saw a lot of crazy symbols... so woah, what just happened?
 
-### Rules
+### <a name="rules"></a>Rules
 
 Pegger attempts to match a `rule` against a given string. In the example the string was `<<<Hello Mum>>>` and the rule was that mixed bag of crazy characters. Rules can be written in PEG notation (see mixed bag of crazy characters) or they can be created programmatically via Fantom code using the [Rules](http://eggbox.fantomfactory.org/pods/afPegger/api/Rules) mixin:
 
@@ -115,7 +115,7 @@ Each part of the match may be retreived using the `Match.get()` operator:
     match["end"].toStr    // -> ">>>"
     
 
-### Grammar
+### <a name="grammer"></a>Grammar
 
 The same could also be written as PEG grammar. Grammar defines multiple PEG rules. Grammars may be coded programmatically but are usually created from a string. There should always be the one *top-level* or *root* rule which is responsible for matching everything:
 
@@ -162,13 +162,13 @@ Rules may be omitted from the result tree by prefixing the definitions with a `-
     //  └─ name : "Hello Mum"
     
 
-## PEG Notation
+## <a name="pegNotation"></a>PEG Notation
 
 Writing grammar files can be a lot easier to understand than the verbose programatic method. Here's your guide.
 
 Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, but where mentioned also provides support for 16-bit Unicode characters. Non-visible / non-printable characters are beyond the remit of Pegger; largely because Pegger uses strings as input! See [Design notes](#designNotes) for details.
 
-#### Rule definitions
+#### <a name="ruleDefinitions"></a>Rule definitions
 
 A rule is defined with a name followed by `=`. The more formal definition of `<-` may be used in place of `=`.
 
@@ -187,25 +187,25 @@ A rule is defined with a name followed by `=`. The more formal definition of `<-
 
 Rules may have both a `-` prefix and suffix: `-ruleDef- = rule`
 
-#### Sequence
+#### <a name="sequence"></a>Sequence
 
 Ordered sequences of rules are expressed by separating them with a space.
 
     ruleDef = rule1 rule2 rule3
 
-#### Choice / First of
+#### <a name="choice"></a>Choice / First of
 
 When given a choices, Pegger will match the *first* rule that passes. **Beware:** order of choices *can* be important.
 
     ruleDef = rule1 / rule2 / rule3
 
-#### Grouping
+#### <a name="grouping"></a>Grouping
 
 Choice rules have a higher operator precedence than Sequence rules, but it is better to group rules with brackets to avoid ambiguity.
 
     ruleDef = (rule1 rule2) / (rule3 rule4)
 
-#### Repetition
+#### <a name="repitition"></a>Repetition
 
 Rules may be specified to be matched by different amounts.
 
@@ -216,7 +216,7 @@ Rules may be specified to be matched by different amounts.
     rule1{,5}   // at most 5 - same as {0,5}
     rule1{3,}   // at least 3
 
-#### Literal
+#### <a name="literal"></a>Literal
 
 Literal strings may be matched with either single or double quotes.
 
@@ -229,7 +229,7 @@ Use an `i` suffix to indicate the match should be case-insensitive.
 
     ruleDef3 = "new\nline\n"i
 
-#### Character class
+#### <a name="character"></a>Character class
 
 Individual characters, and ranges thereof, may be matched with a regex-esque character class.
 
@@ -244,13 +244,13 @@ The hat `^` character will match any character BUT the chosen ones.
 
     ruleDef6 = [^0-9]     // match any char BUT not digits
 
-#### Any character
+#### <a name="any"></a>Any character
 
 Use `.` to match *any* character.
 
     ruleDef = . . .       // matches any 3 characters
 
-#### Predicates
+#### <a name="predicate"></a>Predicates
 
 Use the ampersand `&` to look ahead for a match, but NOT consume any characters.
 
@@ -260,13 +260,13 @@ Use exclamation `!` to look ahead for a negative match, but again, NOT consume a
 
     ruleDef = "something " !"bad" .
 
-#### Unicode
+#### <a name="unicode"></a>Unicode
 
 Use `\uXXXX` (hexadecimal) notation to match a 16-bit unicode character. May be used in string literals and character classes.
 
     crlf = [\u000D] "\u000A"
 
-#### Macros
+#### <a name="macros"></a>Macros
 
 Pegger introduces macros for useful extensions. These may be used individually as rules.
 
@@ -282,7 +282,7 @@ Pegger introduces macros for useful extensions. These may be used individually a
     \noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
     
 
-#### Comments
+#### <a name="comments"></a>Comments
 
 Hash `#` comments are allowed in grammar, as are double slash `//` comments.
 
@@ -295,7 +295,7 @@ Hash `#` comments are allowed in grammar, as are double slash `//` comments.
         // comments may also appear inbetween rules
         [de]
 
-## PEG Grammar
+## <a name="pegGrammer"></a>PEG Grammar
 
 Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, Pegger *does* use itself to parse your PEG definitions!
 
@@ -327,7 +327,7 @@ PEG grammar:
     -sp-         <- [ \t]
     
 
-## Recursive / HTML Parsing
+## <a name="recursive"></a>Recursive / HTML Parsing
 
 A well known limitation of regular expressions is that they can not match nested patterns, such as HTML. (See [StackOverflow for explanation](http://stackoverflow.com/questions/1732348/regex-match-open-tags-except-xhtml-self-contained-tags/1732454#1732454).) Pegger to the rescue!
 
@@ -383,13 +383,13 @@ Parsing has never been easier!
 
 Converting the match results into XML is left as an excerise for the user, but there are a couple of options open to you:
 
-### 1. Looping
+### <a name="looping"></a>1. Looping
 
 This is usually the easiest way to convert your match results, but not always the cleanest.
 
 It involves looping over the match results the same as you would with any other list, and recursively calling yourself to convert inner data.
 
-### 2. Walking
+### <a name="walking"></a>2. Walking
 
 Create a `walk()` method that recursively calls a given function every time it steps into, or out of, a match:
 
@@ -400,13 +400,13 @@ Create a `walk()` method that recursively calls a given function every time it s
     }
     
 
-## Custom Rules
+## <a name="customRules"></a>Custom Rules
 
 Custom rules may be created by subclassing the [Rule](http://eggbox.fantomfactory.org/pods/afPegger/api/Rule) class.
 
 There (currently) is no support for introducing custom rules in PEG grammar, so use of custom rules limits their use to inclusion in programmatic Fantom based grammars.
 
-## Debugging
+## <a name="debugging"></a>Debugging
 
 By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for rules with names or labels.
 
