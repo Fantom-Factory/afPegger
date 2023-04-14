@@ -10,7 +10,13 @@ class Build : BuildPod {
         meta = [
             "pod.dis"       : "Pegger",
             "repo.tags"     : "system",
-            "repo.public"   : "true"
+            "repo.public"   : "true",
+	
+			// ---- SkySpark ----
+			"ext.name"		: "afPegger",
+			"ext.icon"		: "afPegger",
+//			"ext.depends"	: "",
+			"skyarc.icons"	: "true",
         ]
 
         depends = [
@@ -19,6 +25,6 @@ class Build : BuildPod {
         ]
 
         srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`]
-        resDirs = [`doc/`]
+        resDirs = [`doc/`, `svg/`]
     }
 }

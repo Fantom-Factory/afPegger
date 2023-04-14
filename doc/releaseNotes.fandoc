@@ -1,8 +1,13 @@
-v1.1
+v1.1 [#v1.1.x]
 ****
 Bigger and badder enhancements.
 
-v1.1.4
+v1.1.6 [#v1.1.6]
+======
+ - New: 'afPegger' is now packaged as a SkySpark extension.
+ - Chg: 'Peg.search()' now takes an optional label.
+
+v1.1.4 [#v1.1.4]
 ======
  - New: New dump macro for debugging: '\dump(HELLO)'.
  - Chg: 'RepetitionRule' now checks for '\eos' to avoid getting stuck in an infinite loop (a common trap for new players).
@@ -11,12 +16,12 @@ v1.1.4
  - Chg: Documentation tweaks.
  - Bug: Identity crisis! Simple proxy rules could overwrite rule names and unwanted labels could be inherited.
 
-v1.1.2
+v1.1.2 [#v1.1.2]
 ======
  - New: Added ranges to multiplicity expressions in PEG grammar, e.g. 'rule{2,6}'
  - Chg: Ensured rule expressions are properly escaped (more edge cases tested).
 
-v1.1.0
+v1.1.0 [#v1.1.0]
 ======
  - New: Rules may be spread across multiple lines.
  - New: Rules may be excluded from results, and omitted from debug logging.
@@ -29,35 +34,35 @@ v1.1.0
 
 
 
-v1.0
+v1.0 [#v1.0.x]
 ****
 An entire re-write into something awesome!
 
-v1.0.0
+v1.0.0 [#v1.0.0]
 ======
  - New: Re-written in to a leaner, meaner, and way more expressive PEG parser!
 
 
 
-v0.1
+v0.1 [#v0.1.x]
 ****
 
-v0.1.2
+v0.1.2 [#0.1.2]
 ======
  - New: Added 'checked' param to 'Parser.parse()' methods.
 
-v0.1.0
+v0.1.0 [#v0.1.0]
 ======
  - New: 'TreeRules' and support classes for generic parsing of tree structures.
  - New: 'Rules.eos()' for detecting End-Of-Stream.
  - New: Added 'Rules.oneOf()'
  - New: An action ctx is passed into the action success funcs.
 
-v0.0.4
+v0.0.4 [#v0.0.4]
 ======
  - New: 'Rules.doAction()' and 'Rules.anySpaceChars()'.
 
-v0.0.2
+v0.0.2 [#v0.0.2]
 ======
  - New: Preview release.
 
