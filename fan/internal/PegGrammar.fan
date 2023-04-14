@@ -65,7 +65,7 @@ internal class PegGrammar : Rules {
 	}
 	
 	Rule parseRule(Str pattern) {
-		peg := Peg(pattern, pegGrammar["rule"])
+		peg := Peg(pattern.trim, pegGrammar["rule"])
 		return toRule(peg.match, null)
 	}
 	
