@@ -5,7 +5,7 @@ class Build : BuildPod {
     new make() {
         podName = "afPegger"
         summary = "Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough!"
-        version = Version("1.1.6")
+        version = Version("1.1.7")
 
         meta = [
             "pod.dis"       : "Pegger",
