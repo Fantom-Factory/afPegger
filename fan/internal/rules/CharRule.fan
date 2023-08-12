@@ -53,62 +53,37 @@ internal class CharRule : Rule {
 	}
 
 	static Rule fromStr(Str charClass) {
-		cClass := charClass
+		cClass := StrBuf(charClass.size).add(charClass)
 		ignore := cClass[-1] == 'i'
-		if (ignore) cClass = cClass[0..<-1]
+		if (ignore) cClass.remove(-1)
 
 		if (cClass[0] != '[' && cClass[-1] != ']')
 			throw ParseErr("Invalid Char class: $charClass")
-		cClass = cClass[1..<-1]
+		cClass.remove(0).remove(-1)
 		
 		not := cClass[0] == '^'
-		if (not) cClass = cClass[1..-1]
+		if (not) cClass.remove(0)
 
 		try {
 			chars  := Int[,]
-
-			unicode := |->Int| {
-				hex := cClass[2..<6]
-				cClass = cClass[4..-1]
-				return Int.fromStr(hex, 16)
-			}
-			
 			ranges := Range[,]
 			while (cClass.size > 0) {
-				if (cClass[0] == '\\') {
-					if (cClass[1] == '\\')	chars.add('\\'); else
-					if (cClass[1] == ']')	chars.add( ']'); else
-					if (cClass[1] == 'b')	chars.add('\b'); else
-					if (cClass[1] == 'f')	chars.add('\f'); else
-					if (cClass[1] == 'n')	chars.add('\n'); else
-					if (cClass[1] == 'r')	chars.add('\r'); else
-					if (cClass[1] == 't')	chars.add('\t'); else
-					if (cClass[1] == '-')	chars.add( '-'); else
-					if (cClass[1] == '^')	chars.add( '^'); else
-					if (cClass[1] == 'u')	chars.add(unicode());
-					else
-						// may as well allow ALL chars to be escaped
-						chars.add(cClass[1])
-					cClass = cClass[2..-1]
-				} else {
-					start := cClass[0]
-					end   := cClass.getSafe(1)
-					
-					if (end == '-') {
-						end = cClass[2]
-						ranges.add(start..end)
-						cClass = cClass[3..-1]
-					} else {
-						chars.add(start)
-						cClass = cClass[1..-1]
-					}
-				}
+				start := chomp(cClass)
+				end   := cClass.isEmpty ? null : cClass[0]
+		
+				if (end == '-') {
+					cClass.remove(0)
+					end = chomp(cClass)
+					ranges.add(start..end)
+
+				} else
+					chars.add(start)
 			}
 			
 			if (ranges.isEmpty && chars.size == 1 && !not)
 				return StrMimickCharRule(chars.first, ignore)
 
-			express := ranges.join("") { it.start.toChar + "-" + it.end.toChar }.toCode(null) + chars.join("") { it.toChar }.toCode(null).replace("]", "\\]").replace("-", "\\-") 
+			express := ranges.join("") { it.start.toChar + "-" + it.end.toChar }.toCode(null, true) + chars.join("") { it.toChar }.toCode(null, true).replace("]", "\\]").replace("-", "\\-") 
 			return CharRule(express, not) |Int peek->Bool| {
 				fn := chars.contains(peek) || ranges.any { it.contains(peek) }
 				if (!fn && ignore) {
@@ -117,7 +92,7 @@ internal class CharRule : Rule {
 				}
 				return fn
 			} { it.ignoresCase = ignore }
-			
+	
 		} catch throw ParseErr("Invalid Char class: $charClass")
 	}
 	
@@ -129,5 +104,28 @@ internal class CharRule : Rule {
 	
 	override Str _expression() {
 		"[" + (not ? "^" : "") + express + "]" + (ignoresCase ? "i" : "")
+	}
+	
+	private static Int chomp(StrBuf str) {
+		char := str[0]; str.remove(0)
+	
+		if (char == '\\') {
+			// this allows ALL chars to be escaped
+			char = str[0]; str.remove(0)
+			if (char == '\\')	char = '\\'; else
+			if (char == 'b')	char = '\b'; else
+			if (char == 'f')	char = '\f'; else
+			if (char == 'n')	char = '\n'; else
+			if (char == 'r')	char = '\r'; else
+			if (char == 't')	char = '\t'; else
+			if (char == 'u')	char = unicode(str)
+		}
+		return char
+	}
+	
+	private static Int unicode(StrBuf str) {
+		hex := str[0..<4]
+		str.removeRange(0..<4)
+		return Int.fromStr(hex, 16)
 	}
 }

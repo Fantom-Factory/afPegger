@@ -282,6 +282,8 @@ May be used in string literals and character classes.
 
   crlf = [\u000D] "\u000A"
 
+Unicode escapes MUST contain exactly 4 hex digits; 4 to ease parsing and to match Java string characters which are 16 bits.
+
 
 Macros [#macros]
 ----

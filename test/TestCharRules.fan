@@ -44,6 +44,14 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("d") != null)
 		verify		(parser.match("e") != null)
 		verifyEq	(parser.expression, "[^b-d]")
+		
+		// test unicode escapes
+		nonAscii	:= Peg.parseGrammar("nonascii = [^\\u0020-\\u007e]").firstRule
+		verifyEq	 (nonAscii.expression, "[^ -~]")
+		verifyNotNull(nonAscii.match("é"))
+		verifyNull	 (nonAscii.match("a"))
+		verifyNull	 (nonAscii.match(" "))
+		verifyNull	 (nonAscii.match("{"))
 	}
 
 	Void testAnyAlphaChar() {
@@ -190,13 +198,13 @@ internal class TestCharRules : Test, Rules {
 		verifyFalse	(parser.match("A") != null)
 		verifyEq	(parser.expression, "\"]\"")
 
-		parser		= CharRule.fromStr("[\\]-]")
+		parser		= CharRule.fromStr("[\\]\\-]")
 		verify		(parser.match("]") != null)
 		verify		(parser.match("-") != null)
 		verifyFalse	(parser.match("A") != null)
 		verifyEq	(parser.expression, "[\\]\\-]")
 
-		parser		= Peg.parseRule("[\\]-]")
+		parser		= Peg.parseRule("[\\]\\-]")
 		verifyEq	(parser.expression, "[\\]\\-]")
 
 		parser		 = CharRule.fromStr("[^\\]]")
@@ -204,7 +212,7 @@ internal class TestCharRules : Test, Rules {
 		verify		(parser.match("A") != null)
 		verifyEq	(parser.expression, "[^\\]]")
 
-		parser		 = CharRule.fromStr("[^\\]-]")
+		parser		 = CharRule.fromStr("[^\\]\\-]")
 		verifyFalse	(parser.match("]") != null)
 		verifyFalse	(parser.match("-") != null)
 		verify		(parser.match("A") != null)
