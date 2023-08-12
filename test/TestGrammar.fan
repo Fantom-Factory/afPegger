@@ -30,6 +30,11 @@ class TestGrammar : Test, Rules {
 		verifyNull(mach3["b"])
 	}
 	
+	Void testRepitition() {
+		// test nTimes has it's own syntax
+		verifyDefs("a = 'x'{3}", "a <- \"x\"{3}")
+	}
+	
 	private Void verifyDefs(Str in, Str out := in) {
 		defs := PegGrammar().parseGrammar(in)
 		verifyEq(out, defs.definition.trim)

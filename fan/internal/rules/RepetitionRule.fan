@@ -41,6 +41,6 @@ internal class RepetitionRule : Rule {
 			return "${innerDesc}+"
 		min := min ?: Str.defVal
 		max := max ?: Str.defVal
-		return "${innerDesc}{${min},${max}}"
+		return min == max ? "${innerDesc}{$min}" : "${innerDesc}{${min},${max}}"
 	}
 }

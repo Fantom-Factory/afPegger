@@ -97,5 +97,7 @@ internal class TestRepetitionRule : Test, Rules {
 
 		verify     (parser.match("XXXX")?.matched != null)
 		verifyEq   (parser.match("XXXX")?.matched, "XX")
+	
+		verifyEq	(parser.definition, "root <- [a-zA-Z]{2}")
 	}
 }
