@@ -11,7 +11,8 @@ internal class FirstOfRule : Rule {
 		// todo - autofail - we can NEVER rollback further than the FIRST "firstOf", or the last choice in any subsequent "firstOf" - each point is a FAIL point with syntax detail
 		// not convinced this would give us any useful contextual feedback on a fail, much better if PEGs explicitly \err(FAIL)  
 		rules.any |Rule rule, i->Bool| {
-			ctx.log("Attempting choice ${i + 1} of ${rules.size}")
+			// log the rule name (if exists), just in case its debug is turned off
+			ctx.log("Attempting choice ${i + 1} of ${rules.size}" + (rule.name != null ? " (${rule.name})" : ""))
 			return ctx.process(rule)
 		}		
 	}
