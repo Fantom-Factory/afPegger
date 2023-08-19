@@ -45,7 +45,7 @@ internal class PegGrammar : Rules {
 		rules["type"]			= firstOf  { group, ruleName, literal, chars, macro, dot, }
 		rules["group"]			= sequence { char('('), zeroOrMore(cwsp), rule, zeroOrMore(cwsp), char(')'), }
 		rules["predicate"]		= firstOf  { char('!'), char('&'), }
-		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), sequence { char('{'), zeroOrMore(numChar).withLabel("min"), optional( sequence { char(',').withLabel("com").excludeFromResults, zeroOrMore(numChar).withLabel("max"), } ), char('}') }, }
+		rules["multiplicity"]	= firstOf  { char('*'), char('+'), char('?'), sequence { char('{'), zeroOrMore(numChar).withLabel("min"), optional( sequence { char(',').withLabel("com").debugOff, zeroOrMore(numChar).withLabel("max"), } ), char('}') }, }
 
 		rules["literal"]		= firstOf  { singleQuote, doubleQuote, }
 		rules["singleQuote"]	= sequence { char('\''), oneOrMore(firstOf { unicode, sequence { char('\\'), anyChar, }, charNot('\''), }), char('\''), optional(char('i')), }	// if you escape something, then it MUST be followed by another char

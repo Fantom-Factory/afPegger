@@ -2,6 +2,11 @@ v1.1 [#v1.1.x]
 ****
 Bigger and badder enhancements.
 
+v1.1.8 [#v1.1.8]
+======
+ - New: nTimes 'RepetitionRule' has its own '{x}' syntax.
+ - Bug: 'CharRule' now accepts excaped unicode ranges.
+
 v1.1.6 [#v1.1.6]
 ======
  - New: 'afPegger' is now packaged as a SkySpark extension.

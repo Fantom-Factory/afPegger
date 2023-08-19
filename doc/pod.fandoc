@@ -222,6 +222,7 @@ Rules may be specified to be matched by different amounts.
   rule1?      // optional
   rule1+      // one or more
   rule1*      // zero or more
+  rule1{4}    // exactly 4
   rule1{2,6}  // between 2 and 6 (inclusive)
   rule1{,5}   // at most 5 - same as {0,5}
   rule1{3,}   // at least 3

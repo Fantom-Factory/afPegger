@@ -100,4 +100,34 @@ internal class TestRepetitionRule : Test, Rules {
 	
 		verifyEq	(parser.definition, "root <- [a-zA-Z]{2}")
 	}
+	
+	Void testParsing() {
+		r := Peg.parseRule("'x'{1}")
+		verifyEq(r.typeof, RepetitionRule#)
+		verifyEq(r.definition, "\"x\"{1}")
+		verifyEq(r->min, 1)
+		verifyEq(r->max, 1)
+		
+		r = Peg.parseRule("'x'{1,}")
+		verifyEq(r.typeof, RepetitionRule#)
+		verifyEq(r.definition, "\"x\"+")
+		verifyEq(r->min, 1)
+		verifyEq(r->max, null)
+
+		r = Peg.parseRule("'x'{1,3}")
+		verifyEq(r.typeof, RepetitionRule#)
+		verifyEq(r.definition, "\"x\"{1,3}")
+		verifyEq(r->min, 1)
+		verifyEq(r->max, 3)
+
+		verifyEq(Peg("x", r).match.matched, "x")
+		verifyEq(Peg("xx", r).match.matched, "xx")
+		verifyEq(Peg("xxx", r).match.matched, "xxx")
+
+		r = Peg.parseRule("'x'{,3}")
+		verifyEq(r.typeof, RepetitionRule#)
+		verifyEq(r.definition, "\"x\"{,3}")
+		verifyEq(r->min, null)
+		verifyEq(r->max, 3)
+	}
 }
