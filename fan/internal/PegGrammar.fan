@@ -249,6 +249,9 @@ internal class PegGrammar : Rules {
 internal class RuleRef : Rule {
 	private Rule realRule
 
+	// todo future versions of Pegger should distinguish between top-level grammar rules,
+	// and rules that are part of an expression 
+	
 	private Str? _name
 	override Str? name {
 		// this conditional delegation of "name" is complicated, but revolves around being a definition / top level rule or not
@@ -261,7 +264,6 @@ internal class RuleRef : Rule {
 		// generally, if we go to the effort of giving something a label - we want it in the result tree!
 		get { (label != null || _name != null) ? (_useInResult ?: true) : realRule.useInResult }
 		set { 
-			_useInResult = it
 			if (label != null || _name != null)
 				_useInResult = it
 			else
@@ -279,7 +281,6 @@ internal class RuleRef : Rule {
 		// generally, if we go to the effort of giving something a label - we want it debugged!
 		get { (label != null || _name != null) ? (_debug ?: true) : realRule.debug }
 		set { 
-			_debug = it
 			if (label != null || _name != null)
 				_debug = it
 			else

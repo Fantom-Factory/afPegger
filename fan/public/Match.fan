@@ -100,7 +100,10 @@ class Match {
 	
 	// chars from `https://atom.io/packages/ascii-tree`
 	private Void doDump(StrBuf buf, Bool[] indent) {
-		name := [rule.label, rule.name].exclude { it == null }.join(":").trimToNull ?: "???:???"
+		// tidy up dumps, so we exclude names (in special cases)
+		ruleName := rule is RuleRef && rule->realRule->useInResult == false ? null : rule.name
+		
+		name := [rule.label, ruleName].exclude { it == null }.join(":").trimToNull ?: "???:???"
 		buf.add(name ?: rule.expression)
 		matches := matches
 

@@ -41,7 +41,12 @@ internal class Result {
 	}
 	
 	Match? findMatch(Str name, Str in) {
-		matches(in).find { it.name == name || it.rule.label == name }
+		// todo should be finding rule labels AND names?
+		matches(in).find |match| {
+			// exclude names (in special cases)
+			matchRuleName := match.rule is RuleRef && match.rule->realRule->useInResult == false ? null : match.rule.name
+			return match.rule.label == name || matchRuleName == name
+		}
 	}
 	
 	Match match(Result? parent, Str in) {

@@ -66,6 +66,10 @@ class TestLabels : Test, Rules {
 		
 		// RuleRefs weren't allowed labels 
 		verifyEq(match.getMatch("acme")?.matched, "xxx")
+		
+		// verify that "b" is still excluded
+		verifyFalse(match.debugStr.contains("b"))
+		verifyNull(match.getMatch("b"))
 	}
 
 	Void testRuleRefsExcl() {
@@ -75,6 +79,7 @@ class TestLabels : Test, Rules {
 			 -c  = [x]+"
 		)
 		match	:= grammar.firstRule.match("@xxx")
+		match.dump
 		
 		// RuleRefs.useInResult was *always* from ref rule
 		verifyEq(match.getMatch("b")?.matched, "xxx")
