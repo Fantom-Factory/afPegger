@@ -38,7 +38,7 @@ class PegExample : Test, Rules {
 		
 		html    := "<html><head><title>Pegger Example</title></head><body><p>Parsing is Easy!</p></body></html>"
 		
-		grammar["element"].match(html).dump
+		grammar["element"].match(html)
 	}
 	
 	Void testFilter() {

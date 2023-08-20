@@ -4,7 +4,8 @@ Bigger and badder enhancements.
 
 v1.1.8 [#v1.1.8]
 ======
- - New: nTimes 'RepetitionRule' has its own '{x}' syntax.
+ - New: nTimes 'RepetitionRule' now has its own '{x}' syntax.
+ - Chg: Allowed RuleRefs to be more independent with regards to labels and inclusion in match results. 
  - Bug: 'CharRule' now accepts excaped unicode ranges.
 
 v1.1.6 [#v1.1.6]

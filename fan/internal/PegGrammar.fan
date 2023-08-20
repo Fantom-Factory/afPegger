@@ -127,13 +127,12 @@ internal class PegGrammar : Rules {
 		exType	:= match["type"] as Match
 		multi	:= match["multiplicity"]
 		pred	:= match["predicate"]?.matched
-		label	:= match["label"]?.matched
 		exName	:= exType.firstMatch.name
 		exRule	:= null as Rule
 
 		switch (exName) {
 			case "rule"		: exRule = fromRule(exType.firstMatch.firstMatch, newGrammar)
-			case "ruleName"	: exRule = fromRuleName(exType.matched, newGrammar)
+			case "ruleName"	: exRule = fromRuleName(match, exType.matched, newGrammar)
 			case "literal"	: exRule = StrRule.fromStr(exType.matched)
 			case "chars"	: exRule = CharRule.fromStr(exType.matched)
 			case "macro"	: exRule = fromMacro(exType.matched)
@@ -160,7 +159,8 @@ internal class PegGrammar : Rules {
 				default		: throw UnsupportedErr("Unknown predicate: ${pred}")
 			}
 
-		if (label != null) {			
+		label	:= match["label"]?.matched
+		if (label != null) {
 			// actually, using RuleRefs, we can! And this ParseErr never gets thrown!
 			if (exRule.label != null)
 				throw ParseErr("Cannot overwrite rule label '${exRule.label}' with '${label}'" + (exRule.name != null ? " (on rule '${exRule.name}')" : ""))
@@ -171,14 +171,27 @@ internal class PegGrammar : Rules {
 		return exRule
 	}
 	
-	private Rule fromRuleName(Str ruleName, Grammar? newGrammar) {
+	private Rule fromRuleName(Match match, Str ruleName, Grammar? newGrammar) {
 		if (newGrammar == null)
 			throw ParseErr("Patterns may not contain custom Grammar")
+		
 		origRule := newGrammar[ruleName]
 		// return a "pointer" to the actual rule
-		return RuleRef(origRule)
+		rule	 := RuleRef(origRule) as Rule
+		
+		// let rule refs define labels
+		label	 := match.getMatch("label")
+		if (label != null) {
+			// add the label manually to the inner RuleRef
+			// the outer wrapping SequenceRule is NOT allowed a label - 'cos it may be a top level definition
+			rule.label = label.matched
+			match.matches.removeSame(label)
+			rule = SequenceRule([rule])
+		}
+
+		return rule
 	}
-	
+
 	private Rule fromMacro(Str macro) {
 		switch (macro[1..-1]) {
 			case "eol"		: return Rules.eol
@@ -243,14 +256,35 @@ internal class RuleRef : Rule {
 		set { _name = it }
 	}
 
-	override Bool debug {
-		get { realRule.debug }
-		set { throw UnsupportedErr("RuleRefs (${name}) should NOT have their 'debug' set") }
+	private Bool? _useInResult
+	override Bool useInResult {
+		// generally, if we go to the effort of giving something a label - we want it in the result tree!
+		get { (label != null || _name != null) ? (_useInResult ?: true) : realRule.useInResult }
+		set { 
+			_useInResult = it
+			if (label != null || _name != null)
+				_useInResult = it
+			else
+				realRule.useInResult = it 
+		}
 	}
 
-	override Bool useInResult {
-		get { realRule.useInResult }
-		set { throw UnsupportedErr("RuleRefs (${name}) should NOT have their 'useInResult' set") }
+//	override Bool debug {
+//		get { realRule.debug }
+//		set { throw UnsupportedErr("RuleRefs (${name}) should NOT have their 'debug' set") }
+//	}
+
+	private Bool? _debug
+	override Bool debug {
+		// generally, if we go to the effort of giving something a label - we want it debugged!
+		get { (label != null || _name != null) ? (_debug ?: true) : realRule.debug }
+		set { 
+			_debug = it
+			if (label != null || _name != null)
+				_debug = it
+			else
+				realRule.debug = it 
+		}
 	}
 	
 	new make(Rule realRule) {

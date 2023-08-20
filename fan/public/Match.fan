@@ -25,29 +25,29 @@ class Match {
 //		rule.label ?: rule.name
 //	}
 
-	** Returns 'true' if a there's a sub-match with the given rule name or label.
+	** Returns 'true' if a there's a direct sub-match with the given rule name or label.
 	Bool contains(Str name) {
 		getMatch(name) != null
 	}
 	
-	** Returns the first sub-match with the given rule name (or label).
+	** Returns the first direct sub-match with the given rule name (or label).
 	@Operator
 	Match? getMatch(Str name) {
 		result.findMatch(name, in)
 	}
 
-	** Returns the sub-match at the given index.
+	** Returns the direct sub-match at the given index.
 	@Operator
 	Match? getMatchAt(Int index) {
 		matches[index]
 	}
 	
-	** Returns the first sub-match.
+	** Returns the first direct sub-match.
 	Match? firstMatch() {
 		matches.first
 	}
 
-	** Returns all sub-mataches.
+	** Returns all direct sub-mataches.
 	Match[] matches() {
 		result.matches(in)
 	}
