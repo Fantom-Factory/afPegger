@@ -8,7 +8,13 @@ internal class ErrRule : Rule {
 	}
 	
 	override Bool doProcess(RuleCtx ctx) {
-		throw ctx.parseErr(msg)
+		pegErr	:= ctx.parseErr(msg)
+		// allow AFX to convert PegParseErrs to AfxErrs
+		newErr	:= Env.cur.index("afPegger.errFn").eachWhile |qname| {
+			try	return Method.findMethod(qname, false)?.call(pegErr) as Err
+			catch { /* Meh */ return null }
+		} ?: pegErr
+		throw newErr
 	}
 	
 	override Str _expression() { "\\err(${msg.toCode(null)})" } 
