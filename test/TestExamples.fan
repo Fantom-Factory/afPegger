@@ -5,9 +5,10 @@ class TestExamples : Test, Rules {
 		input := "<<<Hello Mum>>>"
 		rule  := "'<'+ name:[a-zA-Z ]+ '>'+"
 		match := Peg(input, rule).match
-		name  := match["name"]	// --> "Hello Mum"
+		name  := match.getMatch("name")	// --> "Hello Mum"
 
         verifyEq(name.toStr, "Hello Mum")
+        verifyEq(name.location, [3,1])
 	}
 	
 	Void testCalc() {

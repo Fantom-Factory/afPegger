@@ -57,9 +57,19 @@ class Match {
 		result.matchedStr(in)
 	}
 	
-	** Returns the matched range.
+	** Returns the matched range; where this match lies within the input string.
 	Range matchedRange() {
 		result.matchedRange(in)
+	}
+	
+	** Returns a snippet of source code, centred on this match.
+	Str snippet(Str? msg := null, Int? padding := null) {
+		result.matchedSnippet(in, msg, padding)
+	}
+	
+	** Returns the '[x,y]' location of this match in the input string. 
+	Int[] location() {
+		result.matchedLocation(in)
 	}
 
 	** Returns the parent Match in the tree, or 'null' if this is the root.

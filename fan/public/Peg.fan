@@ -19,8 +19,8 @@ class Peg {
 	**   Peg(str, Peg.parseRule(pattern))
 	** 
 	** See `Rule.parseRule`
-	new makePattern(Str str, Str pattern) {
-		this.rule	= Peg.parseRule(pattern)
+	new makePattern(Str str, Str rulePattern) {
+		this.rule	= Peg.parseRule(rulePattern)
 		this.pegCtx	= PegCtx(str, rule)
 	}
 
@@ -63,7 +63,7 @@ class Peg {
 	
 	// ---- Instance methods ----
 
-	** Searches for the next match and returns the matched string (if any).
+	** Searches for the next match (optionall with the given label) and returns the matched string (if any).
 	Str? search(Str? label := null, Int? offset := null) {
 		if (offset != null)
 			pegCtx.rollbackToPos(offset)

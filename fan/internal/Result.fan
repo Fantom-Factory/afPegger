@@ -40,6 +40,19 @@ internal class Result {
 		strEnd - strStart
 	}
 	
+	Str matchedSnippet(Str in, Str? msg := null, Int? padding := null) {
+		lineNum := 1; in.chars.eachRange(0..<strStart.min(in.size)) { if (it == '\n') lineNum++ }
+		srcCode := SrcCodeSnippet(in)
+		return srcCode.srcCodeSnippet(lineNum, msg, padding ?: 3)
+	}
+	
+	Int[] matchedLocation(Str in) {
+		s := strStart.min(in.size)
+		y := 1; in.chars.eachRange(0..<s) { if (it == '\n') y++ }
+		x := s+1; for (i := s; i > 0; --i) { if (in[i] == '\n') { x = s-i; break } }
+		return [x, y]
+	}
+	
 	Match? findMatch(Str name, Str in) {
 		// todo should be finding rule labels AND names?
 		matches(in).find |match| {

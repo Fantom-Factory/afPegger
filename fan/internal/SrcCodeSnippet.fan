@@ -4,7 +4,6 @@
 ** Generates snippets of source code, often used to report errors. Example:
 ** 
 ** pre>
-** file:/C:/test/app/compilationErr.moustache : Line 11
 **     - Unbalanced "{" in tag "{ alienHeadSvg }  <span class="brand">{{ title"
 ** 
 **      6:         {{{ bedSheetCss }}}
@@ -22,17 +21,13 @@
 @Js
 internal const class SrcCodeSnippet {
 	
-	** An arbitrary uri of where the source code originated from. 
-	const Uri	srcCodeLocation
-	
 	** A list of source code lines.
 	const Str[]	srcCode
 
 	** Creates a SrcCodeSnippet. 
 	** The srcCodeLocation URI may be anything as it is only used for reporting. 
-	new make(Uri srcCodeLocation, Str srcCode) {
-		this.srcCodeLocation= srcCodeLocation
-		this.srcCode		= srcCode.splitLines
+	new make(Str srcCode) {
+		this.srcCode = srcCode.splitLines
 	}
 
 	** Returns a snippet of source code, centred on 'lineNo' and padded on either side by an 
@@ -41,7 +36,6 @@ internal const class SrcCodeSnippet {
 	** Note that 'lineNo' is ONE based, not zero.
 	Str srcCodeSnippet(Int lineNo, Str? msg := null, Int linesOfPadding := 5) {
 		buf := StrBuf()
-		buf.add("  ${srcCodeLocation}").add(" : Line ${lineNo}\n")
 		if (msg != null)
 			buf.add("    - ${msg}\n")
 		buf.add("\n")
@@ -80,6 +74,6 @@ internal const class SrcCodeSnippet {
 	}
 	
 	override Str toStr() {
-		"${srcCodeLocation} : ${srcCode.size} lines"
+		"${srcCode.size} lines"
 	}
 }
