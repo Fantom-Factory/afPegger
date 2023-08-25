@@ -7,7 +7,7 @@ class Peg {
 	private Rule	rule
 	
 	** Creates a PEG class ready to match the given string and rule.
-	new make(Str str, Rule rule) {
+	new makeRule(Str str, Rule rule) {
 		this.rule	= rule
 		this.pegCtx	= PegCtx(str, rule)
 	}
@@ -63,77 +63,200 @@ class Peg {
 	
 	// ---- Instance methods ----
 
-	** Searches for the next match (optionall with the given label) and returns the matched string (if any).
-	Str? search(Str? label := null, Int? offset := null) {
+	** Returns the matched text of the next PEG match, optionally returning the contents of the given label. 
+	** 
+	**   syntax: fantom
+	**   peg := Peg("a12 + b23 / c69 * z666", "foo:[a-z] [0-9]+")
+	**   peg.find         // --> "a12"
+	**   peg.find         // --> "b23"
+	**   peg.find("foo")  // --> "c"
+	**   peg.find("foo")  // --> "z"
+	** 
+	** See [matched()]`matched` to match against the entire string.
+	Str? find(Str? label := null, Int? offset := null) {
+		match := search(offset)
+		return label == null ? match?.matched : match?.findMatch(label)?.matched
+	}
+	
+	** Searches for the next PEG match and replaces a portion of it.
+	** 
+	** 'replacements' is a map of label names to replacement values.
+	** 
+	** Use the label 'root' to replace the entire Match.
+	** 
+	** Use standard '${interpolation}' in values to reference other matched labels.
+	** 
+	**   syntax: fantom
+	**   str := "(34) -> {12}"
+	**   pat := "foo:[0-9]+ [^0-9]+ bar:[0-9]+"
+	**   peg := Peg(str, pat)
+	**   val := peg.replace(["foo":"\${bar}", "bar":"\${foo}"])
+	**       // --> (12) -> {34}
+	** 
+	Str replace(Str:Str replacements, Int? offset := null) {
+		match := search(offset)
+		if (match == null)
+			return pegCtx.str
+	
+		str := StrBuf(pegCtx.str.size).add(pegCtx.str)
+		doReplace(str, match, replacements)
+		return str.toStr
+	}
+	
+	** Replaces all occurrences of a PEG match.
+	** 
+	** 'replacements' is a map of label names to replacement values.
+	** 
+	** Use the label 'root' to replace the entire Match.
+	** 
+	** Use standard '${interpolation}' in values to reference other matched labels.
+	**
+	**   syntax: fantom
+	**   str := "I like abba!"
+	**   pat := "foo:'a' / bar:'b'"
+	**   peg := Peg(str, pat)
+	**   val := peg.replaceAll(["foo":"b", "bar":"a"])
+	**       // --> I like baab!
+	** 
+	Str replaceAll(Str:Str replacements, Int? offset := null) {
+		matches := Match[,]
+		each |m| { matches.add(m) }
+		
+		str := StrBuf(pegCtx.str.size).add(pegCtx.str)
+		// process the actual replacements in reverse order
+		matches.eachr |m| {
+			doReplace(str, m, replacements)
+		}
+		return str.toStr
+	}
+	
+	** Searches for the next PEG match (optionally with the given label) and returns the matched string (if any).
+	Match? search(Int? offset := null) {
 		if (offset != null)
 			pegCtx.rollbackToPos(offset)
 
-		c := pegCtx.cur
 		m := null as Match
 		while (m == null && !pegCtx.eos) {
 			m = match
 			if (m == null)
-				pegCtx.rollbackToPos(++c)
+				pegCtx.rollbackToPos(pegCtx.cur	+ 1)
 		}
 		
-		if (m != null && label != null)
-			m = m.getMatch(label)
-
-		return m?.matched
+		return m
 	}
 
-	** Returns 'true' if the string contains a rule match.
-	** Convenience for: 
+	** Returns 'true' if the string contains a PEG match.
+	** Convenience for:
+	**  
+	**   fantom: syntax
 	**   search != null
+	** 
+	** See [matches()]`matches` to check for a match against the entire string.
 	Bool contains() {
 		search != null
 	}
 	
-	// TODO replace()
-//	Str replace(Str replacePattern, Int startOffset := 0) { "" } // replace("Steve \2{backRef}")
-//	Str replaceAll(Str replacePattern) { "" }
-	
-//	Str replaceFn(Str replacePattern) |PegMatch m -> Str| { "" }
-//	Str replaceAllFn(Str replacePattern) |PegMatch m -> Str| { "" }
-	
-	** Runs the PEG rule against the string.
-	Match? match() {
-		pegCtx.clearResults.process(rule)
+	** Performs a PEG match against the entire string (from the given offset) - use for matching grammars.
+	** 
+	** See [search()]`search` to *search* for a match anywhere in the string. 
+	Match? match(Int? offset := null) {
+		if (offset != null) {
+			if (offset < 0 || offset >= pegCtx.str.size)
+				throw ArgErr("Offset '${offset}' is out of bounds: 0 >= offset >= ${pegCtx.str.size-1}")
+			pegCtx.rollbackToPos(offset)
+		}
+
+		// it's important to search() that we do NOT roll-back to position 0 
+
+		return pegCtx.clearResults.process(rule)
 			? pegCtx.doSuccess
 			: null
 	}
 	
-	** Runs the PEG rule against the string.
+	** Performs a PEG match against the entire string.
 	** Returns 'true' if it matches.
+	** 
+	** See [contains()]`contatins` to *search* for a match instead.
 	Bool matches() {
 		match != null
 	}
 	
-	** Runs the PEG rule against the string.
+	** Performs a PEG match against the entire string.
 	** Returns the matched string.
+	** 
+	** See [find()]`find` to *search* for a match anywhere in the string.
 	Str? matched() {
 		match?.matched
 	}
 	
-	** Calls the given function for each rule match found in the string.
+	** Searches the string and calls the given function for each PEG Match found.
+	** 
+	** Also see [search()]`search`, and [eachWhile()]`eachWhile`.
 	Void each(|Match| fn) {
-		m := match
-		while (m != null) {
-			fn(m)
-			m = match
+		c := 0
+		while (c < pegCtx.str.size) {
+			m := match(c)
+			if (m != null) {
+				fn(m)
+				c = pegCtx.cur
+			} else
+				c++
 		}
 	}
 
-	** Calls the given function for each rule match found, until a non-null result is returned.
-	** If there are no matches, null is returned.
+	** Searches the string and calls the given function for each PEG Match found, until a non-null result is returned.
+	** Returns 'null' if there are no matches.
+	** 
+	** Also see [search()]`search`, and [each()]`each`.
 	Obj? eachWhile(|Match->Obj?| fn) {
 		r := null
-		m := match
-		while (m != null && r == null) {
-			r = fn(m)
-			if (r == null)
-				m = match
+		c := 0
+		while (r == null && c < pegCtx.str.size) {
+			m := match(c)
+			if (m != null) {
+				r = fn(m)
+				c = pegCtx.cur
+			} else
+				c++
 		}
 		return r
+	}
+	
+	private Regex interpolex := "[^\\\\]?\\\$\\{([^}]+)\\}".toRegex
+	private Void doReplace(StrBuf str, Match match, Str:Str replacements) {
+		matched := Match[,]
+		replacements.each |to, from| {
+			fromM := match.findMatch(from)
+			if (fromM != null)
+				matched.add(fromM)
+		}
+
+		// reverse the order, to process replacements from the end
+		// so we don't mess up the str / ranges for the next replace
+		matched.sortr |m1, m2| { m1.matchedRange.start <=> m2.matchedRange.start }
+
+		matched.each |fromM| {
+			to := replacements[fromM.name]
+
+			// do the interpolation of replacement values
+			interpols := Range:Str[:]
+			interpols.ordered = true
+			rm := interpolex.matcher(to)
+			while (rm.find) {
+				label := rm.group(1)
+				repla := match.findMatch(label)?.matched ?: ""
+				interpols[rm.start(0)..<rm.end(0)] = repla
+			}
+			toBuf := StrBuf(to.size).add(to)
+			keys  := interpols.keys.sortr |i1, i2| { i1.start <=> i2.start }
+			keys.each |r| {
+				val := interpols[r]
+				toBuf.replaceRange(r, val)
+			}
+			to = toBuf.toStr
+
+			// do the replacement
+			str.replaceRange(fromM.matchedRange, to)
+		}
 	}
 }

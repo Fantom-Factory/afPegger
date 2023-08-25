@@ -30,6 +30,15 @@ class Match {
 		getMatch(name) != null
 	}
 	
+	** Deeply searches for a labelled Match of the given name.
+	Match? findMatch(Str name) {
+		if (this.name == name)
+			return this
+		return matches.eachWhile |match| {
+			match.findMatch(name)
+		}
+	}
+	
 	** Returns the first direct sub-match with the given rule name (or label).
 	@Operator
 	Match? getMatch(Str name) {
@@ -67,7 +76,8 @@ class Match {
 		result.matchedSnippet(in, msg, padding)
 	}
 	
-	** Returns the '[x,y]' location of this match in the input string. 
+	** Returns the '[x,y]' character location of this match in the input string. 
+	** Coordinates are one-based.
 	Int[] location() {
 		result.matchedLocation(in)
 	}

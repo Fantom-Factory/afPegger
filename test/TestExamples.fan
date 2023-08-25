@@ -8,7 +8,7 @@ class TestExamples : Test, Rules {
 		name  := match.getMatch("name")	// --> "Hello Mum"
 
         verifyEq(name.toStr, "Hello Mum")
-        verifyEq(name.location, [3,1])
+        verifyEq(name.location, [4,1])
 	}
 	
 	Void testCalc() {

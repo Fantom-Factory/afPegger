@@ -99,6 +99,8 @@ internal class PegCtx : RuleCtx {
 	override Bool eos() {
 		cur >= in.size
 	}
+	
+	override Str str() { in }
 
 	Match doSuccess() {
 		rootResult.match(null, in)
@@ -129,4 +131,3 @@ internal class PegCtx : RuleCtx {
 		return (rule.name ?: rule.label) ?: rule.typeName
 	}
 }
-

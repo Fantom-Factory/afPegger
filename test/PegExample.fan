@@ -23,11 +23,11 @@ class PegExample : Test, Rules {
 
 	Void testSearch() {
 		peg		:= Peg("--a---bb----ccc-----dddd------eeeee--", oneOrMore(alphaChar))
-		verifyEq("a",		peg.search)
-		verifyEq("bb",		peg.search)
-		verifyEq("ccc",		peg.search)
-		verifyEq("dddd",	peg.search)
-		verifyEq("eeeee",	peg.search)
+		verifyEq("a",		peg.find)
+		verifyEq("bb",		peg.find)
+		verifyEq("ccc",		peg.find)
+		verifyEq("dddd",	peg.find)
+		verifyEq("eeeee",	peg.find)
 	}
 	
 	Void testDocGrammarExample() {
@@ -43,11 +43,11 @@ class PegExample : Test, Rules {
 	
 	Void testFilter() {
 		peg := Peg("foo bar \"meh wotever\" ", """ ('"' a:[^"]+ '"') / a:[^ ]+ """)
-		str := null as Str
+		mat := null as Match
 		val := Str[,]
-		while ((str = peg.search("a")) != null)
-			val.add(str)
-		
+		while ((mat = peg.search) != null)
+			val.add(mat["a"].matched)
+
 		verifyEq(val, ["foo", "bar", "meh wotever"])
 	}
 }

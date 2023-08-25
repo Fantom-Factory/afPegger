@@ -40,12 +40,12 @@ internal class StrMimickCharRule : Rule {
 
 @Js
 internal class CharRule : Rule {
-	// FIXME immutable funcs not allowed in JS!
-	private		const |Int->Bool|	func
+	// todo immutable funcs not allowed in JS!
+	private			 |Int->Bool|	func
 	private		const Bool			not
 	private		const Str			express
 	internal		  Bool			ignoresCase
-	
+
 	new make(Str expression, Bool not, |Int->Bool| func) {
 		this.func 	 = func
 		this.express = expression

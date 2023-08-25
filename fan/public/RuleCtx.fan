@@ -25,4 +25,6 @@ mixin RuleCtx {
 	** Returns a PEG specific 'ParseErr' to be thrown.
 	abstract PegParseErr parseErr(Str errMsg)
 
+	** Returns the string we are matching against. 
+	abstract Str str()
 }
