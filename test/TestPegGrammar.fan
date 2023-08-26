@@ -52,6 +52,8 @@ class TestPegGrammar : Test {
 	Void testMacro() {
 		verifyRule("\\sos"			, "\\sos")
 		verifyRule("\\eos"			, "\\eos")
+		verifyRule("\\sol"			, "\\sol")
+		verifyRule("\\eol"			, "\\eol")
 		verifyRule("\\upper"		, "\\upper")
 		verifyRule("\\lower"		, "\\lower")
 		verifyRule("\\alpha"		, "\\alpha")

@@ -10,6 +10,16 @@ mixin RuleCtx {
 	** Consumes 1 character from the underlying input stream.
 	abstract Int readChar()
 
+	** Peeks a character relative to the current position
+	** (Does not consume any characters).
+	** For example:
+	** 
+	**  - 'peekChar(2)'  - returns char at 'currentPos + 2'
+	**  - 'peekChar(-1)' - returns char at 'currentPos - 1' 
+	** 
+	** Returns 'null' if out of bounds.
+	abstract Int? peekChar(Int offset := 0)
+
 	** Returns the current position in the underlying input stream.
 	abstract Int currentPos()
 	

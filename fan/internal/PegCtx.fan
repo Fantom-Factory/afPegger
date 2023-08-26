@@ -87,6 +87,11 @@ internal class PegCtx : RuleCtx {
 		in.getSafe(cur++)
 	}
 	
+	override Int? peekChar(Int offset := 0) {
+		peek := in.getSafe(cur + offset)
+		return peek == 0 ? null : peek
+	}
+	
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
 	override Void log(Str msg) {
 		if (logger.isDebug) {

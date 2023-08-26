@@ -198,6 +198,9 @@ internal class PegGrammar : Rules {
 		switch (macro[1..-1]) {
 			case "sos"		: return Rules.sos
 			case "eos"		: return Rules.eos
+			case "sol"		: return Rules.sol
+			case "eol"		: return Rules.eol
+
 			case "upper"	: return Rules.upper
 			case "lower"	: return Rules.lower
 			case "alpha"	: return Rules.alpha

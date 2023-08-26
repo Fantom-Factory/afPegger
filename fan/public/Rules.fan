@@ -316,15 +316,24 @@ mixin Rules {
 		EosRule()
 	}
 
-//	** Matches end of line (or the end of the stream).
-//	**  
-//	** Example PEG notation:
-//	** 
-//	**   "\n" / \eos
-//	static Rule eol() {
-//		EolRule()
-//	}
-	
+	** Matches if at the Start-Of-Line (SOL) (or at the start of stream).
+	**  
+	** Example PEG notation:
+	** 
+	**   \sos
+	static Rule sol() {
+		SolRule()
+	}
+
+	** Matches if at the End-Of-Line (EOL) (or at the end of stream).
+	**  
+	** Example PEG notation:
+	** 
+	**   \eol
+	static Rule eol() {
+		EolRule()
+	}
+
 	** Matches an uppercase character in the current locale.
 	** See `sys::Locale` for details.
 	**  

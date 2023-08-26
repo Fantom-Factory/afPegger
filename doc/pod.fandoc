@@ -294,13 +294,18 @@ pre>
 table:
 name        function
 ----------  ---------------------------------
-\eos        Matches End-Of-Stream (or End-Of-String!?)
-\eol        Matches End-Of-Line - either a new-line char or EOS
+\sos        Matches Start-Of-Stream (or Start-Of-String!?) - does not consume chars
+\eos        Matches End-Of-Stream   (or End-Of-String!?)   - does not consume chars
+\eol        Matches Start-Of-Line   (or sos)               - does not consume chars
+\sol        Matches End-Of-Line     (or eos)               - does not consume chars
+
 \lower      Matches a lowercase character in the current locale
 \upper      Matches an uppercase character in the current locale
 \alpha      Matches a character in the current locale
-\err(xxx)   Throws a parse error when processed
-\noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
+
+\pass       Always passes the Match
+\fail       Always fails the Match
+\err(xxx)   Throws a PegParseErr with msg 'xxx' when processed
 <pre
 
 
