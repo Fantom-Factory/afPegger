@@ -50,13 +50,13 @@ class TestPegGrammar : Test {
 	}
 
 	Void testMacro() {
+		verifyRule("\\sos"			, "\\sos")
 		verifyRule("\\eos"			, "\\eos")
-		verifyRule("\\eol"			, "\\eol")
 		verifyRule("\\upper"		, "\\upper")
 		verifyRule("\\lower"		, "\\lower")
 		verifyRule("\\alpha"		, "\\alpha")
 		verifyRule("\\err(FAIL)"	, "\\err(FAIL)")
-		verifyRule("\\noop(false)"	, "\\noop(false)")
+//		verifyRule("\\noop(false)"	, "\\noop(false)")
 //		verifyRule("\\dump(HELLO)"	, "\\dump(HELLO)")
 		
 		// I don't like these, they're cryptic

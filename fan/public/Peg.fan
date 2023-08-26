@@ -85,6 +85,7 @@ class Peg {
 	** Use the label 'root' to replace the entire Match.
 	** 
 	** Use standard '${interpolation}' in values to reference other matched labels.
+	** Interpolation may be escaped with a backslash - '\${not interpolated}'.
 	** 
 	**   syntax: fantom
 	**   str := "(34) -> {12}"
@@ -110,6 +111,7 @@ class Peg {
 	** Use the label 'root' to replace the entire Match.
 	** 
 	** Use standard '${interpolation}' in values to reference other matched labels.
+	** Interpolation may be escaped with a backslash - '\${this is not interpolated}'.
 	**
 	**   syntax: fantom
 	**   str := "I like abba!"

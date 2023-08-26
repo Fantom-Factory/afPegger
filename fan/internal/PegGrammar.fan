@@ -28,8 +28,9 @@ internal class PegGrammar : Rules {
 		cwsp					:= rules["cwsp"]		.excludeFromResults.debugOff
 		cnl						:= rules["cnl"]			.excludeFromResults.debugOff
 		sp						:= rules["sp"]			.excludeFromResults.debugOff
+		nl						:= rules["nl"]			.excludeFromResults.debugOff
 		eos						:= eos					.excludeFromResults.debugOff
-		eol						:= eol					.excludeFromResults.debugOff
+		sos						:= sos					.excludeFromResults.debugOff
 		fail					:= err ("FAIL")
 
 		rules["grammar"]		= oneOrMore( sequence { onlyIfNot(eos), firstOf { commentLine, ruleDef, fail, }, })
@@ -55,11 +56,12 @@ internal class PegGrammar : Rules {
 		rules["unicode"]		= sequence { char('\\'), char('u'), hexChar, hexChar, hexChar, hexChar, }
 		rules["dot"]			= char('.')
 
-		rules["commentLine"]	= sequence { zeroOrMore(sp), firstOf { eol, comment, }, }
-		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }), eol, }
+		rules["commentLine"]	= sequence { zeroOrMore(sp), firstOf { nl, comment, }, }
+		rules["comment"]		= sequence { firstOf { char('#'), str("//"), }, zeroOrMore(sequence { onlyIfNot(eos), charNot('\n'), }), nl, }
 		rules["cwsp"]			= firstOf { sp, sequence { onlyIfNot(eos), cnl, firstOf { sp, onlyIf(firstOf { char('#'), str("//"), }), } },}
-		rules["cnl"]			= firstOf { eol, comment, }
+		rules["cnl"]			= firstOf { nl, comment, }
 		rules["sp"]				= spaceChar
+		rules["nl"]				= firstOf { eos, char('\n'), } 
 		
 		return rules.validate
 	}
@@ -194,7 +196,7 @@ internal class PegGrammar : Rules {
 
 	private Rule fromMacro(Str macro) {
 		switch (macro[1..-1]) {
-			case "eol"		: return Rules.eol
+			case "sos"		: return Rules.sos
 			case "eos"		: return Rules.eos
 			case "upper"	: return Rules.upper
 			case "lower"	: return Rules.lower
@@ -226,11 +228,11 @@ internal class PegGrammar : Rules {
 			return Rules.err(deEscape(macro[5..<-1]))
 //		if (macro.startsWith("\\dump(") && macro.endsWith(")"))
 //			return Rules.dump(deEscape(macro[6..<-1]))
-		if (macro.startsWith("\\noop(") && macro.endsWith(")")) {
-			text := deEscape(macro[6..<-1])
-			bool := Bool.fromStr(text, false) ?: throw UnsupportedErr("No-Op marco only accepts 'true' and 'false': ${text}")
-			return Rules.noop(bool)
-		}
+//		if (macro.startsWith("\\noop(") && macro.endsWith(")")) {
+//			text := deEscape(macro[6..<-1])
+//			bool := Bool.fromStr(text, false) ?: throw UnsupportedErr("No-Op marco only accepts 'true' and 'false': ${text}")
+//			return Rules.noop(bool)
+//		}
 		
 		throw UnsupportedErr("Unknown macro: $macro")
 	}

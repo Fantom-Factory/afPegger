@@ -95,10 +95,10 @@ internal class PegCtx : RuleCtx {
 		}
 	}
 	
+	override Bool sos() { cur == 0 }
+
 	** Returns 'true' if end-of-stream is reached. 
-	override Bool eos() {
-		cur >= in.size
-	}
+	override Bool eos() { cur >= in.size }
 	
 	override Str str() { in }
 

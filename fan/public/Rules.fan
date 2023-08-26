@@ -296,7 +296,18 @@ mixin Rules {
 
 	// ---- Macro rules ---------------------------------------------------------------------------
 
-	** Matches if the of the stream (EOS) is reached.
+	** Matches if at the Start-Of-Stream (SOS).
+	** (Does not consume an characters.)
+	**  
+	** Example PEG notation:
+	** 
+	**   \sos
+	static Rule sos() {
+		SosRule()
+	}
+
+	** Matches if at the End-Of-Stream (EOS).
+	** (Does not consume an characters.)
 	**  
 	** Example PEG notation:
 	** 
@@ -304,15 +315,15 @@ mixin Rules {
 	static Rule eos() {
 		EosRule()
 	}
-	
-	** Matches end of line (or the end of the stream).
-	**  
-	** Example PEG notation:
-	** 
-	**   "\n" / \eos
-	static Rule eol() {
-		EolRule()
-	}
+
+//	** Matches end of line (or the end of the stream).
+//	**  
+//	** Example PEG notation:
+//	** 
+//	**   "\n" / \eos
+//	static Rule eol() {
+//		EolRule()
+//	}
 	
 	** Matches an uppercase character in the current locale.
 	** See `sys::Locale` for details.
@@ -344,15 +355,15 @@ mixin Rules {
 		AlphaRule()
 	}
 	
-	** No operation - a placeholder. 
-	** This rule consumes no input and will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
-	** 
-	** Example PEG notation:
-	** 
-	**   \noop(true)
-	static Rule noop(Bool pass := true) {
-		NoOpRule(pass)
-	}
+//	** No operation - a placeholder. 
+//	** This rule consumes no input and will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.
+//	** 
+//	** Example PEG notation:
+//	** 
+//	**   \noop(true)
+//	static Rule noop(Bool pass := true) {
+//		NoOpRule(pass)
+//	}
 	
 //	** Dump the message and parsing stacktrace to std-out. 
 //	** Use to aid the debugging of PEG grammar.

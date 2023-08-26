@@ -16,7 +16,10 @@ mixin RuleCtx {
 	** Rolls back the underlying input stream to the given position. 
 	abstract Void rollbackToPos(Int pos)
 
-	** Returns 'true' if end-of-stream is reached. 
+	** Returns 'true' if at the Start-Of-Stream. 
+	abstract Bool sos()
+
+	** Returns 'true' if at the End-Of-Stream. 
 	abstract Bool eos()
 
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
