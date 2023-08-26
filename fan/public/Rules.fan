@@ -93,7 +93,7 @@ mixin Rules {
 		CharRule(charRange.min.toChar + "-" + charRange.last.toChar, not) |Int peek->Bool| { charRange.contains(peek) }
 	}
 	
-	** Matches any alphabetical character. 
+	** Matches any alphabetical ASCII character. 
 	** 
 	** PEG notation:
 	** 
@@ -102,7 +102,7 @@ mixin Rules {
 		CharRule("a-zA-Z", not) |Int peek->Bool| { peek.isAlpha }
 	}
 
-	** Matches any alphabetical or numerical character. 
+	** Matches any alphabetical ASCII or numerical character. 
 	** 
 	** PEG notation:
 	** 
@@ -354,15 +354,37 @@ mixin Rules {
 		LowerRule()
 	}
 	
-	** D.
+	** Matches any character in the current locale.
 	** See `sys::Locale` for details.
 	**  
 	** Example PEG notation:
 	** 
-	**   \lower / \upper
+	**   \aplha
 	static Rule alpha() {
 		AlphaRule()
 	}
+	
+	** A rule that will *always* pass.
+	** Does not consume any characters.
+	**  
+	** Example PEG notation:
+	** 
+	**   \pass
+	static Rule pass() {
+		PassRule()
+	}
+	
+	** A rule that will *always* fail.
+	** Does not consume any characters.
+	**  
+	** Example PEG notation:
+	** 
+	**   \fail
+	static Rule fail() {
+		FailRule()
+	}
+	
+	
 	
 //	** No operation - a placeholder. 
 //	** This rule consumes no input and will always succeed if 'pass' is 'true', and always fail if 'pass' is 'false'.

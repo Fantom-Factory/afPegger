@@ -57,6 +57,8 @@ class TestPegGrammar : Test {
 		verifyRule("\\upper"		, "\\upper")
 		verifyRule("\\lower"		, "\\lower")
 		verifyRule("\\alpha"		, "\\alpha")
+		verifyRule("\\pass"			, "\\pass")
+		verifyRule("\\fail"			, "\\fail")
 		verifyRule("\\err(FAIL)"	, "\\err(FAIL)")
 //		verifyRule("\\noop(false)"	, "\\noop(false)")
 //		verifyRule("\\dump(HELLO)"	, "\\dump(HELLO)")

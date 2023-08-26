@@ -205,6 +205,9 @@ internal class PegGrammar : Rules {
 			case "lower"	: return Rules.lower
 			case "alpha"	: return Rules.alpha
 
+			case "pass"		: return Rules.pass
+			case "fail"		: return Rules.fail
+
 			// todo I don't even like these either!
 //			case "a"		: return Rules.alphaChar
 //			case "d"		: return Rules.numChar
