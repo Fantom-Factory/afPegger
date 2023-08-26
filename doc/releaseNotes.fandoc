@@ -6,6 +6,7 @@ v1.1.8 [#v1.1.8]
 ======
  - New: Added 'Peg.find()', 'Peg.replace()', and 'Peg.replaceAll()'.
  - New: Added 'Match.snippet()', 'Match.location()', and 'Match.findMatch()'.
+ - New: Added Start-of-Stream and Start-of-Line macro rules.
  - New: nTimes 'RepetitionRule' now has its own '{x}' syntax.
  - Chg: Allowed RuleRefs to be more independent with regards to labels and inclusion in match results. 
  - Chg: Added system hook that lets PegParseErrs be converted to custom Errs (added for AFX).
