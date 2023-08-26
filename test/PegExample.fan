@@ -1,16 +1,16 @@
 
 @Js
-class PegExample : Test, Rules {
+class PegExample : Test {
 	
 	Void testBasics() {
-		part	:= oneOrMore(charIn('0'..'9'))
-		int		:= part 								{ it.name = "int" }
-		real	:= sequence([part, str("."), part])		{ it.name = "real" }
-		number	:= firstOf([real, int])					{ it.name = "number" }
-		wspace	:= zeroOrMore(str(" "))
+		part	:= Rules.oneOrMore(Rules.charIn('0'..'9'))
+		int		:= part 										{ it.name = "int" }
+		real	:= Rules.sequence([part, Rules.str("."), part])	{ it.name = "real" }
+		number	:= Rules.firstOf([real, int])					{ it.name = "number" }
+		wspace	:= Rules.zeroOrMore(Rules.str(" "))
 
-		match	:= sequence([number, wspace])			{ it.name = "match" }
-		numbers	:= oneOrMore(sequence([number, wspace])){ it.name = "numbers" }
+		match	:= Rules.sequence([number, wspace])				{ it.name = "match" }
+		numbers	:= Rules.oneOrMore(Rules.sequence([number, wspace])){ it.name = "numbers" }
 
 		in		:= "75 33.23 11"
 		verifyEq(in, Peg(in, numbers).matched)
@@ -22,7 +22,7 @@ class PegExample : Test, Rules {
 	}
 
 	Void testSearch() {
-		peg		:= Peg("--a---bb----ccc-----dddd------eeeee--", oneOrMore(alphaChar))
+		peg		:= Peg("--a---bb----ccc-----dddd------eeeee--", Rules.oneOrMore(Rules.alphaChar))
 		verifyEq("a",		peg.find)
 		verifyEq("bb",		peg.find)
 		verifyEq("ccc",		peg.find)

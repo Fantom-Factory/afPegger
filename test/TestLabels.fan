@@ -1,5 +1,5 @@
 
-class TestLabels : Test, Rules {
+class TestLabels : Test {
 	
 	Void testNameIdentityCrisis() {
 		// test rules can't be given multiple names

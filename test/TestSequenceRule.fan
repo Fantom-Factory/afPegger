@@ -1,9 +1,9 @@
 
 @Js
-internal class TestSequenceRule : Test, Rules {
+internal class TestSequenceRule : Test {
 	
 	Void testSequence() {
-		parser	:= sequence([numChar, alphaChar, whitespaceChar])
+		parser	:= Rules.sequence([Rules.numChar, Rules.alphaChar, Rules.whitespaceChar])
 		verify     (parser.match("1a ")?.matched != null)
 		verifyEq   (parser.match("1a ")?.matched, "1a ")
 		

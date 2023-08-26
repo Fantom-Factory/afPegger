@@ -1,5 +1,5 @@
 
-class TestExamples : Test, Rules {
+class TestExamples : Test {
 	
 	Void testSimple() {
 		input := "<<<Hello Mum>>>"

@@ -1,9 +1,9 @@
 
 @Js
-internal class TestStrRules : Test, Rules {
+internal class TestStrRules : Test {
 
 	Void testStr() {
-		parser		:= str("ever")
+		parser		:= Rules.str("ever")
 		verify     (parser.match("ever")?.toStr != null)
 		verifyEq   (parser.match("ever")?.toStr, "ever")
 
@@ -13,7 +13,7 @@ internal class TestStrRules : Test, Rules {
 	}
 
 	Void testStrNot() {
-		parser		:= strNot("ever")
+		parser		:= Rules.strNot("ever")
 
 		verifyNull	(parser.match("ever"))
 		verifyNull	(parser.match(""))
