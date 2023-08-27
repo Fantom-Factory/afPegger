@@ -133,6 +133,8 @@ class Peg {
 	}
 	
 	** Searches for the next PEG match (optionally with the given label) and returns the matched string (if any).
+	** 
+	** Returns 'null' if there are no more matches.
 	Match? search(Int? offset := null) {
 		if (offset != null)
 			pegCtx.rollbackToPos(offset)
@@ -145,6 +147,19 @@ class Peg {
 		}
 		
 		return m
+	}
+	
+	** Returns all matches from the given offset.
+	Match[] searchAll(Int? offset := null) {
+		if (offset != null)
+			pegCtx.rollbackToPos(offset)
+
+		matches := Match[,]
+		match   := null as Match
+		while ((match = search) != null) {
+			matches.add(match)
+		}
+		return matches
 	}
 
 	** Returns 'true' if the string contains a PEG match.
@@ -178,7 +193,7 @@ class Peg {
 	** Performs a PEG match against the entire string.
 	** Returns 'true' if it matches.
 	** 
-	** See [contains()]`contatins` to *search* for a match instead.
+	** See [contains()]`contains` to *search* for a match instead.
 	Bool matches() {
 		match != null
 	}
