@@ -42,7 +42,7 @@ class Peg {
 		PegGrammar().parseRule(pattern)
 	}
 	
-	** Parses a list of grammar definitions.
+	** Parses a list of PEG grammar definitions.
 	** For example:
 	** 
 	**   syntax: fantom 

@@ -171,6 +171,12 @@ class TestPegGrammar : Test {
 		verifyDefs("a = [bc] [de]\n // comment",	"a <- [bc] [de]")		
 	}	
 	
+	Void testDupDefs() {
+		verifyErrMsg(Err#, "Definition already defined: a") {
+			PegGrammar().parseGrammar("a = . \na = .")
+		}
+	}
+	
 	private Void verifyRule(Str in, Str out := in) {
 		verifyEq(out, Peg.parseRule(in).expression)
 	}

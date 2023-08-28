@@ -67,6 +67,9 @@ class Grammar {
 			throw Err("Rule '${rule.name}' is already a definition")
 		if (rule.label != null && rule isnot RuleRef)
 			throw Err("Definitions can NOT have labels: ${name}:${rule.label}")
+		if (_rules.containsKey(name))
+			throw Err("Definition already defined: ${name}")
+		
 		rule.name = name
 		_rules[name] = rule
 		return rule
@@ -110,6 +113,8 @@ class Grammar {
 	}
 	
 	** Validates that all named rules have been defined. 
+	** 
+	** After validation, Grammars and their Rules should be thread safe - use 'Unsafe()' if required.
 	This validate() {
 		_proxies.vals.each { it.rule(true) }
 		// no need to warn of un-used rules - it may be irritating
