@@ -33,6 +33,10 @@ internal class PegCtx : RuleCtx {
 	
 	** Rolls back the underlying input stream to the given position. 
 	override Void rollbackToPos(Int newCur) {
+		if ((in.size - newCur) < 0 || newCur > in.size)
+			throw ArgErr("Bad offset value: ${newCur} - str.size = ${in.size}")
+		if (newCur < 0)
+			newCur = in.size - newCur
 		cur = newCur
 	}
 	

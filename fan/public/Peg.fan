@@ -89,7 +89,7 @@ class Peg {
 	** 
 	**   syntax: fantom
 	**   str := "(34) -> {12}"
-	**   pat := "foo:[0-9]+ [^0-9]+ bar:[0-9]+"
+	**   pat := "foo:[0-9]+ ' -> ' bar:[0-9]+"
 	**   peg := Peg(str, pat)
 	**   val := peg.replace(["foo":"\${bar}", "bar":"\${foo}"])
 	**       // --> (12) -> {34}
@@ -128,6 +128,32 @@ class Peg {
 		// process the actual replacements in reverse order
 		matches.eachr |m| {
 			doReplace(str, m, replacements)
+		}
+		return str.toStr
+	}
+	
+
+	// replaceAllFn() is similar different to searchAll().eachr |m| { str.replace(m.matchedRage, "sub") }
+	// except that replaceAllFn() also performs interpolation / substitution
+	** Calls the given fn on each match, that returns the replacements to be performed. 
+	** 
+	** 'replacements' is a map of label names to replacement values.
+	** 
+	** Use the label 'root' to replace the entire Match.
+	** 
+	** Use standard '${interpolation}' in values to reference other matched labels.
+	** Interpolation may be escaped with a backslash - '\${this is not interpolated}'.
+	** 
+	Str replaceAllFn(|Match -> Str:Str| fn) {
+		data := Obj[][,]
+		each |m| {
+			data.add([m, fn(m)])
+		}
+		
+		str := StrBuf(pegCtx.str.size).add(pegCtx.str)
+		// process the actual replacements in reverse order
+		data.eachr |d| {
+			doReplace(str, d[0], d[1])
 		}
 		return str.toStr
 	}
@@ -237,6 +263,13 @@ class Peg {
 				c++
 		}
 		return r
+	}
+	
+	** Moves the current position to the given offset; searching will start at this position.
+	** Negative values may be used to denote positions relative to the end of the string.
+	@NoDoc	// this shouldn't be needed, given the optional 'offset' params on the other methods
+	Void seek(Int offset) {
+		pegCtx.rollbackToPos(offset)
 	}
 	
 	private Regex interpolex := "[^\\\\]?\\\$\\{([^}]+)\\}".toRegex
