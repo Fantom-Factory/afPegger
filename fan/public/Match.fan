@@ -25,24 +25,36 @@ class Match {
 //		rule.label ?: rule.name
 //	}
 
-	** Returns 'true' if a there's a direct sub-match with the given rule name or label.
-	Bool contains(Str name) {
-		getMatch(name) != null
+	** Returns 'true' if a there's a direct sub-match with the given rule label or name.
+	Bool contains(Str label) {
+		getMatch(label) != null
 	}
 	
-	** Deeply searches for a labelled Match of the given name.
-	Match? findMatch(Str name) {
-		if (this.name == name)
+	** Deeply searches for a labelled Match of the given name at the given index.
+	** 
+	** Negative indexes can not be used.
+	Match? findMatch(Str label, Int index := 0) {
+		if (this.name == label)
 			return this
+
+		i := 0
 		return matches.eachWhile |match| {
-			match.findMatch(name)
+			gotOne := match.findMatch(label)
+			
+			// keep counting until we find the match at the given index 
+			if (gotOne != null && i++ < index)
+				gotOne = null
+
+			return gotOne
 		}
 	}
 	
-	** Returns the first direct sub-match with the given rule name (or label).
+	** Returns the direct sub-match with the given label (or rule name) at the given index.
+	** 
+	** Use negative index to access from the end of the list.
 	@Operator
-	Match? getMatch(Str name) {
-		result.findMatch(name, in)
+	Match? getMatch(Str label) {
+		result.getMatch(label, in)
 	}
 
 	** Returns the direct sub-match at the given index.
@@ -56,9 +68,9 @@ class Match {
 		matches.first
 	}
 
-	** Returns all direct sub-mataches.
-	Match[] matches() {
-		result.matches(in)
+	** Returns all direct sub-matches, optionally with the given label / name.
+	Match[] matches(Str? label := null) {
+		label == null ? result.matches(in) : result.getMatches(label, in)
 	}
 	
 	** Returns the matched string.
