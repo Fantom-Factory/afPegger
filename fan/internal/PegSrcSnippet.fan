@@ -18,8 +18,8 @@
 **     15:     <main>
 **     16:         {{{ content }}}
 ** <pre
-@Js
-internal const class SrcCodeSnippet {
+@Js @NoDoc	// Used by afFass to generate err snippets
+const class PegSrcSnippet {
 	
 	** A list of source code lines.
 	const Str[]	srcCode

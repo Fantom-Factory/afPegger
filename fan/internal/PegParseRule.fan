@@ -3,12 +3,12 @@
 ** As thrown by the Err Macro.
 @Js @NoDoc
 const class PegParseErr : ParseErr {
-	private const SrcCodeSnippet 	srcCode
-			const Int 				errLineNo
+	private const PegSrcSnippet srcCode
+			const Int 			errLineNo
 
-	internal new make(SrcCodeSnippet srcCode, Int errLineNo, Str errMsg) : super(errMsg) {
-		this.srcCode = srcCode
-		this.errLineNo = errLineNo
+	internal new make(PegSrcSnippet srcCode, Int errLineNo, Str errMsg) : super(errMsg) {
+		this.srcCode	= srcCode
+		this.errLineNo	= errLineNo
 	}
 
 	@NoDoc

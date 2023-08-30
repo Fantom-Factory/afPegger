@@ -64,7 +64,7 @@ class Grammar {
 	@Operator
 	Rule set(Str name, Rule rule) {
 		if (rule.name != null && rule isnot RuleRef)
-			throw Err("Rule '${rule.name}' is already a definition")
+			throw Err("Rule '${rule.name}' is already a definition (${rule.typeof})")
 		if (rule.label != null && rule isnot RuleRef)
 			throw Err("Definitions can NOT have labels: ${name}:${rule.label}")
 		if (_rules.containsKey(name))

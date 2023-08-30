@@ -117,7 +117,7 @@ internal class PegCtx : RuleCtx {
 
 	override PegParseErr parseErr(Str errMsg) {
 		lineNum := 0; in.chars.eachRange(0..<cur.min(in.size)) { if (it == '\n') lineNum++ }
-		srcCode := SrcCodeSnippet(in)
+		srcCode := PegSrcSnippet(in)
 		return PegParseErr(srcCode, lineNum + 1, errMsg)
 	}
 	
