@@ -42,7 +42,7 @@ internal class Result {
 	
 	Str matchedSnippet(Str in, Str? msg := null, Int? padding := null) {
 		lineNum := 1; in.chars.eachRange(0..<strStart.min(in.size)) { if (it == '\n') lineNum++ }
-		srcCode := SrcCodeSnippet(in)
+		srcCode := PegSrcSnippet(in)
 		return srcCode.srcCodeSnippet(lineNum, msg, padding ?: 3)
 	}
 	
@@ -51,6 +51,12 @@ internal class Result {
 		y := 1; in.chars.eachRange(0..<s) { if (it == '\n') y++ }
 		x := s+1; for (i := s; i > 0; --i) { if (in[i] == '\n') { x = s-i; break } }
 		return [x, y]
+	}
+	
+	Int matchedLineNum(Str in) {
+		s := strStart.min(in.size)
+		y := 1; in.chars.eachRange(0..<s) { if (it == '\n') y++ }
+		return y
 	}
 	
 	Match? getMatch(Str name, Str in) {

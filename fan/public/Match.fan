@@ -93,6 +93,12 @@ class Match {
 	Int[] location() {
 		result.matchedLocation(in)
 	}
+	
+	** Returns the line number of this match in the input string.
+	** Number is one-based. 
+	Int lineNum() {
+		result.matchedLineNum(in)
+	}
 
 	** Returns the parent Match in the tree, or 'null' if this is the root.
 	Match? parent() {
