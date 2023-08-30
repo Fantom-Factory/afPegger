@@ -62,7 +62,7 @@ class TestExamples : Test {
 			}
 		})
 		
-		echo("result: $result")
+//		echo("result: $result")
 		
 		verifyEq(result, 103)
 	}

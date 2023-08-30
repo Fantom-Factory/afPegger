@@ -25,9 +25,19 @@ internal class StrRule : Rule {
 		while (hasUnicode) {
 			matcher := unicodeRegex.matcher(sClass)
 			if (hasUnicode = matcher.find) {
-				hex := sClass[matcher.start(1)+2..<matcher.end(1)]
+
+				// matcher.start() and matcher.end() are unsupported in JS for groups > 0
+//				m_s := matcher.start(1)
+//				m_e := matcher.end(1)
+
+				// so adjust our logic a little to just use group 0
+				m_s := matcher.start(0)
+				m_e := matcher.end(0)
+				if (sClass[m_s] != '\\') m_s++ 
+
+				hex := sClass[m_s+2..<m_e]
 				chr := Int.fromStr(hex, 16).toChar
-				sClass = StrBuf(sClass.size).add(sClass).replaceRange(matcher.start(1)..<matcher.end(1), chr).toStr
+				sClass = StrBuf(sClass.size).add(sClass).replaceRange(m_s..<m_e, chr).toStr
 			}
 		}
 

@@ -79,7 +79,6 @@ class TestLabels : Test {
 			 -c  = [x]+"
 		)
 		match	:= grammar.firstRule.match("@xxx")
-		match.dump
 		
 		// RuleRefs.useInResult was *always* from ref rule
 		verifyEq(match.getMatch("b")?.matched, "xxx")

@@ -43,10 +43,15 @@ class PegExample : Test {
 	
 	Void testFilter() {
 		peg := Peg("foo bar \"meh wotever\" ", """ ('"' a:[^"]+ '"') / a:[^ ]+ """)
-		mat := null as Match
 		val := Str[,]
-		while ((mat = peg.search) != null)
+		
+		// code could be more concise, but breaks JS
+		// see https://fantom.org/forum/topic/2445
+		mat := peg.search
+		while (mat != null) {
 			val.add(mat["a"].matched)
+			mat = peg.search
+		}
 
 		verifyEq(val, ["foo", "bar", "meh wotever"])
 	}

@@ -41,15 +41,20 @@ internal class TestStrRules : Test {
 	}
 	
 	Void testUnicode() {
-		rule := StrRule.fromStr("\"--\\u003D--\"")
-		verifyEq(rule.expression, ("\"--=--\""))
+		rule := StrRule.fromStr("\"--\\u003D--\"")	// \u003D is '='
+		verifyEq(rule.expression, ("\"--=--\""))	// check 0x3D was converted to a char
 		verifyEq(rule.match("--\u003D--").matched, "--=--")
-		verifyEq(rule.match("--=--").matched, "--=--")
+		verifyEq(rule.match("--=--"		).matched, "--=--")
 		
-		rule = Peg.parseRule("\"--\\u003D--\"")
-		verifyEq(rule.expression, ("\"--=--\""))
-		verifyEq(rule.match("--\u003D--").matched, "--=--")
-		verifyEq(rule.match("--=--").matched, "--=--")
+		rule = Peg.parseRule("\"------\\u003D--\"")	// test escape parsing
+		verifyEq(rule.expression, ("\"------=--\""))
+		verifyEq(rule.match("------\u003D--").matched, "------=--")
+		verifyEq(rule.match("------=--"		).matched, "------=--")
+
+		rule = Peg.parseRule("\"-\\u003D--\"")
+		verifyEq(rule.expression, ("\"-=--\""))
+		verifyEq(rule.match("-\u003D--").matched, "-=--")
+		verifyEq(rule.match("-=--"		).matched, "-=--")
 
 		// test escaping the escape
 		rule = StrRule.fromStr("\"--\\\\u003D--\"")
