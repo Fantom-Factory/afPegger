@@ -6,8 +6,8 @@ v1.1.8 [#v1.1.8]
 ======
  - New: Added 'Peg.find()', 'Peg.replace()', 'Peg.replaceAll()', 'Peg.replaceAllFn()', and 'Peg.searchAll()'.
  - New: Added 'Match.snippet()', 'Match.location()', 'Match.lineNum()', and 'Match.findMatch()'.
- - New: Added Start-of-Stream and Start-of-Line macro rules.
- - New: Added Pass and Fail macro rules.
+ - New: Added Start-of-Stream '\sos' and Start-of-Line '\sol' macro rules.
+ - New: Added '\pass' and '\fail' macro rules.
  - New: nTimes 'RepetitionRule' now has its own '{x}' syntax.
  - New: Pegger now runs in Javascript!
  - Chg: '\eol' macro no longer matches characters - **breaking change!**.

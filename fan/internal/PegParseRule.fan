@@ -34,7 +34,7 @@ const class PegParseErr : ParseErr {
 	}
 	
 	@NoDoc
-	Str toSnippetStr() {
-		srcCode.srcCodeSnippet(errLineNo, msg, 3)
+	Str toSnippetStr(Str? msg := null) {
+		srcCode.srcCodeSnippet(errLineNo, msg ?: this.msg, 3)
 	}
 }

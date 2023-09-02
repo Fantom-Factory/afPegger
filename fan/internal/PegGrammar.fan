@@ -17,8 +17,8 @@ internal class PegGrammar : Rules {
 		predicate				:= rules["predicate"]
 		multiplicity			:= rules["multiplicity"]
 		literal					:= rules["literal"]
-		singleQuote				:= rules["singleQuote"].excludeFromResults
-		doubleQuote				:= rules["doubleQuote"].excludeFromResults
+		singleQuote				:= rules["singleQuote"]	.excludeFromResults
+		doubleQuote				:= rules["doubleQuote"]	.excludeFromResults
 		chars					:= rules["chars"]
 		macro					:= rules["macro"]
 		unicode					:= rules["unicode"]

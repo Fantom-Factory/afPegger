@@ -4,9 +4,15 @@ Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough
 
 Pegger is a [Parsing Expression Grammar (PEG)]`http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf` implementation. It lets you create text parsers by building up a tree of simple matching [rules]`Rules`.
 
-Advanced parsing options let you *look ahead* with predicates and the returned tree of match results gives you plenty of options for transforming it into useful data.
+Advanced parsing options let you *look ahead* with predicates, and throw errors to fail fast.
 
-Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf`, [Parboiled]`https://github.com/sirthias/parboiled/wiki`, and [nim pegs]`https://nim-lang.org/docs/pegs.html`.
+Pegger has been used (by Fantom Factory) to parse HTML, CSS, Markdown, and ANBF - to name but a few. The general strategy is usually:
+ 1. Create a structure of Fantom data classes
+ 1. Create a grammar to parse text documents into a node tree
+ 2. Trim the tree by removing labels and branches, so the tree resembles the structure of the Fantom classes
+ 3. Walk the tree, recursively creating corresponding data classes
+
+Pegger was inspired by [Mouse]`http://www.romanredz.se/papers/CSP2009.Mouse.pdf`, [Parboiled]`https://github.com/sirthias/parboiled/wiki` for Java, and [pegs]`https://nim-lang.org/docs/pegs.html` for NIM.
 
 
 
@@ -52,7 +58,7 @@ rule := sequence {
 }
 <pre
 
-The Fantom code can be a lot simplier to read and understand, but is also a lot more verbose.
+The Fantom code can be a lot simpler to read and understand, but is also a lot more verbose.
 
 Once you run a match, the result is a tree. Use 'Match.dump()' to see it:
 
@@ -72,14 +78,14 @@ match.dump
 
 <pre
 
-Okay, so that's not much of a tree. To create a tree, we need to give parts of our rule a label, or a name:
+Okay, so that single line starting with 'root' is not much of a tree. To create a tree, we need to give parts of our rule a label:
 
 pre>
 syntax: fantom
 rule := sequence {
-    oneOrMore(char('<'))                       .withName("start"),
-    oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
-    oneOrMore(char('>'))                       .withName("end"),
+    oneOrMore(char('<'))                       .withLabel("start"),
+    oneOrMore(firstOf { alphaChar, spaceChar }).withLabel("name"),
+    oneOrMore(char('>'))                       .withLabel("end"),
 }
 <pre
 
@@ -99,7 +105,7 @@ root
  └─ end : ">>>"
 <pre
 
-Each part of the match may be retreived using the 'Match.get()' operator:
+Each part of the match may be retrieved using the 'Match.get()' operator:
 
 pre>
 syntax: fantom
@@ -150,7 +156,7 @@ match      := grammar["root"].match(input).dump
 //  └─ end : ">>>"
 <pre
 
-Once a grammar (or rule) has been parsed, it may be cached for future re-use.
+Once a grammar (or rule) has been parsed and validated, it may be cached for future re-use.
 
 Rules may be omitted from the result tree by prefixing the definitions with a '-':
 
@@ -175,7 +181,7 @@ Pegger is primarily concerned with parsing displayable 7-bit ASCII characters, b
 
 
 Rule definitions [#ruleDefinitions]
-----
+----------------
 A rule is defined with a name followed by '='. The more formal definition of '<-' may be used in place of '='.
 
   ruleDef1  = rule
@@ -195,14 +201,14 @@ Rules may have both a '-' prefix and suffix: '-ruleDef- = rule'
 
 
 Sequence [#sequence]
-----
+--------
 Ordered sequences of rules are expressed by separating them with a space.
 
   ruleDef = rule1 rule2 rule3
 
 
 Choice / First of [#choice]
-----
+------
 When given a choices, Pegger will match the *first* rule that passes. **Beware:** order of choices *can* be important.
 
   ruleDef = rule1 / rule2 / rule3
@@ -215,8 +221,8 @@ Choice rules have a higher operator precedence than Sequence rules, but it is be
   ruleDef = (rule1 rule2) / (rule3 rule4)
 
 
-Repetition [#repitition]
-----
+Repetition [#repetition]
+----------
 Rules may be specified to be matched by different amounts.
 
   rule1?      // optional
@@ -229,7 +235,7 @@ Rules may be specified to be matched by different amounts.
 
 
 Literal [#literal]
-----
+-------
 Literal strings may be matched with either single or double quotes.
 
   ruleDef1 = "literal 1"
@@ -243,7 +249,7 @@ Use an 'i' suffix to indicate the match should be case-insensitive.
 
 
 Character class [#character]
-----
+---------------
 Individual characters, and ranges thereof, may be matched with a regex-esque character class.
 
   ruleDef1 = [a]        // matches a
@@ -259,14 +265,14 @@ The hat '^' character will match any character BUT the chosen ones.
 
 
 Any character [#any]
-----
+-------------
 Use '.' to match *any* character.
 
   ruleDef = . . .       // matches any 3 characters
 
 
 Predicates [#predicate]
-----
+----------
 Use the ampersand '&' to look ahead for a match, but NOT consume any characters.
 
   ruleDef = "something " &"good" .
@@ -275,9 +281,11 @@ Use exclamation '!' to look ahead for a negative match, but again, NOT consume a
 
   ruleDef = "something " !"bad" .
 
+As per the example above, predicates should always be used in conjunction with a *character consuming* rule. 
+
 
 Unicode [#unicode]
-----
+-------
 Use '\uXXXX' (hexadecimal) notation to match a 16-bit unicode character.
 May be used in string literals and character classes.
 
@@ -287,7 +295,7 @@ Unicode escapes MUST contain exactly 4 hex digits; 4 to ease parsing and to matc
 
 
 Macros [#macros]
-----
+------
 Pegger introduces macros for useful extensions. These may be used individually as rules.
 
 pre>
@@ -296,8 +304,8 @@ name        function
 ----------  ---------------------------------
 \sos        Matches Start-Of-Stream (or Start-Of-String!?) - does not consume chars
 \eos        Matches End-Of-Stream   (or End-Of-String!?)   - does not consume chars
-\eol        Matches Start-Of-Line   (or sos)               - does not consume chars
-\sol        Matches End-Of-Line     (or eos)               - does not consume chars
+\eol        Matches Start-Of-Line   (also matches \sos)    - does not consume chars
+\sol        Matches End-Of-Line     (also matches \eos)    - does not consume chars
 
 \lower      Matches a lowercase character in the current locale
 \upper      Matches an uppercase character in the current locale
@@ -310,7 +318,7 @@ name        function
 
 
 Comments [#comments]
-----
+--------
 Hash '#' comments are allowed in grammar, as are double slash '//' comments.
 
   #  Hash comments are allowed in grammar
@@ -331,30 +339,31 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 PEG grammar:
 
 pre>
-grammar      <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
-ruleDef      <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
-ruleName     <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
-rule         <- firstOf / \err(FAIL-2)
-firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
-sequence     <- expression (cwsp* expression)*
-expression   <- predicate? (label ":")? type multiplicity?
-label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-type         <- group / ruleName / literal / chars / macro / dot
--group       <- "(" cwsp* rule cwsp* ")"
-predicate    <- "!" / "&"
-multiplicity <- "*" / "+" / "?" / ("{" min:[0-9]* "," max:[0-9]* "}")
-literal      <- singleQuote / doubleQuote
--singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
--doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
-chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
-macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
-dot          <- "."
-commentLine  <- sp* (\eol / comment)
-comment-     <- ("#" / "//") (!\eos [^\n])* \eol
--cwsp-       <- sp / (!\eos cnl (sp / &("#" / "//")))
--cnl-        <- \eol / comment
--sp-         <- [ \t]
+grammar       <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
+ruleDef       <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
+ruleName      <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
+rule          <- firstOf / \err(FAIL)
+firstOf       <- sequence (cwsp* "/" cwsp* sequence)*
+sequence      <- expression (cwsp* expression)*
+expression    <- predicate? (label ":")? type multiplicity?
+label         <- [a-zA-Z] [a-zA-Z0-9_\-]*
+type          <- group / ruleName / literal / chars / macro / dot
+-group        <- "(" cwsp* rule cwsp* ")"
+predicate     <- "!" / "&"
+multiplicity  <- "*" / "+" / "?" / ("{" min:[0-9]* (com:"," max:[0-9]*)? "}")
+literal       <- singleQuote / doubleQuote
+-singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+-doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+chars         <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
+macro         <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+unicode       <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
+dot           <- "."
+-commentLine- <- sp* (nl / comment)
+-comment-     <- ("#" / "//") (!\eos [^\n])* nl
+-cwsp-        <- sp / (!\eos cnl (sp / &("#" / "//")))
+-cnl-         <- nl / comment
+-sp-          <- [ \t]
+-nl-          <- \eos / "\n"
 <pre
 
 
@@ -417,7 +426,7 @@ Parsing has never been easier!
 
 *Note that only **Chuck Norris** can parse HTML with regular expressions.*
 
-Converting the match results into XML is left as an excerise for the user, but there are a couple of options open to you:
+Converting the match results into XML is left as an exercise for the user, but there are a couple of options open to you:
 
 
 
@@ -453,7 +462,7 @@ There (currently) is no support for introducing custom rules in PEG grammar, so 
 
 Debugging [#debugging]
 *********
-By enabling debug logging, 'Pegger' will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!)
+By enabling debug logging, 'Pegger' will spew out a *lot* of debug / trace information. (Possibly more than you can handle!)
 But note it will only emit debug information for rules with names or labels.
 
 Enable debug logging with the line:
@@ -499,4 +508,3 @@ Design notes [#designNotes]
 Pegger was purposefully designed to match strings or more specifically, **Unicode character data** (of variable byte length dependant on encoding) - **not binary data**. Hence it lacks notation to match bytes and byte ranges as seen in some RFC documents.
 
 If required, hexadecimal Unicode escape sequences ( '\uXXXX' ) may be used to represent 8-bit binary data.
-

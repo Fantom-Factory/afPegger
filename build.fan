@@ -15,7 +15,6 @@ class Build : BuildPod {
 			// ---- SkySpark ----
 			"ext.name"		: "afPegger",
 			"ext.icon"		: "afPegger",
-//			"ext.depends"	: "",
 			"skyarc.icons"	: "true",
         ]
 
@@ -26,5 +25,11 @@ class Build : BuildPod {
 
         srcDirs = [`fan/`, `fan/internal/`, `fan/internal/rules/`, `fan/public/`, `test/`]
         resDirs = [`doc/`, `svg/`]
+		
+		docApi  = true
+		docSrc  = true
+		
+		meta["afBuild.docApi"]	= "true"
+		meta["afBuild.docSrc"]	= "true"
     }
 }

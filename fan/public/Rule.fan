@@ -18,7 +18,7 @@ abstract class Rule {
 		PegGrammar().parseRule(pattern)
 	}
 
-	** The name of this rule definition.
+	** The name of this rule, as defined by grammar.
 	** 
 	**   name <- foobar foobar
 	** 
