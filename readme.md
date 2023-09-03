@@ -1,8 +1,8 @@
-# Pegger v1.1.6
+# Pegger v1.1.8
 ---
 
 [![Written in: Fantom](http://img.shields.io/badge/written%20in-Fantom-lightgray.svg)](https://fantom-lang.org/)
-[![pod: v1.1.6](http://img.shields.io/badge/pod-v1.1.6-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
+[![pod: v1.1.8](http://img.shields.io/badge/pod-v1.1.8-yellow.svg)](http://eggbox.fantomfactory.org/pods/afPegger)
 [![Licence: ISC](http://img.shields.io/badge/licence-ISC-blue.svg)](https://choosealicense.com/licenses/isc/)
 
 ## <a name="overview"></a>Overview
@@ -11,9 +11,17 @@ Parsing Expression Grammar (PEG) for when Regular Expressions just aren't enough
 
 Pegger is a [Parsing Expression Grammar (PEG)](http://pdos.csail.mit.edu/~baford/packrat/popl04/peg-popl04.pdf) implementation. It lets you create text parsers by building up a tree of simple matching [rules](http://eggbox.fantomfactory.org/pods/afPegger/api/Rules).
 
-Advanced parsing options let you *look ahead* with predicates and the returned tree of match results gives you plenty of options for transforming it into useful data.
+Advanced parsing options let you *look ahead* with predicates, and throw errors to fail fast.
 
-Pegger was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf), [Parboiled](https://github.com/sirthias/parboiled/wiki), and [nim pegs](https://nim-lang.org/docs/pegs.html).
+Pegger has been used (by Fantom Factory) to parse HTML, CSS, Markdown, and ANBF - to name but a few. The general strategy is usually:
+
+1. Create a structure of Fantom data classes
+2. Create a grammar to parse text documents into a node tree
+3. Trim the tree by removing labels and branches, so the tree resembles the structure of the Fantom classes
+4. Walk the tree, recursively creating corresponding data classes
+
+
+Pegger was inspired by [Mouse](http://www.romanredz.se/papers/CSP2009.Mouse.pdf), [Parboiled](https://github.com/sirthias/parboiled/wiki) for Java, and [pegs](https://nim-lang.org/docs/pegs.html) for NIM.
 
 ## <a name="Install"></a>Install
 
@@ -67,7 +75,7 @@ Pegger attempts to match a `rule` against a given string. In the example the str
     }
     
 
-The Fantom code can be a lot simplier to read and understand, but is also a lot more verbose.
+The Fantom code can be a lot simpler to read and understand, but is also a lot more verbose.
 
 Once you run a match, the result is a tree. Use `Match.dump()` to see it:
 
@@ -85,12 +93,12 @@ Once you run a match, the result is a tree. Use `Match.dump()` to see it:
     
     
 
-Okay, so that's not much of a tree. To create a tree, we need to give parts of our rule a label, or a name:
+Okay, so that single line starting with `root` is not much of a tree. To create a tree, we need to give parts of our rule a label:
 
     rule := sequence {
-        oneOrMore(char('<'))                       .withName("start"),
-        oneOrMore(firstOf { alphaChar, spaceChar }).withName("name"),
-        oneOrMore(char('>'))                       .withName("end"),
+        oneOrMore(char('<'))                       .withLabel("start"),
+        oneOrMore(firstOf { alphaChar, spaceChar }).withLabel("name"),
+        oneOrMore(char('>'))                       .withLabel("end"),
     }
     
 
@@ -108,7 +116,7 @@ We can do the same in PEG notation by using a `label:` prefix:
      └─ end : ">>>"
     
 
-Each part of the match may be retreived using the `Match.get()` operator:
+Each part of the match may be retrieved using the `Match.get()` operator:
 
     match["start"].toStr  // -> "<<<"
     match["name"].toStr   // -> "Hello Mum"
@@ -149,7 +157,7 @@ When run, the same result is given:
     //  └─ end : ">>>"
     
 
-Once a grammar (or rule) has been parsed, it may be cached for future re-use.
+Once a grammar (or rule) has been parsed and validated, it may be cached for future re-use.
 
 Rules may be omitted from the result tree by prefixing the definitions with a `-`:
 
@@ -205,13 +213,14 @@ Choice rules have a higher operator precedence than Sequence rules, but it is be
 
     ruleDef = (rule1 rule2) / (rule3 rule4)
 
-#### <a name="repitition"></a>Repetition
+#### <a name="repetition"></a>Repetition
 
 Rules may be specified to be matched by different amounts.
 
     rule1?      // optional
     rule1+      // one or more
     rule1*      // zero or more
+    rule1{4}    // exactly 4
     rule1{2,6}  // between 2 and 6 (inclusive)
     rule1{,5}   // at most 5 - same as {0,5}
     rule1{3,}   // at least 3
@@ -260,11 +269,15 @@ Use exclamation `!` to look ahead for a negative match, but again, NOT consume a
 
     ruleDef = "something " !"bad" .
 
+As per the example above, predicates should always be used in conjunction with a *character consuming* rule.
+
 #### <a name="unicode"></a>Unicode
 
 Use `\uXXXX` (hexadecimal) notation to match a 16-bit unicode character. May be used in string literals and character classes.
 
     crlf = [\u000D] "\u000A"
+
+Unicode escapes MUST contain exactly 4 hex digits; 4 to ease parsing and to match Java string characters which are 16 bits.
 
 #### <a name="macros"></a>Macros
 
@@ -273,13 +286,18 @@ Pegger introduces macros for useful extensions. These may be used individually a
     table:
     name        function
     ----------  ---------------------------------
-    \eos        Matches End-Of-Stream (or End-Of-String!?)
-    \eol        Matches End-Of-Line - either a new-line char or EOS
+    \sos        Matches Start-Of-Stream (or Start-Of-String!?) - does not consume chars
+    \eos        Matches End-Of-Stream   (or End-Of-String!?)   - does not consume chars
+    \eol        Matches Start-Of-Line   (also matches \sos)    - does not consume chars
+    \sol        Matches End-Of-Line     (also matches \eos)    - does not consume chars
+    
     \lower      Matches a lowercase character in the current locale
     \upper      Matches an uppercase character in the current locale
     \alpha      Matches a character in the current locale
-    \err(xxx)   Throws a parse error when processed
-    \noop(xxx)  No-Operation, does nothing, but prints the message to the console when run
+    
+    \pass       Always passes the Match
+    \fail       Always fails the Match
+    \err(xxx)   Throws a PegParseErr with msg 'xxx' when processed
     
 
 #### <a name="comments"></a>Comments
@@ -301,30 +319,31 @@ Interestingly, PEG grammar may itself be expressed as PEG grammar. And indeed, P
 
 PEG grammar:
 
-    grammar      <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
-    ruleDef      <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
-    ruleName     <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
-    rule         <- firstOf / \err(FAIL-2)
-    firstOf      <- sequence (cwsp* "/" cwsp* sequence)*
-    sequence     <- expression (cwsp* expression)*
-    expression   <- predicate? (label ":")? type multiplicity?
-    label        <- [a-zA-Z] [a-zA-Z0-9_\-]*
-    type         <- group / ruleName / literal / chars / macro / dot
-    -group       <- "(" cwsp* rule cwsp* ")"
-    predicate    <- "!" / "&"
-    multiplicity <- "*" / "+" / "?" / ("{" min:[0-9]* "," max:[0-9]* "}")
-    literal      <- singleQuote / doubleQuote
-    -singleQuote <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
-    -doubleQuote <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
-    chars        <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
-    macro        <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
-    unicode      <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
-    dot          <- "."
-    commentLine  <- sp* (\eol / comment)
-    comment-     <- ("#" / "//") (!\eos [^\n])* \eol
-    -cwsp-       <- sp / (!\eos cnl (sp / &("#" / "//")))
-    -cnl-        <- \eol / comment
-    -sp-         <- [ \t]
+    grammar       <- (!\eos (commentLine / ruleDef / \err(FAIL)))+
+    ruleDef       <- exclude:"-"? ruleName debugOff:"-"? cwsp* ("=" / "<-") cwsp* rule commentLine?
+    ruleName      <- [a-zA-Z] (("-" [a-zA-Z0-9_]) / [a-zA-Z0-9_])*
+    rule          <- firstOf / \err(FAIL)
+    firstOf       <- sequence (cwsp* "/" cwsp* sequence)*
+    sequence      <- expression (cwsp* expression)*
+    expression    <- predicate? (label ":")? type multiplicity?
+    label         <- [a-zA-Z] [a-zA-Z0-9_\-]*
+    type          <- group / ruleName / literal / chars / macro / dot
+    -group        <- "(" cwsp* rule cwsp* ")"
+    predicate     <- "!" / "&"
+    multiplicity  <- "*" / "+" / "?" / ("{" min:[0-9]* (com:"," max:[0-9]*)? "}")
+    literal       <- singleQuote / doubleQuote
+    -singleQuote  <- "'" (unicode / ("\\" .) / [^'])+ "'" "i"?
+    -doubleQuote  <- "\"" (unicode / ("\\" .) / [^"])+ "\"" "i"?
+    chars         <- "[" (unicode / ("\\" .) / [^\]])+ "]" "i"?
+    macro         <- "\\" [a-zA-Z]+ ("(" [^)\n]* ")")?
+    unicode       <- "\\" "u" [0-9A-F]i [0-9A-F]i [0-9A-F]i [0-9A-F]i
+    dot           <- "."
+    -commentLine- <- sp* (nl / comment)
+    -comment-     <- ("#" / "//") (!\eos [^\n])* nl
+    -cwsp-        <- sp / (!\eos cnl (sp / &("#" / "//")))
+    -cnl-         <- nl / comment
+    -sp-          <- [ \t]
+    -nl-          <- \eos / "\n"
     
 
 ## <a name="recursive"></a>Recursive / HTML Parsing
@@ -381,7 +400,7 @@ Parsing has never been easier!
 
 *Note that only **Chuck Norris** can parse HTML with regular expressions.*
 
-Converting the match results into XML is left as an excerise for the user, but there are a couple of options open to you:
+Converting the match results into XML is left as an exercise for the user, but there are a couple of options open to you:
 
 ### <a name="looping"></a>1. Looping
 
@@ -408,7 +427,7 @@ There (currently) is no support for introducing custom rules in PEG grammar, so 
 
 ## <a name="debugging"></a>Debugging
 
-By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possiblly more than you can handle!) But note it will only emit debug information for rules with names or labels.
+By enabling debug logging, `Pegger` will spew out a *lot* of debug / trace information. (Possibly more than you can handle!) But note it will only emit debug information for rules with names or labels.
 
 Enable debug logging with the line:
 
