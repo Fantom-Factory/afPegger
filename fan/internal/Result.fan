@@ -3,6 +3,7 @@
 internal class Result {
 			Rule 		rule	{ private set }
 			Result?		parent
+			Obj?		meta
 	private Result[]?	resultList
 	private Int			strStart
 	private Int			strEnd

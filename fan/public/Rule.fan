@@ -64,6 +64,7 @@ abstract class Rule {
 	virtual Bool useInResult	:= true
 
 	** Override to implement Rule logic.
+	** Should NOT be called by user.
 	@NoDoc
 	abstract Bool doProcess(RuleCtx ctx)
 	

@@ -8,6 +8,7 @@ internal class PegCtx : RuleCtx {
 	private		Str				in
 	private		Rule			rootRule
 	private		Result[]		resultStack
+	private		Obj?			meta
 	private		Result			rootResult	{ private set }
 	 			Int				cur			{ private set }
 	
@@ -54,8 +55,13 @@ internal class PegCtx : RuleCtx {
 		}
 		
 		try {
+			this.meta = null
 			passed := rule.doProcess(this)
 			result.end(this)
+			result.meta = this.meta
+			
+			// do NOT null out the meta straight away - let the caller have access to it
+//			this.meta = null
 
 			if (passed) {
 				if (logger.isDebug) {
@@ -90,10 +96,21 @@ internal class PegCtx : RuleCtx {
 	override Int readChar() {
 		in.getSafe(cur++)
 	}
-	
+
+	override Str? readStr(Int size) {
+		str := peekStr(size)
+		cur += (str?.size ?: 0)
+		return str
+	}
+
 	override Int? peekChar(Int offset := 0) {
 		peek := in.getSafe(cur + offset)
 		return peek == 0 ? null : peek
+	}
+
+	override Str? peekStr(Int size) {
+		try	  return in.getRange(cur..<cur+size)
+		catch return null
 	}
 	
 	** Logs the given message to debug. It is formatted to be the same as the other Pegger debug messages. 
@@ -111,16 +128,24 @@ internal class PegCtx : RuleCtx {
 	
 	override Str str() { in }
 
-	Match doSuccess() {
-		rootResult.match(null, in)
-	}
-
 	override PegParseErr parseErr(Str errMsg) {
 		lineNum := 0; in.chars.eachRange(0..<cur.min(in.size)) { if (it == '\n') lineNum++ }
 		srcCode := PegSrcSnippet(in)
 		return PegParseErr(srcCode, lineNum + 1, errMsg)
 	}
 	
+	override Obj? getMeta() {
+		this.meta
+	}
+	
+	override Void setMeta(Obj? meta) {
+		this.meta = meta
+	}
+	
+	Match doSuccess() {
+		rootResult.match(null, in)
+	}
+
 	private Void _log(Result result, Str msg) {
 		if (doLog) {
 			depth := resultStack.size

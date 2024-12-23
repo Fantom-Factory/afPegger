@@ -123,6 +123,11 @@ class Match {
 		doDump(buf, Bool[,])
 		return buf.toStr
 	}
+	
+	** Returns any user-defined meta set by the matching Rule.
+	Obj? meta() {
+		result.meta
+	}
 
 	// Meh - I don't actually like this - and it's often easier to just itr over the matches yourself
 //	** Walks the match tree, calling the given funcs as it steps in to, and out of, a 'Match'.
